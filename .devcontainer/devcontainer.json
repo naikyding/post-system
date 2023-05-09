@@ -24,7 +24,10 @@
           "source.fixAll.stylelint": true
         },
         // 函式滾動貼頂
-        "editor.stickyScroll.enabled": true
+        "editor.stickyScroll.enabled": true,
+
+        // 拼字套件，忽略指定資料夾
+        "cSpell.ignorePaths": ["**/.devcontainer/devcontainer.json"]
       },
       "extensions": [
         // format
