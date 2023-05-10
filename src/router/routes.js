@@ -1,4 +1,6 @@
 import HomeView from '../views/HomeView.vue'
+import PostView from '../views/PostView.vue'
+import ListStatus from '../views/ListStatus.vue'
 
 const routes = [
   {
@@ -9,12 +11,12 @@ const routes = [
   {
     path: '/post',
     name: 'post',
-    component: () => import('../views/PostView.vue'),
+    component: PostView,
   },
   {
     path: '/list-status',
     name: 'list-status',
-    component: () => import('../views/ListStatus.vue'),
+    component: ListStatus,
   },
   {
     path: '/about',
