@@ -47,14 +47,20 @@ function sidebarClose() {
         <v-divider></v-divider>
 
         <v-list density="compact" nav>
+          <!-- 首頁 -->
           <v-list-item to="/" prepend-icon="mdi-home" title="Home" value="home"></v-list-item>
-          <v-list-item to="/post" prepend-icon="mdi-food" title="Order" value="order"></v-list-item>
-          <v-list-item
-            to="/list-status"
-            prepend-icon="mdi-list-status"
-            title="List"
-            value="list"
-          ></v-list-item>
+          <!-- 點餐 -->
+          <v-list-item to="/post" prepend-icon="mdi-food" title="Order" value="order">
+          </v-list-item>
+          <!-- 訂單狀態 -->
+          <v-list-item to="/list-status" title="List" value="list">
+            <!-- 圖示 -->
+            <template v-slot:prepend>
+              <v-badge offset-x="-5" offset-y="-8" color="red" content="N" class="mr-8">
+                <v-icon class="">mdi-list-status</v-icon>
+              </v-badge>
+            </template>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
       <v-main class="" style="height: 100dvh" @click="sidebarClose">
@@ -64,4 +70,4 @@ function sidebarClose() {
   </v-card>
 </template>
 
-<style lang="scss" scoped></style>
+<style scoped></style>
