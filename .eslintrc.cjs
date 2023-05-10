@@ -8,6 +8,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    // 忽略 eslint extends 規則與  prettier rules 衝突
     'prettier/prettier': 'off',
   },
 }
