@@ -23,6 +23,7 @@ function sidebarClose() {
   <v-card>
     <v-layout>
       <v-navigation-drawer
+        width="220"
         v-model="state.drawer"
         :rail="state.rail"
         permanent
@@ -45,7 +46,7 @@ function sidebarClose() {
 
         <v-divider></v-divider>
 
-        <v-list v-model="state.active" density="compact" nav>
+        <v-list density="compact" nav>
           <v-list-item to="/" prepend-icon="mdi-home" title="Home" value="home"></v-list-item>
           <v-list-item to="/post" prepend-icon="mdi-food" title="Order" value="order"></v-list-item>
           <v-list-item
