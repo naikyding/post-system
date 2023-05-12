@@ -139,10 +139,10 @@ onMounted(() => {
   </v-container>
 </template>
 
-<style scoped>
-.grid-container {
-  display: grid;
-  grid-template-columns: 5fr 5fr;
-  gap: 4px;
+<style lang="scss" scoped>
+table {
+  td:not(:last-child) {
+    color: lightblue;
+  }
 }
 </style>
