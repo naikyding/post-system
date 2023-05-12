@@ -93,7 +93,7 @@ onMounted(() => {
           <v-divider></v-divider>
 
           <!-- 數量 -->
-          <div class="order-total pa-4 pb-0 text-caption">
+          <div class="order-total px-4 py-2 pb-0 text-caption">
             <div class="d-flex">
               <span>數量</span>
               <v-spacer></v-spacer>
@@ -121,7 +121,7 @@ onMounted(() => {
               <span>{{ discount }}</span>
             </div>
 
-            <v-divider class="my-4"></v-divider>
+            <v-divider class="my-2"></v-divider>
 
             <!-- 總價 -->
             <div class="d-flex my-1 text-yellow-accent-4 text-h5">
