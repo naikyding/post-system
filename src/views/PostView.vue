@@ -93,7 +93,7 @@ onMounted(() => {
           <v-divider></v-divider>
 
           <!-- 數量 -->
-          <div class="order-total pa-4 pb-0">
+          <div class="order-total pa-4 pb-0 text-caption">
             <div class="d-flex">
               <span>數量</span>
               <v-spacer></v-spacer>
@@ -101,21 +101,21 @@ onMounted(() => {
             </div>
 
             <!-- 小計 -->
-            <div class="d-flex my-1">
+            <div class="d-flex">
               <span>小計</span>
               <v-spacer></v-spacer>
               <span>{{ subTotal }}</span>
             </div>
 
             <!-- 服務費 -->
-            <div class="d-flex my-1">
+            <div class="d-flex">
               <span>服務費</span>
               <v-spacer></v-spacer>
               <span>{{ service }}</span>
             </div>
 
             <!-- 優惠 -->
-            <div class="d-flex my-1">
+            <div class="d-flex">
               <span>優惠費</span>
               <v-spacer></v-spacer>
               <span>{{ discount }}</span>
