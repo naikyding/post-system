@@ -6,7 +6,7 @@ const orderItem = ref([])
 for (let i = 0; i < 20; i++) {
   orderItem.value.push({
     _id: i,
-    name: `itemitemitem-${i}`,
+    name: `國國國國國-${i}`,
     price: i * 100,
     quantity: 1,
     special: ['A', 'B', 'C'],
@@ -43,12 +43,22 @@ onMounted(() => {
       <!-- 點單項目 -->
       <v-col cols="6" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column">
         <!-- 操作 -->
-        <div class="operate-items grid-container px-2">
-          <v-btn block>〇</v-btn>
-          <v-btn block>ㄨ</v-btn>
-          <v-btn block>△</v-btn>
-          <v-btn block>□</v-btn>
-        </div>
+        <v-container class="py-0 px-2">
+          <v-row dense>
+            <v-col cols="12" sm="6">
+              <v-btn block>〇</v-btn>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-btn block>ㄨ</v-btn>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-btn block>△</v-btn>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-btn block>□</v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
 
         <v-divider class="mt-4"></v-divider>
         <div class="flex-grow-1 d-flex flex-column">
@@ -57,7 +67,7 @@ onMounted(() => {
             <v-table hover>
               <tbody>
                 <tr v-for="item in orderItem" :key="item.name" class="order-item">
-                  <td class="py-3">
+                  <td class="py-3 pr-0">
                     <div>
                       {{ item.name }}
                     </div>
@@ -72,8 +82,8 @@ onMounted(() => {
                       </span>
                     </div>
                   </td>
-                  <td class="text-right">{{ item.quantity }}</td>
-                  <td class="text-right">{{ item.price }}</td>
+                  <td class="text-right px-1">{{ item.quantity }}</td>
+                  <td class="text-right pl-1 pr-4">{{ item.price }}</td>
                 </tr>
               </tbody>
             </v-table>
