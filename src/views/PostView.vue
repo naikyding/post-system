@@ -1,7 +1,23 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
+import { useProductStore } from '../stores/product'
+const productStore = useProductStore()
+
 const orderItem = ref([])
+const tab = ref(null)
+const selectorDialog = ref(false)
+const selectorDialogContent = ref({
+  title: '--',
+  img: '--',
+  price: '--',
+  extras: [],
+})
+
+const selectedItem = ref({
+  item: {},
+  extras: [],
+})
 
 for (let i = 0; i < 20; i++) {
   orderItem.value.push({
@@ -13,6 +29,14 @@ for (let i = 0; i < 20; i++) {
   })
 }
 
+function selectorFlavors(itemData, extras) {
+  console.log(itemData, extras)
+  selectedItem.value.item = itemData
+
+  selectorDialogContent.value.extras = extras
+
+  selectorDialog.value = true
+}
 const subTotal = computed(() => orderItem.value.reduce((acc, cur) => (acc += cur.price), 0))
 const service = computed(() => 0)
 const discount = computed(() => 0)
@@ -51,16 +75,17 @@ onMounted(() => {
             <v-col cols="12" sm="6">
               <v-btn block>ㄨ</v-btn>
             </v-col>
-            <v-col cols="12" sm="6">
+            <!-- <v-col cols="12" sm="6">
               <v-btn block>△</v-btn>
             </v-col>
             <v-col cols="12" sm="6">
               <v-btn block>□</v-btn>
-            </v-col>
+            </v-col> -->
           </v-row>
         </v-container>
 
         <v-divider class="mt-4"></v-divider>
+
         <div class="flex-grow-1 d-flex flex-column">
           <!-- 點單項目 -->
           <div class="flex-grow-1 h-0 overflow-y-auto">
@@ -134,9 +159,88 @@ onMounted(() => {
       </v-col>
 
       <!-- 菜單 -->
-      <v-col cols="6" md="8" class="order-type bg-grey-darken-3"> </v-col>
+      <v-col cols="6" md="8" class="order-type bg-grey-darken-3 pa-0">
+        <v-tabs v-model="tab" bg-color="secondary" class="px-6">
+          <v-tab
+            v-for="(item, index) in productStore.tabsContent.tabs"
+            :key="item + index"
+            :value="index"
+          >
+            {{ item }}
+          </v-tab>
+        </v-tabs>
+
+        <v-card-text>
+          <v-window v-model="tab">
+            <v-window-item
+              v-for="(items, index) in productStore.tabsContent.content"
+              :key="items + index"
+              :value="index"
+            >
+              <v-container>
+                <v-row>
+                  <v-col
+                    v-for="(orderItem, index) in items"
+                    :key="orderItem + index"
+                    cols="4"
+                    class="pa-1"
+                  >
+                    <v-card
+                      @click="selectorFlavors(orderItem)"
+                      :title="orderItem.name"
+                      :text="orderItem.price + ''"
+                    ></v-card>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-window-item>
+          </v-window>
+        </v-card-text>
+      </v-col>
     </v-row>
   </v-container>
+
+  <!-- Dialog -->
+  <v-dialog v-model="selectorDialog" width="400">
+    <template v-slot:activator="{ props }">
+      <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
+    </template>
+
+    <v-card>
+      <v-card-title>{{ selectedItem.item.name }}</v-card-title>
+      <v-card-subtitle>口味說明@#$!#$%</v-card-subtitle>
+      <v-card-text>
+        <div>
+          <div v-for="extra in productStore.product.extras" :key="extra">
+            <p>
+              {{ extra.type }}
+            </p>
+            <v-checkbox
+              density="compact"
+              hide-details
+              v-for="extras in extra.items"
+              :key="extras"
+              v-model="selectedItem.extras"
+              :label="extras.name + ' +' + extras.price"
+              :value="extras"
+            >
+            </v-checkbox>
+          </div>
+
+          <!-- {{ productStore.product.extras }} -->
+        </div>
+
+        <div class="mt-4">數量:</div>
+
+        <div class="price text-h5 text-yellow-accent-4 text-right">
+          <span class="text-subtitle-1">NT$</span> {{ selectedItem.item.price }}
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="primary" block @click="selectorDialog = false">Close Dialog</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style lang="scss" scoped>
