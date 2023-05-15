@@ -4,43 +4,60 @@ import { ref, computed, onMounted } from 'vue'
 import { useProductStore } from '../stores/product'
 const productStore = useProductStore()
 
-const orderItem = ref([])
+const orderList = ref([])
 const tab = ref(null)
 const selectorDialog = ref(false)
-const selectorDialogContent = ref({
-  title: '--',
-  img: '--',
-  price: '--',
-  extras: [],
-})
-
-const selectedItem = ref({
-  item: {},
-  extras: [],
-})
-
-for (let i = 0; i < 20; i++) {
-  orderItem.value.push({
-    _id: i,
-    name: `國國國國國-${i}`,
-    price: i * 100,
-    quantity: 1,
-    special: ['A', 'B', 'C'],
-  })
-}
-
-function selectorFlavors(itemData, extras) {
-  console.log(itemData, extras)
-  selectedItem.value.item = itemData
-
-  selectorDialogContent.value.extras = extras
-
-  selectorDialog.value = true
-}
-const subTotal = computed(() => orderItem.value.reduce((acc, cur) => (acc += cur.price), 0))
+const subTotal = computed(() => orderList.value.reduce((acc, cur) => (acc += cur.price), 0))
 const service = computed(() => 0)
 const discount = computed(() => 0)
 const total = computed(() => subTotal.value + service.value + discount.value)
+const selectedItem = ref({
+  item: {},
+  extras: [],
+  quantity: 1,
+  price: computed(() => {
+    let extrasPriceTotal = 0
+    selectedItem.value.extras.forEach((item) => {
+      extrasPriceTotal += item.price
+    })
+    return (selectedItem.value.item.price + extrasPriceTotal) * selectedItem.value.quantity
+  }),
+})
+
+function addOrderItem(list, item) {
+  list.push({
+    item: item.item,
+    extras: item.extras,
+    price: item.price,
+    quantity: item.quantity,
+  })
+  closeSelectorDialog(item)
+}
+
+function resetSelectorForm(selectorForm) {
+  selectorForm.item = {}
+  selectorForm.extras = []
+  selectorForm.quantity = 1
+}
+
+function closeSelectorDialog(selectorForm) {
+  selectorDialog.value = false
+  resetSelectorForm(selectorForm)
+}
+
+function quantityPlus(selectedItem) {
+  if (selectedItem.quantity > 5) return false
+  selectedItem.quantity++
+}
+function quantityMinus(selectedItem) {
+  if (selectedItem.quantity <= 1) return false
+  selectedItem.quantity--
+}
+
+function selectorFlavors(itemData) {
+  selectedItem.value.item = itemData
+  selectorDialog.value = true
+}
 
 onMounted(() => {
   const orderItemEl = document.querySelectorAll('.order-item')
@@ -73,14 +90,8 @@ onMounted(() => {
               <v-btn block>〇</v-btn>
             </v-col>
             <v-col cols="12" sm="6">
-              <v-btn block>ㄨ</v-btn>
+              <v-btn block color="error" @click="orderList = []">清空</v-btn>
             </v-col>
-            <!-- <v-col cols="12" sm="6">
-              <v-btn block>△</v-btn>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-btn block>□</v-btn>
-            </v-col> -->
           </v-row>
         </v-container>
 
@@ -91,19 +102,15 @@ onMounted(() => {
           <div class="flex-grow-1 h-0 overflow-y-auto">
             <v-table hover>
               <tbody>
-                <tr v-for="item in orderItem" :key="item.name" class="order-item">
+                <tr v-for="item in orderList" :key="item.name" class="order-item">
                   <td class="py-3 pr-0">
                     <div>
-                      {{ item.name }}
+                      {{ item.item.name }}
                     </div>
                     <div class="special">
-                      <span
-                        class="text-caption"
-                        v-for="(specialItem, index) in item.special"
-                        :key="specialItem"
-                      >
-                        {{ specialItem }}
-                        <span v-if="index !== item.special.length - 1">/</span>
+                      <span class="text-caption" v-for="(extra, index) in item.extras" :key="extra">
+                        {{ extra.name }}
+                        <span v-if="index !== item.extras.length - 1">/</span>
                       </span>
                     </div>
                   </td>
@@ -112,7 +119,6 @@ onMounted(() => {
                 </tr>
               </tbody>
             </v-table>
-            <!-- <div v-for="item in orderItem" :key="item.id">{{ item.name }}</div> -->
           </div>
 
           <v-divider></v-divider>
@@ -122,7 +128,7 @@ onMounted(() => {
             <div class="d-flex">
               <span>數量</span>
               <v-spacer></v-spacer>
-              <span>{{ orderItem.length }}</span>
+              <span>{{ orderList.length }}</span>
             </div>
 
             <!-- 小計 -->
@@ -211,10 +217,17 @@ onMounted(() => {
       <v-card-subtitle>口味說明@#$!#$%</v-card-subtitle>
       <v-card-text>
         <div>
-          <div v-for="extra in productStore.product.extras" :key="extra">
-            <p>
+          <h4 class="mb-4">加料</h4>
+
+          <div
+            class="bg-black rounded-lg py-2 px-4 mb-3"
+            v-for="extra in productStore.product.extras"
+            :key="extra"
+          >
+            <p class="font-weight-bold">
               {{ extra.type }}
             </p>
+            <v-divider class="my-1"></v-divider>
             <v-checkbox
               density="compact"
               hide-details
@@ -226,19 +239,35 @@ onMounted(() => {
             >
             </v-checkbox>
           </div>
-
-          <!-- {{ productStore.product.extras }} -->
         </div>
 
-        <div class="mt-4">數量:</div>
+        <h4 class="mb-4">數量</h4>
+        <v-text-field
+          type="number"
+          min="1"
+          @click:append="quantityPlus(selectedItem)"
+          @click:prepend="quantityMinus(selectedItem)"
+          append-icon="mdi-plus"
+          prepend-icon="mdi-minus"
+          variant="outlined"
+          readonly
+          v-model="selectedItem.quantity"
+        ></v-text-field>
 
-        <div class="price text-h5 text-yellow-accent-4 text-right">
-          <span class="text-subtitle-1">NT$</span> {{ selectedItem.item.price }}
+        <div class="operate">
+          <v-btn block color="success" @click="addOrderItem(orderList, selectedItem)"
+            >新增
+            <span class="font-weight-bold text-yellow-accent-4">
+              {{ selectedItem.quantity }}
+            </span>
+            項目到訂單
+            <span class="font-weight-bold text-yellow-accent-4">NT${{ selectedItem.price }}</span>
+          </v-btn>
+          <v-btn block color="error" class="mt-4" @click="closeSelectorDialog(selectedItem)"
+            >取消</v-btn
+          >
         </div>
       </v-card-text>
-      <v-card-actions>
-        <v-btn color="primary" block @click="selectorDialog = false">Close Dialog</v-btn>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
