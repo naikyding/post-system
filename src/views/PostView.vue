@@ -1,16 +1,38 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 import { useProductStore } from '../stores/product'
 const productStore = useProductStore()
 
+// 購物車
 const orderList = ref([])
+
+// 口味 tabs
 const tab = ref(null)
+// 選擇品項 dialog
 const selectorDialog = ref(false)
-const subTotal = computed(() => orderList.value.reduce((acc, cur) => (acc += cur.price), 0))
+
+// 清單總計
+const orderTotal = computed(() => {
+  let quantity = 0
+  let subTotal = 0
+  let total = 0
+
+  orderList.value.forEach((item) => {
+    quantity += item.quantity
+    subTotal += item.quantity * item.price
+  })
+  total = subTotal + service.value - discount.value
+
+  return { quantity, subTotal, total }
+})
+
+// 服務費
 const service = computed(() => 0)
+// 優惠費
 const discount = computed(() => 0)
-const total = computed(() => subTotal.value + service.value + discount.value)
+
+// dialog 選擇項目
 const selectedItem = ref({
   item: {},
   extras: [],
@@ -20,61 +42,93 @@ const selectedItem = ref({
     selectedItem.value.extras.forEach((item) => {
       extrasPriceTotal += item.price
     })
-    return (selectedItem.value.item.price + extrasPriceTotal) * selectedItem.value.quantity
+
+    return selectedItem.value.item.price
+      ? (selectedItem.value.item.price + extrasPriceTotal) * selectedItem.value.quantity
+      : 0
   }),
 })
 
-function addOrderItem(list, item) {
-  list.push({
-    item: item.item,
-    extras: item.extras,
-    price: item.price,
-    quantity: item.quantity,
-  })
-  closeSelectorDialog(item)
+console.log(selectedItem)
+
+watch(
+  () => selectedItem.value.extras,
+  (newValue, oldValue) => {
+    console.log(newValue, oldValue)
+  },
+)
+
+function resetSelectorForm(selectedItem) {
+  console.log('resetselectedItem', selectedItem)
+  selectedItem.item = {}
+  selectedItem.extras.length = 0
+  selectedItem.quantity = 1
 }
 
-function resetSelectorForm(selectorForm) {
-  selectorForm.item = {}
-  selectorForm.extras = []
-  selectorForm.quantity = 1
-}
-
-function closeSelectorDialog(selectorForm) {
+function closeSelectorDialog(selectorItems) {
+  console.log('closeSelectorDialog')
   selectorDialog.value = false
-  resetSelectorForm(selectorForm)
 }
 
 function quantityPlus(selectedItem) {
   if (selectedItem.quantity > 5) return false
   selectedItem.quantity++
 }
+
 function quantityMinus(selectedItem) {
   if (selectedItem.quantity <= 1) return false
   selectedItem.quantity--
 }
 
-function selectorFlavors(itemData) {
-  selectedItem.value.item = itemData
+async function addOrderItem(list, item, disableDialog) {
+  const addItem = {
+    item: item.item,
+    extras: [...item.extras],
+    price: item.price,
+    quantity: item.quantity,
+  }
+
+  let sameItem = await list.find((listItem, index) => {
+    console.log(listItem.item === addItem.item, listItem.extras === addItem.extras)
+    console.log(orderList.value[index].extras, listItem.extras, addItem.extras)
+    if (listItem.item === addItem.item && listItem.extras === addItem.extras) return true
+  })
+
+  console.log('same', sameItem)
+
+  if (sameItem) sameItem.quantity++
+  else list.push(addItem)
+
+  if (disableDialog) return resetSelectorForm(item)
+
+  closeSelectorDialog(item)
+  resetSelectorForm(item)
+}
+
+function selectorFlavors(itemData, selectedItem, disableDialog) {
+  selectedItem.item = itemData
+
+  if (disableDialog) return false
   selectorDialog.value = true
 }
 
+async function fastAddItem(list, item, selectedItem) {
+  await selectorFlavors(item, selectedItem, true)
+  addOrderItem(list, selectedItem, true)
+}
 onMounted(() => {
-  const orderItemEl = document.querySelectorAll('.order-item')
-
-  const startPageX = ref(null)
-  const endPageX = ref(null)
-
-  orderItemEl.forEach((item) => {
-    item.addEventListener('touchstart', (e) => {
-      startPageX.value = e.touches[0].pageX
-    })
-
-    item.addEventListener('touchmove', (e) => {
-      endPageX.value = e.changedTouches[0].pageX
-      console.log(endPageX.value - startPageX.value > 0 ? '向右滑' : '向左滑')
-    })
-  })
+  // const orderItemEl = document.querySelectorAll('.order-item')
+  // const startPageX = ref(null)
+  // const endPageX = ref(null)
+  // orderItemEl.forEach((item) => {
+  //   item.addEventListener('touchstart', (e) => {
+  //     startPageX.value = e.touches[0].pageX
+  //   })
+  //   item.addEventListener('touchmove', (e) => {
+  //     endPageX.value = e.changedTouches[0].pageX
+  //     console.log(endPageX.value - startPageX.value > 0 ? '向右滑' : '向左滑')
+  //   })
+  // })
 })
 </script>
 
@@ -128,14 +182,14 @@ onMounted(() => {
             <div class="d-flex">
               <span>數量</span>
               <v-spacer></v-spacer>
-              <span>{{ orderList.length }}</span>
+              <span>{{ orderTotal.quantity }}</span>
             </div>
 
             <!-- 小計 -->
             <div class="d-flex">
               <span>小計</span>
               <v-spacer></v-spacer>
-              <span>{{ subTotal }}</span>
+              <span>{{ orderTotal.subTotal }}</span>
             </div>
 
             <!-- 服務費 -->
@@ -158,7 +212,7 @@ onMounted(() => {
             <div class="d-flex my-1 text-yellow-accent-4 text-h5">
               <span class="">總價</span>
               <v-spacer></v-spacer>
-              <span>{{ total }}</span>
+              <span>{{ orderTotal.total }}</span>
             </div>
           </div>
         </div>
@@ -191,11 +245,20 @@ onMounted(() => {
                     cols="4"
                     class="pa-1"
                   >
-                    <v-card
-                      @click="selectorFlavors(orderItem)"
-                      :title="orderItem.name"
-                      :text="orderItem.price + ''"
-                    ></v-card>
+                    <v-card @click="selectorFlavors(orderItem, selectedItem)">
+                      <template v-slot:title>
+                        <div class="d-flex">
+                          <div>{{ orderItem.name }}</div>
+                          <v-spacer></v-spacer>
+                          <button @click.stop="fastAddItem(orderList, orderItem, selectedItem)">
+                            <v-icon icon="mdi-lightning-bolt-circle"></v-icon>
+                          </button>
+                        </div>
+                      </template>
+                      <template v-slot:text>
+                        <div>{{ orderItem.price + '' }}</div>
+                      </template>
+                    </v-card>
                   </v-col>
                 </v-row>
               </v-container>
@@ -263,9 +326,7 @@ onMounted(() => {
             項目到訂單
             <span class="font-weight-bold text-yellow-accent-4">NT${{ selectedItem.price }}</span>
           </v-btn>
-          <v-btn block color="error" class="mt-4" @click="closeSelectorDialog(selectedItem)"
-            >取消</v-btn
-          >
+          <v-btn block color="error" class="mt-4" @click="closeSelectorDialog">取消</v-btn>
         </div>
       </v-card-text>
     </v-card>
