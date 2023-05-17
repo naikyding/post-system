@@ -49,16 +49,19 @@ const selectedItem = ref({
   }),
 })
 
+const editMode = ref(false)
+const orderListDeleteItem = ref([])
+
+function removeOrderItemFromOrderList(orderList, orderListDeleteItemList) {
+  orderListDeleteItemList.forEach((deleteItem) => {
+    orderList.splice(orderList.indexOf(deleteItem), 1)
+  })
+  orderListDeleteItemList.length = 0
+}
+
 watch(selectorDialog, (newStatus) => {
   if (!newStatus) resetSelectorForm(selectedItem.value)
 })
-
-watch(
-  () => selectedItem.value.extras,
-  (newValue, oldValue) => {
-    console.log(newValue, oldValue)
-  },
-)
 
 function resetSelectorForm(selectedItem) {
   selectedItem.item = {}
@@ -90,7 +93,7 @@ async function addOrderItem(list, item, disableDialog) {
   }
 
   const listMatchItem = await sameOrderItem(list, addItem)
-  console.log(listMatchItem)
+
   if (listMatchItem) listMatchItem.quantity++
   else list.push(addItem)
 
@@ -167,10 +170,19 @@ onMounted(() => {
         <v-container class="py-0 px-2">
           <v-row dense>
             <v-col cols="12" sm="6">
-              <v-btn block>〇</v-btn>
+              <v-btn block @click="editMode = !editMode">
+                <v-icon icon="mdi-pencil"></v-icon>
+              </v-btn>
+            </v-col>
+            <v-col v-show="orderListDeleteItem.length > 0" cols="12" sm="6">
+              <v-btn block @click="removeOrderItemFromOrderList(orderList, orderListDeleteItem)">
+                <v-icon icon="mdi-delete"></v-icon>
+              </v-btn>
             </v-col>
             <v-col cols="12" sm="6">
-              <v-btn block color="error" @click="orderList = []">清空</v-btn>
+              <v-btn block color="error" @click="orderList.length = 0">
+                <v-icon icon="mdi-delete-empty"></v-icon>
+              </v-btn>
             </v-col>
           </v-row>
         </v-container>
@@ -182,10 +194,25 @@ onMounted(() => {
           <div class="flex-grow-1 h-0 overflow-y-auto">
             <v-table hover>
               <tbody>
-                <tr v-for="item in orderList" :key="item.name" class="order-item">
+                <tr v-for="(item, index) in orderList" :key="item.name" class="order-item">
                   <td class="py-3 pr-0">
-                    <div>
-                      {{ item.item.name }}
+                    <div class="d-flex">
+                      <!-- addorderListDeleteItem(orderList, index, orderListDeleteItem) -->
+                      <v-checkbox
+                        v-show="editMode"
+                        v-model="orderListDeleteItem"
+                        :value="orderList[index]"
+                        density="compact"
+                        hide-details
+                      >
+                        <template v-slot:label>
+                          {{ item.item.name }}
+                        </template>
+                      </v-checkbox>
+
+                      <span class="py-2" v-show="!editMode">
+                        {{ item.item.name }}
+                      </span>
                     </div>
                     <div class="special">
                       <span class="text-caption" v-for="(extra, index) in item.extras" :key="extra">
