@@ -49,7 +49,9 @@ const selectedItem = ref({
   }),
 })
 
-console.log(selectedItem)
+watch(selectorDialog, (newStatus) => {
+  if (!newStatus) resetSelectorForm(selectedItem.value)
+})
 
 watch(
   () => selectedItem.value.extras,
@@ -59,14 +61,13 @@ watch(
 )
 
 function resetSelectorForm(selectedItem) {
-  console.log('resetselectedItem', selectedItem)
   selectedItem.item = {}
   selectedItem.extras.length = 0
+
   selectedItem.quantity = 1
 }
 
-function closeSelectorDialog(selectorItems) {
-  console.log('closeSelectorDialog')
+function closeSelectorDialog() {
   selectorDialog.value = false
 }
 
@@ -88,21 +89,46 @@ async function addOrderItem(list, item, disableDialog) {
     quantity: item.quantity,
   }
 
-  let sameItem = await list.find((listItem, index) => {
-    console.log(listItem.item === addItem.item, listItem.extras === addItem.extras)
-    console.log(orderList.value[index].extras, listItem.extras, addItem.extras)
-    if (listItem.item === addItem.item && listItem.extras === addItem.extras) return true
-  })
-
-  console.log('same', sameItem)
-
-  if (sameItem) sameItem.quantity++
+  const listMatchItem = await sameOrderItem(list, addItem)
+  console.log(listMatchItem)
+  if (listMatchItem) listMatchItem.quantity++
   else list.push(addItem)
 
   if (disableDialog) return resetSelectorForm(item)
 
   closeSelectorDialog(item)
-  resetSelectorForm(item)
+}
+
+// 點單項目是否存在清單中
+async function sameOrderItem(list, item) {
+  const itemExtrasLength = item.extras.length
+
+  const res = await list.find((listItem) => {
+    const listItemExtrasLength = listItem.extras.length
+    const sameItem = listItem.item === item.item
+    const sameNoExists = listItem.extras.length < 1 && item.extras.length < 1
+
+    // 口味在清單中，無配料
+    if (sameItem && sameNoExists) return true
+
+    // 口味在清單中，有配料
+    if (sameItem) {
+      let extrasMatchNum = 0
+      item.extras.forEach((itemExtrasItem) => {
+        listItem.extras.forEach((listItemExtrasItem) => {
+          if (listItemExtrasItem._id === itemExtrasItem._id) extrasMatchNum++
+        })
+      })
+      if (
+        itemExtrasLength > 0 &&
+        itemExtrasLength === extrasMatchNum &&
+        itemExtrasLength === listItemExtrasLength
+      )
+        return true
+    }
+  })
+
+  return res
 }
 
 function selectorFlavors(itemData, selectedItem, disableDialog) {
