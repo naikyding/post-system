@@ -145,6 +145,21 @@ async function fastAddItem(list, item, selectedItem) {
   await selectorFlavors(item, selectedItem, true)
   addOrderItem(list, selectedItem, true)
 }
+
+function submitOrderList(orderList) {
+  return orderList.reduce((acc, cur) => {
+    return (acc = [
+      ...acc,
+      {
+        flavor: cur.item._id,
+        extras: cur.extras.map((item) => item._id),
+        quantity: cur.quantity,
+        total: cur.price * cur.quantity,
+      },
+    ])
+  }, [])
+}
+
 onMounted(() => {
   // const orderItemEl = document.querySelectorAll('.order-item')
   // const startPageX = ref(null)
@@ -318,6 +333,10 @@ onMounted(() => {
             </v-window-item>
           </v-window>
         </v-card-text>
+
+        <div v-show="orderList.length > 0" class="submit-operate px-6 w-100">
+          <v-btn @click="submitOrderList(orderList)" block>送出訂單</v-btn>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -390,6 +409,14 @@ onMounted(() => {
 table {
   td:not(:last-child) {
     color: lightblue;
+  }
+}
+
+.order-type {
+  position: relative;
+  .submit-operate {
+    position: absolute;
+    bottom: 1rem;
   }
 }
 </style>
