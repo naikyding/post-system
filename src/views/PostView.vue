@@ -1,8 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-
-import { useProductStore } from '../stores/product'
+import catchAsync from '@/utils/catchAsync'
+import { useProductStore, useOrderStore } from '../stores/product'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const productStore = useProductStore()
+const orderStore = useOrderStore()
 
 // 購物車
 const orderList = ref([])
@@ -146,8 +149,8 @@ async function fastAddItem(list, item, selectedItem) {
   addOrderItem(list, selectedItem, true)
 }
 
-function submitOrderList(orderList) {
-  return orderList.reduce((acc, cur) => {
+const submitOrderList = catchAsync(async (orderList) => {
+  const formatOrderList = orderList.reduce((acc, cur) => {
     return (acc = [
       ...acc,
       {
@@ -158,7 +161,11 @@ function submitOrderList(orderList) {
       },
     ])
   }, [])
-}
+
+  const { data } = await orderStore.postOrderList(formatOrderList)
+  console.log(data)
+  if (data.status) return router.push('/list-status')
+})
 
 onMounted(() => {
   // const orderItemEl = document.querySelectorAll('.order-item')
@@ -335,7 +342,7 @@ onMounted(() => {
         </v-card-text>
 
         <div v-show="orderList.length > 0" class="submit-operate px-6 w-100">
-          <v-btn @click="submitOrderList(orderList)" block>送出訂單</v-btn>
+          <v-btn @click="submitOrderList(orderList, orderStore)" block>送出訂單</v-btn>
         </div>
       </v-col>
     </v-row>
