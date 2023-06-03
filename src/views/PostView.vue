@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, reactive } from 'vue'
 import catchAsync from '@/utils/catchAsync'
 import { useProductsStore, useOrderStore } from '../stores/products'
 import { useRouter } from 'vue-router'
@@ -16,38 +16,57 @@ const selectedProductItem = ref({})
 const selectorDialog = ref(false)
 // 選擇口味功能
 function selectedProduct(productItem) {
-  selectedProductItem.value = productItem
+  activeProductItem.product = productItem
   selectorDialog.value = true
 }
 
-// -------------------------------------------
+function resetActiveProductItem() {
+  activeProductItem.form.extras = []
+  activeProductItem.quantity = 1
+  activeProductItem.product = {}
+}
 
-// 購物車
-const orderList = ref([])
+const activeProductItem = reactive({
+  form: {
+    extras: [],
+  },
 
-// 清單總計
-const orderTotal = computed(() => {
-  let quantity = 0
-  let subTotal = 0
-  let total = 0
+  product: {},
+  quantity: 1,
+  price: computed(() => {
+    const totalExtrasPrice = activeProductItem.form.extras.reduce((init, cur) => {
+      return (init += cur.price)
+    }, 0)
 
-  orderList.value.forEach((item) => {
-    quantity += item.quantity
-    subTotal += item.quantity * item.price
-  })
-  total = subTotal + service.value - discount.value
-
-  return { quantity, subTotal, total }
+    return activeProductItem.product.price
+      ? (totalExtrasPrice + activeProductItem.product.price) * activeProductItem.quantity
+      : 0
+  }),
 })
 
-// 服務費
-const service = computed(() => 0)
-// 優惠費
-const discount = computed(() => 0)
+function activeProductItemQuantity(plusType) {
+  if (plusType) {
+    if (activeProductItem.quantity > 4) return false
+    return activeProductItem.quantity++
+  }
+  if (activeProductItem.quantity < 2) return false
+  activeProductItem.quantity--
+}
+
+function addActiveProductItemToOrdersList(productItem, ordersList) {
+  ordersList.items.push({
+    product: productItem.product,
+    extras: productItem.form.extras,
+    quantity: productItem.quantity,
+    total: productItem.price,
+  })
+
+  selectorDialog.value = false
+}
 
 // dialog 選擇項目
 const selectedItem = ref({
-  item: {},
+  product: [],
   extras: [],
   quantity: 1,
   price: computed(() => {
@@ -62,6 +81,38 @@ const selectedItem = ref({
   }),
 })
 
+watch(selectorDialog, (newStatus) => {
+  if (!newStatus) resetActiveProductItem()
+})
+
+// 購物車清單
+const ordersList = reactive({
+  items: [],
+
+  total: computed(() => {
+    return ordersList.items.reduce(
+      (init, cur) => {
+        init.quantity += cur.quantity
+        init.subTotal += cur.total
+        init.totalPrice += cur.total + init.service + init.discount
+
+        return init
+      },
+      {
+        quantity: 0,
+        subTotal: 0,
+        service: 0, // 服務費
+        discount: 0, // 優惠費
+        totalPrice: 0,
+      },
+    )
+  }),
+})
+
+// -------------------------------------------
+// 購物車
+const orderList = ref([])
+
 const editMode = ref(false)
 const orderListDeleteItem = ref([])
 
@@ -71,10 +122,6 @@ function removeOrderItemFromOrderList(orderList, orderListDeleteItemList) {
   })
   orderListDeleteItemList.length = 0
 }
-
-watch(selectorDialog, (newStatus) => {
-  if (!newStatus) resetSelectorForm(selectedItem.value)
-})
 
 function resetSelectorForm(selectedItem) {
   selectedItem.item = {}
@@ -87,19 +134,10 @@ function closeSelectorDialog() {
   selectorDialog.value = false
 }
 
-function quantityPlus(selectedItem) {
-  if (selectedItem.quantity > 5) return false
-  selectedItem.quantity++
-}
-
-function quantityMinus(selectedItem) {
-  if (selectedItem.quantity <= 1) return false
-  selectedItem.quantity--
-}
-
+// 加入購物車
 async function addOrderItem(list, item, disableDialog) {
   const addItem = {
-    item: item.item,
+    product: list.product,
     extras: [...item.extras],
     price: item.price,
     quantity: item.quantity,
@@ -178,18 +216,6 @@ const submitOrderList = catchAsync(async (orderList) => {
 })
 
 onMounted(async () => {
-  // const orderItemEl = document.querySelectorAll('.order-item')
-  // const startPageX = ref(null)
-  // const endPageX = ref(null)
-  // orderItemEl.forEach((item) => {
-  //   item.addEventListener('touchstart', (e) => {
-  //     startPageX.value = e.touches[0].pageX
-  //   })
-  //   item.addEventListener('touchmove', (e) => {
-  //     endPageX.value = e.changedTouches[0].pageX
-  //     console.log(endPageX.value - startPageX.value > 0 ? '向右滑' : '向左滑')
-  //   })
-  // })
   // 取得產品最表
   await productsStore.getProducts()
 })
@@ -205,101 +231,109 @@ onMounted(async () => {
           <v-row dense>
             <v-col cols="12" sm="6">
               <v-btn block @click="editMode = !editMode">
-                <v-icon icon="mdi-pencil"></v-icon>
+                <v-icon icon="mdi-pencil" />
               </v-btn>
             </v-col>
             <v-col v-show="orderListDeleteItem.length > 0" cols="12" sm="6">
               <v-btn block @click="removeOrderItemFromOrderList(orderList, orderListDeleteItem)">
-                <v-icon icon="mdi-delete"></v-icon>
+                <v-icon icon="mdi-delete" />
               </v-btn>
             </v-col>
             <v-col cols="12" sm="6">
               <v-btn block color="error" @click="orderList.length = 0">
-                <v-icon icon="mdi-delete-empty"></v-icon>
+                <v-icon icon="mdi-delete-empty" />
               </v-btn>
             </v-col>
           </v-row>
         </v-container>
 
-        <v-divider class="mt-4"></v-divider>
+        <v-divider class="mt-4" />
 
         <div class="flex-grow-1 d-flex flex-column">
           <!-- 點單項目 -->
           <div class="flex-grow-1 h-0 overflow-y-auto">
             <v-table hover>
               <tbody>
-                <tr v-for="(item, index) in orderList" :key="item.name" class="order-item">
+                <tr
+                  v-for="(item, index) in ordersList.items"
+                  :key="item.product._id"
+                  class="order-item"
+                >
                   <td class="py-3 pr-0">
                     <div class="d-flex">
                       <!-- addorderListDeleteItem(orderList, index, orderListDeleteItem) -->
                       <v-checkbox
                         v-show="editMode"
                         v-model="orderListDeleteItem"
-                        :value="orderList[index]"
-                        density="compact"
                         hide-details
+                        density="compact"
+                        :value="orderList[index]"
                       >
-                        <template v-slot:label>
-                          {{ item.item.name }}
+                        <template #label>
+                          {{ item.product.name }}
                         </template>
                       </v-checkbox>
 
-                      <span class="py-2" v-show="!editMode">
-                        {{ item.item.name }}
+                      <span v-show="!editMode" class="py-2">
+                        {{ item.product.name }}
                       </span>
                     </div>
                     <div class="special">
-                      <span class="text-caption" v-for="(extra, index) in item.extras" :key="extra">
+                      <span v-for="(extra, index) in item.extras" :key="extra" class="text-caption">
                         {{ extra.name }}
                         <span v-if="index !== item.extras.length - 1">/</span>
                       </span>
                     </div>
                   </td>
-                  <td class="text-right px-1">{{ item.quantity }}</td>
-                  <td class="text-right pl-1 pr-4">{{ item.price }}</td>
+                  <td class="text-right px-1">
+                    {{ item.quantity }}
+                  </td>
+                  <td class="text-right pl-1 pr-4">
+                    {{ item.total }}
+                  </td>
                 </tr>
               </tbody>
             </v-table>
           </div>
 
-          <v-divider></v-divider>
+          <v-divider />
 
           <!-- 數量 -->
           <div class="order-total px-4 py-2 pb-0 text-caption">
             <div class="d-flex">
               <span>數量</span>
-              <v-spacer></v-spacer>
-              <span>{{ orderTotal.quantity }}</span>
+              <v-spacer />
+              <span>{{ ordersList.total.quantity }}</span>
             </div>
 
             <!-- 小計 -->
             <div class="d-flex">
               <span>小計</span>
-              <v-spacer></v-spacer>
-              <span>{{ orderTotal.subTotal }}</span>
+              <v-spacer />
+              <span>{{ ordersList.total.subTotal }}</span>
             </div>
 
             <!-- 服務費 -->
             <div class="d-flex">
               <span>服務費</span>
-              <v-spacer></v-spacer>
-              <span>{{ service }}</span>
+              <v-spacer />
+              <span>{{ ordersList.total.service }}</span>
             </div>
 
             <!-- 優惠 -->
             <div class="d-flex">
               <span>優惠費</span>
-              <v-spacer></v-spacer>
-              <span>{{ discount }}</span>
+              <v-spacer />
+              <span>{{ ordersList.total.discount }}</span>
             </div>
 
-            <v-divider class="my-2"></v-divider>
+            <v-divider class="my-2" />
 
             <!-- 總價 -->
             <div class="d-flex my-1 text-yellow-accent-4 text-h5">
               <span class="">總價</span>
-              <v-spacer></v-spacer>
-              <span>{{ orderTotal.total }}</span>
+              <v-spacer />
+              <span>{{ ordersList.total.totalPrice }}</span>
             </div>
           </div>
         </div>
@@ -336,13 +370,17 @@ onMounted(async () => {
                     class="pa-1"
                   >
                     <v-card @click="selectedProduct(productItem)">
-                      <template v-slot:title>
+                      <template #title>
                         <div class="d-flex flex-column">
-                          <div class="text-subtitle-1 font-weight-bold">{{ productItem.name }}</div>
-                          <div class="text-caption">{{ productItem.description }}</div>
+                          <div class="text-subtitle-1 font-weight-bold">
+                            {{ productItem.name }}
+                          </div>
+                          <div class="text-caption">
+                            {{ productItem.description }}
+                          </div>
                         </div>
                       </template>
-                      <template v-slot:text>
+                      <template #text>
                         <div>
                           $
                           <span class="text-h5 font-weight-bold">{{ productItem.price }}</span>
@@ -353,7 +391,7 @@ onMounted(async () => {
                         class="fast-add-item-btn"
                         @click.stop="fastAddItem(orderList, productItem, selectedItem)"
                       >
-                        <v-icon size="30" icon="mdi-lightning-bolt-circle"></v-icon>
+                        <v-icon size="30" icon="mdi-lightning-bolt-circle" />
                       </button>
                     </v-card>
                   </v-col>
@@ -364,7 +402,7 @@ onMounted(async () => {
         </v-card-text>
 
         <div v-show="orderList.length > 0" class="submit-operate px-6 w-100">
-          <v-btn @click="submitOrderList(orderList, orderStore)" block>送出訂單</v-btn>
+          <v-btn block @click="submitOrderList(orderList, orderStore)"> 送出訂單 </v-btn>
         </div>
       </v-col>
     </v-row>
@@ -372,62 +410,72 @@ onMounted(async () => {
 
   <!-- Dialog -->
   <v-dialog v-model="selectorDialog" width="400">
-    <template v-slot:activator="{ props }">
+    <template #activator="{ props }">
       <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
     </template>
 
     <v-card>
-      <v-card-title>{{ selectedProductItem.name }}</v-card-title>
-      <v-card-subtitle>{{ selectedProductItem.description }}</v-card-subtitle>
+      <v-card-title class="pt-4 px-6">
+        {{ activeProductItem.product.name }}
+      </v-card-title>
+      <v-card-subtitle class="px-6">
+        {{ activeProductItem.product.description }}
+      </v-card-subtitle>
+      <v-divider class="mt-4" />
       <v-card-text>
         <div>
           <h4 class="mb-4">加料</h4>
 
           <div
-            class="bg-black rounded-lg py-2 px-4 mb-3"
-            v-for="extras in selectedProductItem.extras"
+            v-for="extras in activeProductItem.product.extras"
             :key="extras"
+            class="bg-black rounded-lg py-2 px-4 mb-3"
           >
             <p class="font-weight-bold">
               {{ extras.type }}
             </p>
-            <v-divider class="my-1"></v-divider>
+            <v-divider class="my-1" />
             <v-checkbox
+              v-for="extra in extras.items"
+              :key="extra"
+              v-model="activeProductItem.form.extras"
+              :value="extra"
               density="compact"
               hide-details
-              v-for="extras in extras.items"
-              :key="extras"
-              v-model="selectedItem.extras"
-              :label="extras.name + ' +' + extras.price"
-              :value="extras"
-            >
-            </v-checkbox>
+              :label="extra.name + ' +' + extra.price"
+            />
           </div>
         </div>
 
         <h4 class="mb-4">數量</h4>
         <v-text-field
+          v-model="activeProductItem.quantity"
           type="number"
           min="1"
-          @click:append="quantityPlus(selectedItem)"
-          @click:prepend="quantityMinus(selectedItem)"
           append-icon="mdi-plus"
           prepend-icon="mdi-minus"
           variant="outlined"
           readonly
-          v-model="selectedItem.quantity"
-        ></v-text-field>
+          @click:append="activeProductItemQuantity(true)"
+          @click:prepend="activeProductItemQuantity()"
+        />
 
         <div class="operate">
-          <v-btn block color="success" @click="addOrderItem(orderList, selectedItem)"
-            >新增
+          <v-btn
+            block
+            color="success"
+            @click="addActiveProductItemToOrdersList(activeProductItem, ordersList)"
+          >
+            新增
             <span class="font-weight-bold text-yellow-accent-4">
-              {{ selectedItem.quantity }}
+              {{ activeProductItem.quantity }}
             </span>
             項目到訂單
-            <span class="font-weight-bold text-yellow-accent-4">NT${{ selectedItem.price }}</span>
+            <span class="font-weight-bold text-yellow-accent-4"
+              >NT${{ activeProductItem.price }}</span
+            >
           </v-btn>
-          <v-btn block color="error" class="mt-4" @click="closeSelectorDialog">取消</v-btn>
+          <v-btn block color="error" class="mt-4" @click="closeSelectorDialog"> 取消 </v-btn>
         </div>
       </v-card-text>
     </v-card>
@@ -451,7 +499,7 @@ table {
 
 .fast-add-item-btn {
   position: absolute;
-  bottom: 1rem;
-  right: 1rem;
+  bottom: 1px;
+  right: 1px;
 }
 </style>
