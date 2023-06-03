@@ -1,19 +1,29 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import catchAsync from '@/utils/catchAsync'
-import { useProductStore, useOrderStore } from '../stores/product'
+import { useProductsStore, useOrderStore } from '../stores/products'
 import { useRouter } from 'vue-router'
+
 const router = useRouter()
-const productStore = useProductStore()
+const productsStore = useProductsStore()
 const orderStore = useOrderStore()
+
+const tabActiveId = ref(0)
+
+// 選擇口味項目
+const selectedProductItem = ref({})
+// 選擇口味 dialog
+const selectorDialog = ref(false)
+// 選擇口味功能
+function selectedProduct(productItem) {
+  selectedProductItem.value = productItem
+  selectorDialog.value = true
+}
+
+// -------------------------------------------
 
 // 購物車
 const orderList = ref([])
-
-// 口味 tabs
-const tab = ref(null)
-// 選擇品項 dialog
-const selectorDialog = ref(false)
 
 // 清單總計
 const orderTotal = computed(() => {
@@ -167,7 +177,7 @@ const submitOrderList = catchAsync(async (orderList) => {
   if (data.status) return router.push('/list-status')
 })
 
-onMounted(() => {
+onMounted(async () => {
   // const orderItemEl = document.querySelectorAll('.order-item')
   // const startPageX = ref(null)
   // const endPageX = ref(null)
@@ -180,6 +190,8 @@ onMounted(() => {
   //     console.log(endPageX.value - startPageX.value > 0 ? '向右滑' : '向左滑')
   //   })
   // })
+  // 取得產品最表
+  await productsStore.getProducts()
 })
 </script>
 
@@ -293,46 +305,56 @@ onMounted(() => {
         </div>
       </v-col>
 
-      <!-- 菜單 -->
+      <!-- 產品 -->
       <v-col cols="6" md="8" class="order-type bg-grey-darken-3 pa-0">
-        <v-tabs v-model="tab" bg-color="secondary" class="px-6">
+        <!-- TABs -->
+        <v-tabs v-model="tabActiveId" bg-color="secondary" class="px-6">
           <v-tab
-            v-for="(item, index) in productStore.tabsContent.tabs"
-            :key="item + index"
+            v-for="(productItems, index) in productsStore.products"
+            :key="productItems + index"
             :value="index"
           >
-            {{ item }}
+            {{ productItems.type }}
           </v-tab>
         </v-tabs>
 
+        <!-- 產品列表 -->
         <v-card-text>
-          <v-window v-model="tab">
+          <v-window v-model="tabActiveId">
             <v-window-item
-              v-for="(items, index) in productStore.tabsContent.content"
-              :key="items + index"
+              v-for="(productItems, index) in productsStore.products"
+              :key="productItems + index"
               :value="index"
             >
               <v-container>
                 <v-row>
+                  <!-- 產品項目 -->
                   <v-col
-                    v-for="(orderItem, index) in items"
-                    :key="orderItem + index"
+                    v-for="(productItem, index) in productItems.items"
+                    :key="productItem + index"
                     cols="4"
                     class="pa-1"
                   >
-                    <v-card @click="selectorFlavors(orderItem, selectedItem)">
+                    <v-card @click="selectedProduct(productItem)">
                       <template v-slot:title>
-                        <div class="d-flex">
-                          <div>{{ orderItem.name }}</div>
-                          <v-spacer></v-spacer>
-                          <button @click.stop="fastAddItem(orderList, orderItem, selectedItem)">
-                            <v-icon icon="mdi-lightning-bolt-circle"></v-icon>
-                          </button>
+                        <div class="d-flex flex-column">
+                          <div class="text-subtitle-1 font-weight-bold">{{ productItem.name }}</div>
+                          <div class="text-caption">{{ productItem.description }}</div>
                         </div>
                       </template>
                       <template v-slot:text>
-                        <div>{{ orderItem.price + '' }}</div>
+                        <div>
+                          $
+                          <span class="text-h5 font-weight-bold">{{ productItem.price }}</span>
+                        </div>
                       </template>
+                      <!-- 快捷新增按鈕 -->
+                      <button
+                        class="fast-add-item-btn"
+                        @click.stop="fastAddItem(orderList, productItem, selectedItem)"
+                      >
+                        <v-icon size="30" icon="mdi-lightning-bolt-circle"></v-icon>
+                      </button>
                     </v-card>
                   </v-col>
                 </v-row>
@@ -355,25 +377,25 @@ onMounted(() => {
     </template>
 
     <v-card>
-      <v-card-title>{{ selectedItem.item.name }}</v-card-title>
-      <v-card-subtitle>口味說明@#$!#$%</v-card-subtitle>
+      <v-card-title>{{ selectedProductItem.name }}</v-card-title>
+      <v-card-subtitle>{{ selectedProductItem.description }}</v-card-subtitle>
       <v-card-text>
         <div>
           <h4 class="mb-4">加料</h4>
 
           <div
             class="bg-black rounded-lg py-2 px-4 mb-3"
-            v-for="extra in productStore.product.extras"
-            :key="extra"
+            v-for="extras in selectedProductItem.extras"
+            :key="extras"
           >
             <p class="font-weight-bold">
-              {{ extra.type }}
+              {{ extras.type }}
             </p>
             <v-divider class="my-1"></v-divider>
             <v-checkbox
               density="compact"
               hide-details
-              v-for="extras in extra.items"
+              v-for="extras in extras.items"
               :key="extras"
               v-model="selectedItem.extras"
               :label="extras.name + ' +' + extras.price"
@@ -425,5 +447,11 @@ table {
     position: absolute;
     bottom: 1rem;
   }
+}
+
+.fast-add-item-btn {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
 }
 </style>
