@@ -1,8 +1,20 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { postOrderListAPI } from '@/api'
+import { postOrderListAPI, getProductsAPI } from '@/api'
 
-export const useProductStore = defineStore('product', () => {
+export const useProductsStore = defineStore('products', () => {
+  // 產品列表
+  const products = ref([])
+
+  // 取得產品列表
+  async function getProducts() {
+    const resProductList = await getProductsAPI()
+    console.log('getProducts', resProductList.data.data)
+    products.value = resProductList.data.data
+  }
+
+  // -------------
+
   const product = ref({
     // 主要口味
     flavors: [
@@ -205,7 +217,15 @@ export const useProductStore = defineStore('product', () => {
     )
   })
 
-  return { product, tabs, tabsContent, orderItems }
+  return {
+    product,
+    tabs,
+    tabsContent,
+    orderItems,
+
+    products,
+    getProducts,
+  }
 })
 
 export const useOrderStore = defineStore('orders', () => {
