@@ -15,9 +15,9 @@ const selectedProductItem = ref({})
 // 選擇口味 dialog
 const selectorDialog = ref(false)
 // 選擇口味功能
-function selectedProduct(productItem) {
+function selectedProduct(productItem, dialogStatus) {
   activeProductItem.product = productItem
-  selectorDialog.value = true
+  selectorDialog.value = dialogStatus
 }
 
 function resetActiveProductItem() {
@@ -53,13 +53,52 @@ function activeProductItemQuantity(plusType) {
   activeProductItem.quantity--
 }
 
-function addActiveProductItemToOrdersList(productItem, ordersList) {
-  ordersList.items.push({
-    product: productItem.product,
-    extras: productItem.form.extras,
-    quantity: productItem.quantity,
-    total: productItem.price,
+// 點單項目是否存在清單中
+function sameProductItemIncludeOrdersList(ordersList, productItem) {
+  return ordersList.items.find((orderItem) => {
+    // 無 extras
+    const orderExtrasLength = orderItem.extras.length
+    const productExtrasLength = productItem.form.extras.length
+    const sameProductId = orderItem.product._id === productItem.product._id
+
+    if (orderExtrasLength < 1 && productExtrasLength < 1 && sameProductId) return true
+
+    if (sameProductId && productExtrasLength !== 0) {
+      let matchExtrasNum = 0
+      productItem.form.extras.forEach((productItemExtraItem) => {
+        orderItem.extras.forEach((orderItemExtraItem) => {
+          if (orderItemExtraItem._id === productItemExtraItem._id) matchExtrasNum++
+        })
+      })
+
+      if (
+        productExtrasLength === matchExtrasNum &&
+        orderExtrasLength === matchExtrasNum &&
+        productExtrasLength === orderExtrasLength
+      )
+        return true
+    }
   })
+}
+
+async function fashAddActiveProductItemToOrdersList(ordersList, productItem) {
+  await selectedProduct(productItem, false)
+  await addActiveProductItemToOrdersList(activeProductItem, ordersList)
+}
+
+function addActiveProductItemToOrdersList(productItem, ordersList) {
+  const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
+
+  if (matchProductItem) {
+    matchProductItem.quantity++
+  } else {
+    ordersList.items.push({
+      product: productItem.product,
+      extras: productItem.form.extras,
+      quantity: productItem.quantity,
+      total: productItem.price,
+    })
+  }
 
   selectorDialog.value = false
 }
@@ -225,7 +264,7 @@ onMounted(async () => {
   <v-container fluid class="ma-0 pa-0 h-100">
     <v-row class="ma-0 pa-0 h-100">
       <!-- 點單項目 -->
-      <v-col cols="6" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column">
+      <v-col cols="4" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column">
         <!-- 操作 -->
         <v-container class="py-0 px-2">
           <v-row dense>
@@ -340,7 +379,7 @@ onMounted(async () => {
       </v-col>
 
       <!-- 產品 -->
-      <v-col cols="6" md="8" class="order-type bg-grey-darken-3 pa-0">
+      <v-col cols="8" md="8" class="order-type bg-grey-darken-3 pa-0">
         <!-- TABs -->
         <v-tabs v-model="tabActiveId" bg-color="secondary" class="px-6">
           <v-tab
@@ -369,7 +408,7 @@ onMounted(async () => {
                     cols="4"
                     class="pa-1"
                   >
-                    <v-card @click="selectedProduct(productItem)">
+                    <v-card @click="selectedProduct(productItem, true)">
                       <template #title>
                         <div class="d-flex flex-column">
                           <div class="text-subtitle-1 font-weight-bold">
@@ -389,7 +428,7 @@ onMounted(async () => {
                       <!-- 快捷新增按鈕 -->
                       <button
                         class="fast-add-item-btn"
-                        @click.stop="fastAddItem(orderList, productItem, selectedItem)"
+                        @click.stop="fashAddActiveProductItemToOrdersList(ordersList, productItem)"
                       >
                         <v-icon size="30" icon="mdi-lightning-bolt-circle" />
                       </button>
