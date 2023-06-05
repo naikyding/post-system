@@ -10,22 +10,28 @@ const orderStore = useOrderStore()
 
 const tabActiveId = ref(0)
 
-// 選擇口味項目
-const selectedProductItem = ref({})
 // 選擇口味 dialog
 const selectorDialog = ref(false)
-// 選擇口味功能
+
+// 點擊產品功能
 function selectedProduct(productItem, dialogStatus) {
   activeProductItem.product = productItem
   selectorDialog.value = dialogStatus
 }
 
+// (重置) 當前選擇產品項目
 function resetActiveProductItem() {
   activeProductItem.form.extras = []
   activeProductItem.quantity = 1
   activeProductItem.product = {}
 }
 
+// 產品彈窗 若關閉，重置選擇產品
+watch(selectorDialog, (newStatus) => {
+  if (!newStatus) resetActiveProductItem()
+})
+
+// 當前選擇產品項目
 const activeProductItem = reactive({
   form: {
     extras: [],
@@ -44,6 +50,7 @@ const activeProductItem = reactive({
   }),
 })
 
+// 當前選擇產品項目 (dialog) 加減數量
 function activeProductItemQuantity(plusType) {
   if (plusType) {
     if (activeProductItem.quantity > 4) return false
@@ -53,7 +60,7 @@ function activeProductItemQuantity(plusType) {
   activeProductItem.quantity--
 }
 
-// 點單項目是否存在清單中
+// 點單項目是否存在清單中 (for 當前產品項目加入購物車)
 function sameProductItemIncludeOrdersList(ordersList, productItem) {
   return ordersList.items.find((orderItem) => {
     // 無 extras
@@ -81,11 +88,13 @@ function sameProductItemIncludeOrdersList(ordersList, productItem) {
   })
 }
 
+// 快速將 當前選擇產品項目 加入 購物車
 async function fashAddActiveProductItemToOrdersList(ordersList, productItem) {
   await selectedProduct(productItem, false)
   await addActiveProductItemToOrdersList(activeProductItem, ordersList)
 }
 
+// 當前產品項目加入購物車
 function addActiveProductItemToOrdersList(productItem, ordersList) {
   const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
 
@@ -103,28 +112,7 @@ function addActiveProductItemToOrdersList(productItem, ordersList) {
   selectorDialog.value = false
 }
 
-// dialog 選擇項目
-const selectedItem = ref({
-  product: [],
-  extras: [],
-  quantity: 1,
-  price: computed(() => {
-    let extrasPriceTotal = 0
-    selectedItem.value.extras.forEach((item) => {
-      extrasPriceTotal += item.price
-    })
-
-    return selectedItem.value.item.price
-      ? (selectedItem.value.item.price + extrasPriceTotal) * selectedItem.value.quantity
-      : 0
-  }),
-})
-
-watch(selectorDialog, (newStatus) => {
-  if (!newStatus) resetActiveProductItem()
-})
-
-// 購物車清單
+// 購物車清單初始內容
 const ordersList = reactive({
   items: [],
 
@@ -148,110 +136,32 @@ const ordersList = reactive({
   }),
 })
 
-// -------------------------------------------
-// 購物車
-const orderList = ref([])
-
-const editMode = ref(false)
-const orderListDeleteItem = ref([])
-
-function removeOrderItemFromOrderList(orderList, orderListDeleteItemList) {
-  orderListDeleteItemList.forEach((deleteItem) => {
-    orderList.splice(orderList.indexOf(deleteItem), 1)
-  })
-  orderListDeleteItemList.length = 0
-}
-
-function resetSelectorForm(selectedItem) {
-  selectedItem.item = {}
-  selectedItem.extras.length = 0
-
-  selectedItem.quantity = 1
-}
-
+// 關閉產品彈窗
 function closeSelectorDialog() {
   selectorDialog.value = false
 }
 
-// 加入購物車
-async function addOrderItem(list, item, disableDialog) {
-  const addItem = {
-    product: list.product,
-    extras: [...item.extras],
-    price: item.price,
-    quantity: item.quantity,
-  }
-
-  const listMatchItem = await sameOrderItem(list, addItem)
-
-  if (listMatchItem) listMatchItem.quantity++
-  else list.push(addItem)
-
-  if (disableDialog) return resetSelectorForm(item)
-
-  closeSelectorDialog(item)
+// 刪除購物車指定項目
+function dropOrdersListItemByIndex(list, index) {
+  list.items = list.items.filter((item, itemIndex) => itemIndex !== index)
 }
 
-// 點單項目是否存在清單中
-async function sameOrderItem(list, item) {
-  const itemExtrasLength = item.extras.length
-
-  const res = await list.find((listItem) => {
-    const listItemExtrasLength = listItem.extras.length
-    const sameItem = listItem.item === item.item
-    const sameNoExists = listItem.extras.length < 1 && item.extras.length < 1
-
-    // 口味在清單中，無配料
-    if (sameItem && sameNoExists) return true
-
-    // 口味在清單中，有配料
-    if (sameItem) {
-      let extrasMatchNum = 0
-      item.extras.forEach((itemExtrasItem) => {
-        listItem.extras.forEach((listItemExtrasItem) => {
-          if (listItemExtrasItem._id === itemExtrasItem._id) extrasMatchNum++
-        })
-      })
-      if (
-        itemExtrasLength > 0 &&
-        itemExtrasLength === extrasMatchNum &&
-        itemExtrasLength === listItemExtrasLength
-      )
-        return true
-    }
-  })
-
-  return res
-}
-
-function selectorFlavors(itemData, selectedItem, disableDialog) {
-  selectedItem.item = itemData
-
-  if (disableDialog) return false
-  selectorDialog.value = true
-}
-
-async function fastAddItem(list, item, selectedItem) {
-  await selectorFlavors(item, selectedItem, true)
-  addOrderItem(list, selectedItem, true)
-}
-
+// 送出訂單功能
 const submitOrderList = catchAsync(async (orderList) => {
-  const formatOrderList = orderList.reduce((acc, cur) => {
-    return (acc = [
-      ...acc,
-      {
-        flavor: cur.item._id,
-        extras: cur.extras.map((item) => item._id),
-        quantity: cur.quantity,
-        total: cur.price * cur.quantity,
-      },
-    ])
-  }, [])
-
-  const { data } = await orderStore.postOrderList(formatOrderList)
-  console.log(data)
-  if (data.status) return router.push('/list-status')
+  // const formatOrderList = orderList.reduce((acc, cur) => {
+  //   return (acc = [
+  //     ...acc,
+  //     {
+  //       flavor: cur.item._id,
+  //       extras: cur.extras.map((item) => item._id),
+  //       quantity: cur.quantity,
+  //       total: cur.price * cur.quantity,
+  //     },
+  //   ])
+  // }, [])
+  // const { data } = await orderStore.postOrderList(formatOrderList)
+  // console.log(data)
+  // if (data.status) return router.push('/list-status')
 })
 
 onMounted(async () => {
@@ -269,17 +179,8 @@ onMounted(async () => {
         <v-container class="py-0 px-2">
           <v-row dense>
             <v-col cols="12" sm="6">
-              <v-btn block @click="editMode = !editMode">
-                <v-icon icon="mdi-pencil" />
-              </v-btn>
-            </v-col>
-            <v-col v-show="orderListDeleteItem.length > 0" cols="12" sm="6">
-              <v-btn block @click="removeOrderItemFromOrderList(orderList, orderListDeleteItem)">
-                <v-icon icon="mdi-delete" />
-              </v-btn>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-btn block color="error" @click="orderList.length = 0">
+              <!-- 清空購物車 -->
+              <v-btn block color="error" @click="ordersList.items.length = 0">
                 <v-icon icon="mdi-delete-empty" />
               </v-btn>
             </v-col>
@@ -300,20 +201,7 @@ onMounted(async () => {
                 >
                   <td class="py-3 pr-0">
                     <div class="d-flex">
-                      <!-- addorderListDeleteItem(orderList, index, orderListDeleteItem) -->
-                      <v-checkbox
-                        v-show="editMode"
-                        v-model="orderListDeleteItem"
-                        hide-details
-                        density="compact"
-                        :value="orderList[index]"
-                      >
-                        <template #label>
-                          {{ item.product.name }}
-                        </template>
-                      </v-checkbox>
-
-                      <span v-show="!editMode" class="py-2">
+                      <span class="py-2">
                         {{ item.product.name }}
                       </span>
                     </div>
@@ -325,7 +213,21 @@ onMounted(async () => {
                     </div>
                   </td>
                   <td class="text-right px-1">
-                    {{ item.quantity }}
+                    <v-icon
+                      v-show="item.quantity > 1"
+                      icon="mdi-minus"
+                      @click="item.quantity--"
+                    ></v-icon>
+
+                    <v-icon
+                      v-show="item.quantity < 2"
+                      icon="mdi-trash-can-outline"
+                      @click="dropOrdersListItemByIndex(ordersList, index)"
+                    ></v-icon>
+                    <span>
+                      {{ item.quantity }}
+                    </span>
+                    <v-icon icon="mdi-plus" @click="item.quantity++"></v-icon>
                   </td>
                   <td class="text-right pl-1 pr-4">
                     {{ item.total }}
@@ -440,7 +342,7 @@ onMounted(async () => {
           </v-window>
         </v-card-text>
 
-        <div v-show="orderList.length > 0" class="submit-operate px-6 w-100">
+        <div v-show="ordersList.items.length > 0" class="submit-operate px-6 w-100">
           <v-btn block @click="submitOrderList(orderList, orderStore)"> 送出訂單 </v-btn>
         </div>
       </v-col>
