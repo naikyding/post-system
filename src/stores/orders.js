@@ -1,5 +1,154 @@
-import { ref, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { postOrderListAPI } from '@/api'
 
-export const useOrdersStore = defineStore('orders', () => {})
+export const useOrdersStore = defineStore('orders', () => {
+  // 產品彈窗 dialog
+  const selectorDialog = ref(false)
+
+  // 關閉產品彈窗
+  function closeSelectorDialog() {
+    selectorDialog.value = false
+  }
+
+  // 產品彈窗 若關閉，重置選擇產品
+  watch(selectorDialog, (newStatus) => {
+    if (!newStatus) resetActiveProductItem()
+  })
+
+  // 購物車清單初始內容
+  const ordersList = reactive({
+    items: [],
+
+    total: computed(() => {
+      return ordersList.items.reduce(
+        (init, cur) => {
+          init.quantity += cur.quantity
+          init.subTotal += cur.total
+          init.totalPrice += cur.total + init.service + init.discount
+
+          return init
+        },
+        {
+          quantity: 0,
+          subTotal: 0,
+          service: 0, // 服務費
+          discount: 0, // 優惠費
+          totalPrice: 0,
+        },
+      )
+    }),
+  })
+
+  // 刪除購物車指定項目
+  function dropOrdersListItemByIndex(list, index) {
+    list.items = list.items.filter((item, itemIndex) => itemIndex !== index)
+  }
+
+  // 當前產品項目加入購物車
+  function addActiveProductItemToOrdersList(productItem, ordersList) {
+    const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
+
+    if (matchProductItem) {
+      matchProductItem.quantity++
+    } else {
+      ordersList.items.push({
+        product: productItem.product,
+        extras: productItem.form.extras,
+        quantity: productItem.quantity,
+        total: productItem.price,
+      })
+    }
+
+    selectorDialog.value = false
+  }
+
+  // 快速將 當前選擇產品項目 加入 購物車
+  async function fashAddActiveProductItemToOrdersList(ordersList, productItem) {
+    await selectedProduct(productItem, false)
+    await addActiveProductItemToOrdersList(activeProductItem, ordersList)
+  }
+
+  // 點單項目是否存在清單中 (for 當前產品項目加入購物車)
+  function sameProductItemIncludeOrdersList(ordersList, productItem) {
+    return ordersList.items.find((orderItem) => {
+      // 無 extras
+      const orderExtrasLength = orderItem.extras.length
+      const productExtrasLength = productItem.form.extras.length
+      const sameProductId = orderItem.product._id === productItem.product._id
+
+      if (orderExtrasLength < 1 && productExtrasLength < 1 && sameProductId) return true
+
+      if (sameProductId && productExtrasLength !== 0) {
+        let matchExtrasNum = 0
+        productItem.form.extras.forEach((productItemExtraItem) => {
+          orderItem.extras.forEach((orderItemExtraItem) => {
+            if (orderItemExtraItem._id === productItemExtraItem._id) matchExtrasNum++
+          })
+        })
+
+        if (
+          productExtrasLength === matchExtrasNum &&
+          orderExtrasLength === matchExtrasNum &&
+          productExtrasLength === orderExtrasLength
+        )
+          return true
+      }
+    })
+  }
+
+  // 點擊產品功能
+  function selectedProduct(productItem, dialogStatus) {
+    activeProductItem.product = productItem
+    selectorDialog.value = dialogStatus
+  }
+
+  // 當前選擇產品項目
+  const activeProductItem = reactive({
+    form: {
+      extras: [],
+    },
+
+    product: {},
+    quantity: 1,
+    price: computed(() => {
+      const totalExtrasPrice = activeProductItem.form.extras.reduce((init, cur) => {
+        return (init += cur.price)
+      }, 0)
+
+      return activeProductItem.product.price
+        ? (totalExtrasPrice + activeProductItem.product.price) * activeProductItem.quantity
+        : 0
+    }),
+  })
+
+  // (重置) 當前選擇產品項目
+  function resetActiveProductItem() {
+    activeProductItem.form.extras = []
+    activeProductItem.quantity = 1
+    activeProductItem.product = {}
+  }
+
+  // 當前選擇產品項目 (dialog) 加減數量
+  function activeProductItemQuantity(plusType) {
+    if (plusType) {
+      if (activeProductItem.quantity > 4) return false
+      return activeProductItem.quantity++
+    }
+    if (activeProductItem.quantity < 2) return false
+    activeProductItem.quantity--
+  }
+
+  return {
+    ordersList,
+    dropOrdersListItemByIndex,
+    addActiveProductItemToOrdersList,
+    fashAddActiveProductItemToOrdersList,
+    activeProductItemQuantity,
+    resetActiveProductItem,
+    activeProductItem,
+    selectedProduct,
+    selectorDialog,
+    closeSelectorDialog,
+  }
+})
