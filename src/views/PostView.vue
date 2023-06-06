@@ -1,153 +1,20 @@
 <script setup>
 import { ref, computed, onMounted, watch, reactive } from 'vue'
 import catchAsync from '@/utils/catchAsync'
-import { useProductsStore, useOrderStore } from '../stores/products'
 import { useRouter } from 'vue-router'
+
+import { useProductsStore } from '../stores/products'
+import { useOrdersStore } from '../stores/orders'
 
 const router = useRouter()
 const productsStore = useProductsStore()
-const orderStore = useOrderStore()
+const ordersStore = useOrdersStore()
 
 const tabActiveId = ref(0)
 
-// 選擇口味 dialog
-const selectorDialog = ref(false)
-
-// 點擊產品功能
-function selectedProduct(productItem, dialogStatus) {
-  activeProductItem.product = productItem
-  selectorDialog.value = dialogStatus
-}
-
-// (重置) 當前選擇產品項目
-function resetActiveProductItem() {
-  activeProductItem.form.extras = []
-  activeProductItem.quantity = 1
-  activeProductItem.product = {}
-}
-
-// 產品彈窗 若關閉，重置選擇產品
-watch(selectorDialog, (newStatus) => {
-  if (!newStatus) resetActiveProductItem()
-})
-
-// 當前選擇產品項目
-const activeProductItem = reactive({
-  form: {
-    extras: [],
-  },
-
-  product: {},
-  quantity: 1,
-  price: computed(() => {
-    const totalExtrasPrice = activeProductItem.form.extras.reduce((init, cur) => {
-      return (init += cur.price)
-    }, 0)
-
-    return activeProductItem.product.price
-      ? (totalExtrasPrice + activeProductItem.product.price) * activeProductItem.quantity
-      : 0
-  }),
-})
-
-// 當前選擇產品項目 (dialog) 加減數量
-function activeProductItemQuantity(plusType) {
-  if (plusType) {
-    if (activeProductItem.quantity > 4) return false
-    return activeProductItem.quantity++
-  }
-  if (activeProductItem.quantity < 2) return false
-  activeProductItem.quantity--
-}
-
-// 點單項目是否存在清單中 (for 當前產品項目加入購物車)
-function sameProductItemIncludeOrdersList(ordersList, productItem) {
-  return ordersList.items.find((orderItem) => {
-    // 無 extras
-    const orderExtrasLength = orderItem.extras.length
-    const productExtrasLength = productItem.form.extras.length
-    const sameProductId = orderItem.product._id === productItem.product._id
-
-    if (orderExtrasLength < 1 && productExtrasLength < 1 && sameProductId) return true
-
-    if (sameProductId && productExtrasLength !== 0) {
-      let matchExtrasNum = 0
-      productItem.form.extras.forEach((productItemExtraItem) => {
-        orderItem.extras.forEach((orderItemExtraItem) => {
-          if (orderItemExtraItem._id === productItemExtraItem._id) matchExtrasNum++
-        })
-      })
-
-      if (
-        productExtrasLength === matchExtrasNum &&
-        orderExtrasLength === matchExtrasNum &&
-        productExtrasLength === orderExtrasLength
-      )
-        return true
-    }
-  })
-}
-
-// 快速將 當前選擇產品項目 加入 購物車
-async function fashAddActiveProductItemToOrdersList(ordersList, productItem) {
-  await selectedProduct(productItem, false)
-  await addActiveProductItemToOrdersList(activeProductItem, ordersList)
-}
-
-// 當前產品項目加入購物車
-function addActiveProductItemToOrdersList(productItem, ordersList) {
-  const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
-
-  if (matchProductItem) {
-    matchProductItem.quantity++
-  } else {
-    ordersList.items.push({
-      product: productItem.product,
-      extras: productItem.form.extras,
-      quantity: productItem.quantity,
-      total: productItem.price,
-    })
-  }
-
-  selectorDialog.value = false
-}
-
-// 購物車清單初始內容
-const ordersList = reactive({
-  items: [],
-
-  total: computed(() => {
-    return ordersList.items.reduce(
-      (init, cur) => {
-        init.quantity += cur.quantity
-        init.subTotal += cur.total
-        init.totalPrice += cur.total + init.service + init.discount
-
-        return init
-      },
-      {
-        quantity: 0,
-        subTotal: 0,
-        service: 0, // 服務費
-        discount: 0, // 優惠費
-        totalPrice: 0,
-      },
-    )
-  }),
-})
-
-// 關閉產品彈窗
-function closeSelectorDialog() {
-  selectorDialog.value = false
-}
-
-// 刪除購物車指定項目
-function dropOrdersListItemByIndex(list, index) {
-  list.items = list.items.filter((item, itemIndex) => itemIndex !== index)
-}
-
 // 送出訂單功能
 const submitOrderList = catchAsync(async (orderList) => {
+  console.log('submitOrderList')
   // const formatOrderList = orderList.reduce((acc, cur) => {
   //   return (acc = [
   //     ...acc,
@@ -163,6 +30,8 @@ const submitOrderList = catchAsync(async (orderList) => {
   // console.log(data)
   // if (data.status) return router.push('/list-status')
 })
+
+const confirmDialogStatus = ref(false)
 
 onMounted(async () => {
   // 取得產品最表
@@ -180,7 +49,7 @@ onMounted(async () => {
           <v-row dense>
             <v-col cols="12" sm="6">
               <!-- 清空購物車 -->
-              <v-btn block color="error" @click="ordersList.items.length = 0">
+              <v-btn block color="error" @click="ordersStore.ordersList.items.length = 0">
                 <v-icon icon="mdi-delete-empty" />
               </v-btn>
             </v-col>
@@ -195,21 +64,28 @@ onMounted(async () => {
             <v-table hover>
               <tbody>
                 <tr
-                  v-for="(item, index) in ordersList.items"
+                  v-for="(item, index) in ordersStore.ordersList.items"
                   :key="item.product._id"
                   class="order-item"
                 >
                   <td class="py-3 pr-0">
                     <div class="d-flex">
-                      <span class="py-2">
+                      <span class="">
                         {{ item.product.name }}
                       </span>
                     </div>
                     <div class="special">
-                      <span v-for="(extra, index) in item.extras" :key="extra" class="text-caption">
-                        {{ extra.name }}
-                        <span v-if="index !== item.extras.length - 1">/</span>
-                      </span>
+                      <div
+                        v-for="extraItem in item.extras"
+                        :key="extraItem._id"
+                        class="text-caption"
+                      >
+                        <v-icon icon="mdi-plus"></v-icon>
+                        <span class="px-1 bg-grey rounded mr-1">{{ extraItem.type }}</span>
+                        <span>
+                          {{ extraItem.name }}
+                        </span>
+                      </div>
                     </div>
                   </td>
                   <td class="text-right px-1">
@@ -222,7 +98,7 @@ onMounted(async () => {
                     <v-icon
                       v-show="item.quantity < 2"
                       icon="mdi-trash-can-outline"
-                      @click="dropOrdersListItemByIndex(ordersList, index)"
+                      @click="ordersStore.dropOrdersListItemByIndex(ordersStore.ordersList, index)"
                     ></v-icon>
                     <span>
                       {{ item.quantity }}
@@ -244,37 +120,51 @@ onMounted(async () => {
             <div class="d-flex">
               <span>數量</span>
               <v-spacer />
-              <span>{{ ordersList.total.quantity }}</span>
+              <span>{{ ordersStore.ordersList.total.quantity }}</span>
             </div>
 
             <!-- 小計 -->
             <div class="d-flex">
               <span>小計</span>
               <v-spacer />
-              <span>{{ ordersList.total.subTotal }}</span>
+              <span>{{ ordersStore.ordersList.total.subTotal }}</span>
             </div>
 
             <!-- 服務費 -->
             <div class="d-flex">
               <span>服務費</span>
               <v-spacer />
-              <span>{{ ordersList.total.service }}</span>
+              <span>{{ ordersStore.ordersList.total.service }}</span>
             </div>
 
             <!-- 優惠 -->
             <div class="d-flex">
               <span>優惠費</span>
               <v-spacer />
-              <span>{{ ordersList.total.discount }}</span>
+              <span>{{ ordersStore.ordersList.total.discount }}</span>
             </div>
 
             <v-divider class="my-2" />
 
             <!-- 總價 -->
-            <div class="d-flex my-1 text-yellow-accent-4 text-h5">
+            <div class="d-flex my-1 text-h5">
               <span class="">總價</span>
               <v-spacer />
-              <span>{{ ordersList.total.totalPrice }}</span>
+              <span>{{ ordersStore.ordersList.total.totalPrice }}</span>
+            </div>
+
+            <!-- 送出訂單 -->
+            <div>
+              <v-btn
+                :disabled="ordersStore.ordersList.items.length < 1"
+                block
+                size="large"
+                color="success"
+                variant="flat"
+                @click="confirmDialogStatus = true"
+              >
+                結帳
+              </v-btn>
             </div>
           </div>
         </div>
@@ -310,7 +200,7 @@ onMounted(async () => {
                     cols="4"
                     class="pa-1"
                   >
-                    <v-card @click="selectedProduct(productItem, true)">
+                    <v-card @click="ordersStore.selectedProduct(productItem, true)">
                       <template #title>
                         <div class="d-flex flex-column">
                           <div class="text-subtitle-1 font-weight-bold">
@@ -330,7 +220,12 @@ onMounted(async () => {
                       <!-- 快捷新增按鈕 -->
                       <button
                         class="fast-add-item-btn"
-                        @click.stop="fashAddActiveProductItemToOrdersList(ordersList, productItem)"
+                        @click.stop="
+                          ordersStore.fashAddActiveProductItemToOrdersList(
+                            ordersStore.ordersList,
+                            productItem,
+                          )
+                        "
                       >
                         <v-icon size="30" icon="mdi-lightning-bolt-circle" />
                       </button>
@@ -341,26 +236,22 @@ onMounted(async () => {
             </v-window-item>
           </v-window>
         </v-card-text>
-
-        <div v-show="ordersList.items.length > 0" class="submit-operate px-6 w-100">
-          <v-btn block @click="submitOrderList(orderList, orderStore)"> 送出訂單 </v-btn>
-        </div>
       </v-col>
     </v-row>
   </v-container>
 
   <!-- Dialog -->
-  <v-dialog v-model="selectorDialog" width="400">
+  <v-dialog transition="dialog-bottom-transition" v-model="ordersStore.selectorDialog" width="400">
     <template #activator="{ props }">
       <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
     </template>
 
     <v-card>
       <v-card-title class="pt-4 px-6">
-        {{ activeProductItem.product.name }}
+        {{ ordersStore.activeProductItem.product.name }}
       </v-card-title>
       <v-card-subtitle class="px-6">
-        {{ activeProductItem.product.description }}
+        {{ ordersStore.activeProductItem.product.description }}
       </v-card-subtitle>
       <v-divider class="mt-4" />
       <v-card-text>
@@ -368,7 +259,7 @@ onMounted(async () => {
           <h4 class="mb-4">加料</h4>
 
           <div
-            v-for="extras in activeProductItem.product.extras"
+            v-for="extras in ordersStore.activeProductItem.product.extras"
             :key="extras"
             class="bg-black rounded-lg py-2 px-4 mb-3"
           >
@@ -379,7 +270,7 @@ onMounted(async () => {
             <v-checkbox
               v-for="extra in extras.items"
               :key="extra"
-              v-model="activeProductItem.form.extras"
+              v-model="ordersStore.activeProductItem.form.extras"
               :value="extra"
               density="compact"
               hide-details
@@ -390,35 +281,120 @@ onMounted(async () => {
 
         <h4 class="mb-4">數量</h4>
         <v-text-field
-          v-model="activeProductItem.quantity"
+          v-model="ordersStore.activeProductItem.quantity"
           type="number"
           min="1"
           append-icon="mdi-plus"
           prepend-icon="mdi-minus"
           variant="outlined"
           readonly
-          @click:append="activeProductItemQuantity(true)"
-          @click:prepend="activeProductItemQuantity()"
+          @click:append="ordersStore.activeProductItemQuantity(true)"
+          @click:prepend="ordersStore.activeProductItemQuantity()"
         />
 
         <div class="operate">
           <v-btn
             block
             color="success"
-            @click="addActiveProductItemToOrdersList(activeProductItem, ordersList)"
+            @click="
+              ordersStore.addActiveProductItemToOrdersList(
+                ordersStore.activeProductItem,
+                ordersStore.ordersList,
+              )
+            "
           >
             新增
             <span class="font-weight-bold text-yellow-accent-4">
-              {{ activeProductItem.quantity }}
+              {{ ordersStore.activeProductItem.quantity }}
             </span>
             項目到訂單
             <span class="font-weight-bold text-yellow-accent-4"
-              >NT${{ activeProductItem.price }}</span
+              >NT${{ ordersStore.activeProductItem.price }}</span
             >
           </v-btn>
-          <v-btn block color="error" class="mt-4" @click="closeSelectorDialog"> 取消 </v-btn>
+          <v-btn block color="error" class="mt-4" @click="ordersStore.closeSelectorDialog">
+            取消
+          </v-btn>
         </div>
       </v-card-text>
+    </v-card>
+  </v-dialog>
+
+  <!-- confirm Dialog -->
+  <v-dialog transition="dialog-bottom-transition" v-model="confirmDialogStatus" width="400">
+    <v-card>
+      <v-card-item class="bg-grey text-center pb-2" title="訂單明細"></v-card-item>
+      <v-card-text>
+        <div class="order-list-area px-4">
+          <div
+            v-for="orderItem in ordersStore.ordersList.items"
+            :key="orderItem.product._id"
+            class="order-item d-flex align-center"
+          >
+            <div class="order-item_name font-weight-bold">
+              {{ orderItem.product.name }}
+
+              <div v-for="extraItem in orderItem.extras" :key="extraItem._id" class="text-caption">
+                <v-icon icon="mdi-plus"></v-icon>
+                <span class="px-1 bg-grey rounded mr-1">{{ extraItem.type }}</span>
+                <span>
+                  {{ extraItem.name }}
+                </span>
+              </div>
+            </div>
+            <v-spacer></v-spacer>
+            <div class="order-item_quantity mr-4">
+              {{ orderItem.quantity }}
+            </div>
+            <div class="order-item_total-price">
+              $
+              <span class="font-weight-bold">
+                {{ orderItem.total }}
+              </span>
+            </div>
+          </div>
+
+          <div class="note-area">
+            <v-textarea rows="2" hide-details="true" label="備註" variant="outlined"></v-textarea>
+          </div>
+
+          <div class="order-list-total d-flex my-4 font-weight-bold">
+            <div class="order-list-total__items">
+              共 {{ ordersStore.ordersList.total.quantity }} 項
+            </div>
+            <v-spacer></v-spacer>
+            <div class="order-list-total__total">
+              總計 {{ ordersStore.ordersList.total.totalPrice }} 元
+            </div>
+          </div>
+        </div></v-card-text
+      >
+
+      <template #actions>
+        <v-container class="pt-0">
+          <v-row class="px-6">
+            <v-col cols="6" class="px-1">
+              <v-btn
+                size="large"
+                @click="submitOrderList(ordersStore.ordersList, { isPaid: false })"
+                block
+                variant="outlined"
+                >未付款，送出訂單</v-btn
+              >
+            </v-col>
+            <v-col cols="6" class="px-1">
+              <v-btn
+                size="large"
+                @click="submitOrderList(ordersStore.ordersList, { isPaid: true })"
+                block
+                variant="flat"
+                color="success"
+                >已付款，送出訂單</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-container>
+      </template>
     </v-card>
   </v-dialog>
 </template>
@@ -442,5 +418,10 @@ table {
   position: absolute;
   bottom: 1px;
   right: 1px;
+}
+
+.order-item {
+  border-bottom: solid #2e2e2e 1px;
+  padding: 1rem;
 }
 </style>
