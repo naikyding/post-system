@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { postOrderListAPI, getProductsAPI } from '@/api'
+import { getProductsAPI } from '@/api'
 
 export const useProductsStore = defineStore('products', () => {
   // 產品列表
@@ -226,12 +226,4 @@ export const useProductsStore = defineStore('products', () => {
     products,
     getProducts,
   }
-})
-
-export const useOrderStore = defineStore('orders', () => {
-  async function postOrderList(list) {
-    const res = await postOrderListAPI(list)
-    return res
-  }
-  return { postOrderList }
 })
