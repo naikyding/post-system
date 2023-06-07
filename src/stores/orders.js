@@ -1,4 +1,4 @@
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { postOrderListAPI } from '@/api'
 import catchAsync from '@/utils/catchAsync'
@@ -8,14 +8,10 @@ export const useOrdersStore = defineStore('orders', () => {
   const selectorDialog = ref(false)
 
   // 關閉產品彈窗
-  function closeSelectorDialog() {
-    selectorDialog.value = false
+  function closeSelectorDialog(dialog) {
+    dialog.activeProductItem = false
+    resetActiveProductItem()
   }
-
-  // 產品彈窗 若關閉，重置選擇產品
-  watch(selectorDialog, (newStatus) => {
-    if (!newStatus) resetActiveProductItem()
-  })
 
   // 購物車清單初始內容
   const ordersList = reactive({
@@ -49,7 +45,7 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 當前產品項目加入購物車
-  function addActiveProductItemToOrdersList(productItem, ordersList) {
+  function addActiveProductItemToOrdersList(productItem, ordersList, dialog) {
     const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
 
     if (matchProductItem) {
@@ -63,13 +59,13 @@ export const useOrdersStore = defineStore('orders', () => {
       })
     }
 
-    selectorDialog.value = false
+    dialog.activeProductItem = false
   }
 
   // 快速將 當前選擇產品項目 加入 購物車
-  async function fashAddActiveProductItemToOrdersList(ordersList, productItem) {
-    await selectedProduct(productItem, false)
-    await addActiveProductItemToOrdersList(activeProductItem, ordersList)
+  async function fashAddActiveProductItemToOrdersList(ordersList, productItem, dialog) {
+    await selectedProduct(productItem, dialog, false)
+    await addActiveProductItemToOrdersList(activeProductItem, ordersList, dialog)
   }
 
   // 點單項目是否存在清單中 (for 當前產品項目加入購物車)
@@ -101,9 +97,9 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 點擊產品功能
-  function selectedProduct(productItem, dialogStatus) {
+  function selectedProduct(productItem, dialog, dialogStatus) {
     activeProductItem.product = productItem
-    selectorDialog.value = dialogStatus
+    dialog.activeProductItem = dialogStatus
   }
 
   // 當前選擇產品項目

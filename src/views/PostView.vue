@@ -12,7 +12,12 @@ const ordersStore = useOrdersStore()
 
 const tabActiveId = ref(0)
 
-const confirmDialogStatus = ref(false)
+const dialog = reactive({
+  // 選擇產品
+  activeProductItem: false,
+  // 確認訂單
+  confirmOrderList: false,
+})
 
 onMounted(async () => {
   // 取得產品最表
@@ -142,7 +147,7 @@ onMounted(async () => {
                 size="large"
                 color="success"
                 variant="flat"
-                @click="confirmDialogStatus = true"
+                @click="dialog.confirmOrderList = true"
               >
                 結帳
               </v-btn>
@@ -181,7 +186,7 @@ onMounted(async () => {
                     cols="4"
                     class="pa-1"
                   >
-                    <v-card @click="ordersStore.selectedProduct(productItem, true)">
+                    <v-card @click="ordersStore.selectedProduct(productItem, dialog, true)">
                       <template #title>
                         <div class="d-flex flex-column">
                           <div class="text-subtitle-1 font-weight-bold">
@@ -205,6 +210,7 @@ onMounted(async () => {
                           ordersStore.fashAddActiveProductItemToOrdersList(
                             ordersStore.ordersList,
                             productItem,
+                            dialog,
                           )
                         "
                       >
@@ -221,8 +227,8 @@ onMounted(async () => {
     </v-row>
   </v-container>
 
-  <!-- Dialog -->
-  <v-dialog transition="dialog-bottom-transition" v-model="ordersStore.selectorDialog" width="400">
+  <!-- 產品資訊 Dialog -->
+  <v-dialog transition="dialog-bottom-transition" v-model="dialog.activeProductItem" width="400">
     <template #activator="{ props }">
       <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
     </template>
@@ -281,6 +287,7 @@ onMounted(async () => {
               ordersStore.addActiveProductItemToOrdersList(
                 ordersStore.activeProductItem,
                 ordersStore.ordersList,
+                dialog,
               )
             "
           >
@@ -293,7 +300,7 @@ onMounted(async () => {
               >NT${{ ordersStore.activeProductItem.price }}</span
             >
           </v-btn>
-          <v-btn block color="error" class="mt-4" @click="ordersStore.closeSelectorDialog">
+          <v-btn block color="error" class="mt-4" @click="ordersStore.closeSelectorDialog(dialog)">
             取消
           </v-btn>
         </div>
@@ -302,7 +309,7 @@ onMounted(async () => {
   </v-dialog>
 
   <!-- confirm Dialog -->
-  <v-dialog transition="dialog-bottom-transition" v-model="confirmDialogStatus" width="400">
+  <v-dialog transition="dialog-bottom-transition" v-model="dialog.confirmOrderList" width="400">
     <v-card>
       <v-card-item class="bg-grey text-center pb-2" title="訂單明細"></v-card-item>
       <v-card-text>
