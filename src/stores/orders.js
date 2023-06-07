@@ -1,6 +1,7 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { postOrderListAPI } from '@/api'
+import catchAsync from '@/utils/catchAsync'
 
 export const useOrdersStore = defineStore('orders', () => {
   // 產品彈窗 dialog
@@ -19,6 +20,8 @@ export const useOrdersStore = defineStore('orders', () => {
   // 購物車清單初始內容
   const ordersList = reactive({
     items: [],
+    note: '',
+    isPaid: false,
 
     total: computed(() => {
       return ordersList.items.reduce(
@@ -139,6 +142,39 @@ export const useOrdersStore = defineStore('orders', () => {
     activeProductItem.quantity--
   }
 
+  // 送出訂單
+  const submitOrderList = catchAsync(async ({ list, isPaid }) => {
+    list.isPaid = isPaid
+    console.log(list)
+
+    const formatData = list.items.reduce(
+      (init, cur) => {
+        const curExtrasAry = cur.extras.reduce((initExtra, curExtra) => {
+          return (initExtra = [...initExtra, curExtra._id])
+        }, [])
+
+        init.items.push({
+          product: cur.product._id,
+          extras: curExtrasAry,
+          quantify: cur.quantity,
+          price: cur.total,
+        })
+
+        if (!init.totalPrice) init.totalPrice = list.total.totalPrice
+        if (!init.isPaid) init.isPaid = list.isPaid
+        if (!init.note) init.note = list.note
+
+        return init
+      },
+      {
+        items: [],
+      },
+    )
+
+    console.log(formatData)
+    // const res = await postOrderListAPI()
+  })
+
   return {
     ordersList,
     dropOrdersListItemByIndex,
@@ -150,5 +186,6 @@ export const useOrdersStore = defineStore('orders', () => {
     selectedProduct,
     selectorDialog,
     closeSelectorDialog,
+    submitOrderList,
   }
 })

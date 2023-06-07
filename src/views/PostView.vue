@@ -12,25 +12,6 @@ const ordersStore = useOrdersStore()
 
 const tabActiveId = ref(0)
 
-// 送出訂單功能
-const submitOrderList = catchAsync(async (orderList) => {
-  console.log('submitOrderList')
-  // const formatOrderList = orderList.reduce((acc, cur) => {
-  //   return (acc = [
-  //     ...acc,
-  //     {
-  //       flavor: cur.item._id,
-  //       extras: cur.extras.map((item) => item._id),
-  //       quantity: cur.quantity,
-  //       total: cur.price * cur.quantity,
-  //     },
-  //   ])
-  // }, [])
-  // const { data } = await orderStore.postOrderList(formatOrderList)
-  // console.log(data)
-  // if (data.status) return router.push('/list-status')
-})
-
 const confirmDialogStatus = ref(false)
 
 onMounted(async () => {
@@ -355,7 +336,13 @@ onMounted(async () => {
           </div>
 
           <div class="note-area">
-            <v-textarea rows="2" hide-details="true" label="備註" variant="outlined"></v-textarea>
+            <v-textarea
+              v-model="ordersStore.ordersList.note"
+              rows="2"
+              hide-details="true"
+              label="備註"
+              variant="outlined"
+            ></v-textarea>
           </div>
 
           <div class="order-list-total d-flex my-4 font-weight-bold">
@@ -376,7 +363,9 @@ onMounted(async () => {
             <v-col cols="6" class="px-1">
               <v-btn
                 size="large"
-                @click="submitOrderList(ordersStore.ordersList, { isPaid: false })"
+                @click="
+                  ordersStore.submitOrderList({ list: ordersStore.ordersList, isPaid: false })
+                "
                 block
                 variant="outlined"
                 >未付款，送出訂單</v-btn
@@ -385,7 +374,7 @@ onMounted(async () => {
             <v-col cols="6" class="px-1">
               <v-btn
                 size="large"
-                @click="submitOrderList(ordersStore.ordersList, { isPaid: true })"
+                @click="ordersStore.submitOrderList({ list: ordersStore.ordersList, isPaid: true })"
                 block
                 variant="flat"
                 color="success"
