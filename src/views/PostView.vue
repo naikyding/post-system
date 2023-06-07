@@ -1,12 +1,9 @@
 <script setup>
-import { ref, computed, onMounted, watch, reactive } from 'vue'
-import catchAsync from '@/utils/catchAsync'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, reactive, watch } from 'vue'
 
 import { useProductsStore } from '../stores/products'
 import { useOrdersStore } from '../stores/orders'
 
-const router = useRouter()
 const productsStore = useProductsStore()
 const ordersStore = useOrdersStore()
 
@@ -18,6 +15,14 @@ const dialog = reactive({
   // 確認訂單
   confirmOrderList: false,
 })
+
+// 選擇產品 dialog 關閉 -> 重置 resetActiveProductItem
+watch(
+  () => dialog.activeProductItem,
+  (newStatus) => {
+    if (!newStatus) ordersStore.resetActiveProductItem()
+  },
+)
 
 onMounted(async () => {
   // 取得產品最表
@@ -300,7 +305,7 @@ onMounted(async () => {
               >NT${{ ordersStore.activeProductItem.price }}</span
             >
           </v-btn>
-          <v-btn block color="error" class="mt-4" @click="ordersStore.closeSelectorDialog(dialog)">
+          <v-btn block color="error" class="mt-4" @click="dialog.activeProductItem = false">
             取消
           </v-btn>
         </div>

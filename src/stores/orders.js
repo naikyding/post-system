@@ -7,12 +7,6 @@ export const useOrdersStore = defineStore('orders', () => {
   // 產品彈窗 dialog
   const selectorDialog = ref(false)
 
-  // 關閉產品彈窗
-  function closeSelectorDialog(dialog) {
-    dialog.activeProductItem = false
-    resetActiveProductItem()
-  }
-
   // 購物車清單初始內容
   const ordersList = reactive({
     items: [],
@@ -181,7 +175,6 @@ export const useOrdersStore = defineStore('orders', () => {
     activeProductItem,
     selectedProduct,
     selectorDialog,
-    closeSelectorDialog,
     submitOrderList,
   }
 })
