@@ -145,7 +145,6 @@ export const useOrdersStore = defineStore('orders', () => {
   // 送出訂單
   const submitOrderList = catchAsync(async ({ list, isPaid }) => {
     list.isPaid = isPaid
-    console.log(list)
 
     const formatData = list.items.reduce(
       (init, cur) => {
@@ -160,9 +159,10 @@ export const useOrdersStore = defineStore('orders', () => {
           price: cur.total,
         })
 
-        if (!init.totalPrice) init.totalPrice = list.total.totalPrice
-        if (!init.isPaid) init.isPaid = list.isPaid
         if (!init.note) init.note = list.note
+        if (!init.isPaid) init.isPaid = list.isPaid
+        if (!init.paymentType && list.isPaid) init.paymentType = 'cash'
+        if (!init.totalPrice) init.totalPrice = list.total.totalPrice
 
         return init
       },
