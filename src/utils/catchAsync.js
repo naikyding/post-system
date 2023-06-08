@@ -1,6 +1,6 @@
 const catchAsync = (func) => async (data) => {
   try {
-    await func(data)
+    return await func(data)
   } catch (errors) {
     if (errors.name === 'AxiosError') {
       return console.warn(
