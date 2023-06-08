@@ -1,5 +1,5 @@
 import { getProducts } from './products'
-import { postOrderList } from './orders'
+import { createOrder } from './orders'
 
 export const getProductsAPI = getProducts
-export const postOrderListAPI = postOrderList
+export const createOrderAPI = createOrder
