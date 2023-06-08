@@ -1,7 +1,9 @@
 import { ref, reactive, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { postOrderListAPI } from '@/api'
+import { createOrderAPI } from '@/api'
 import catchAsync from '@/utils/catchAsync'
+import { useUerStore } from '../stores/users'
+import { useAppStore } from '../stores/app'
 
 export const useOrdersStore = defineStore('orders', () => {
   // 產品彈窗 dialog
@@ -18,7 +20,7 @@ export const useOrdersStore = defineStore('orders', () => {
         (init, cur) => {
           init.quantity += cur.quantity
           init.subTotal += cur.total
-          init.totalPrice += cur.total + init.service + init.discount
+          init.totalPrice += cur.total * cur.quantity + init.service + init.discount
 
           return init
         },
@@ -135,6 +137,8 @@ export const useOrdersStore = defineStore('orders', () => {
   // 送出訂單
   const submitOrderList = catchAsync(async ({ list, isPaid }) => {
     list.isPaid = isPaid
+    const userStore = useUerStore()
+    const appStore = useAppStore()
 
     const formatData = list.items.reduce(
       (init, cur) => {
@@ -161,8 +165,11 @@ export const useOrdersStore = defineStore('orders', () => {
       },
     )
 
-    console.log(formatData)
-    // const res = await postOrderListAPI()
+    formatData.customer = userStore.customer
+    formatData.agent = userStore.agent
+
+    const { status } = await createOrderAPI()
+    appStore.resStatusDialog({ status: status, text: '新增訂單' })
   })
 
   return {
