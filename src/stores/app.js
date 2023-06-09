@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { reactive, watch } from 'vue'
+import Swal from 'sweetalert2'
 
 export const useAppStore = defineStore('App', () => {
   const statusDialog = reactive({
@@ -13,10 +14,14 @@ export const useAppStore = defineStore('App', () => {
     const titleRes = status ? '操作成功' : '操作失敗'
     const typeRes = type ? type : status ? 'success' : 'error'
 
-    statusDialog.status = true
-    statusDialog.type = typeRes
-    statusDialog.title = title || titleRes
-    statusDialog.text = text || '--'
+    Swal.fire({
+      icon: typeRes,
+      title: title || titleRes,
+      text: text || '--',
+      showConfirmButton: false,
+      timer: 1500,
+      width: '400px',
+    })
   }
 
   // 監聽 statusDialog 自動關閉
