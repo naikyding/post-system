@@ -1,6 +1,6 @@
 import { ref, reactive, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { createOrderAPI } from '@/api'
+import { createOrderAPI, getOrderListAPI } from '@/api'
 import catchAsync from '@/utils/catchAsync'
 import { useUerStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
@@ -195,4 +195,15 @@ export const useOrdersStore = defineStore('orders', () => {
     selectorDialog,
     submitOrderList,
   }
+})
+
+export const useSystemOrderList = defineStore('systemOrder', () => {
+  const orderList = ref([])
+
+  async function getOrderList() {
+    const { data } = await getOrderListAPI()
+    orderList.value = data
+  }
+
+  return { getOrderList, orderList }
 })
