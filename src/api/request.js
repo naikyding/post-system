@@ -23,22 +23,12 @@ request.interceptors.response.use(
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
 
-    const successStatus = [200, 201]
-    if (successStatus.includes(response.status)) {
-      console.log(
-        `%c✅ ${response.status} Response: `,
-        'background: #04BFBF; border-radius: 4px; padding: .3rem 1rem;',
-        response.data,
-      )
-      return response.data
-    }
-
     console.log(
-      `%c❌ ${response.status} Response: `,
-      'background: #F21313; border-radius: 4px; padding: .3rem 1rem;',
+      `%c✅ ${response.status} Response: `,
+      'background: #04BFBF; border-radius: 4px; padding: .3rem 1rem;',
       response.data,
     )
-    return response
+    return response.data
   },
   function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
