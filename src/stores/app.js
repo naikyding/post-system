@@ -1,14 +1,9 @@
 import { defineStore } from 'pinia'
-import { reactive, watch } from 'vue'
+import { ref } from 'vue'
 import Swal from 'sweetalert2'
 
 export const useAppStore = defineStore('App', () => {
-  const statusDialog = reactive({
-    status: false,
-    type: 'info', // success. info.  warning. error
-    title: '--',
-    text: '--',
-  })
+  const progressStatus = ref(false)
 
   function resStatusDialog({ status, type, title, text }) {
     const titleRes = status ? '操作成功' : '操作失敗'
@@ -24,17 +19,5 @@ export const useAppStore = defineStore('App', () => {
     })
   }
 
-  // 監聽 statusDialog 自動關閉
-  watch(
-    () => statusDialog.status,
-    (newStatus) => {
-      if (newStatus) {
-        setTimeout(() => {
-          statusDialog.status = false
-        }, 2000)
-      }
-    },
-  )
-
-  return { statusDialog, resStatusDialog }
+  return { resStatusDialog, progressStatus }
 })

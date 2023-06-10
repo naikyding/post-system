@@ -1,6 +1,6 @@
 <script setup>
 import SystemSidebar from './components/SystemSidebar.vue'
-import StatusDialog from './components/dialog/StatusDialog.vue'
+import ProgressAlert from './components/dialog/progressAlert.vue'
 </script>
 
 <template>
@@ -8,8 +8,8 @@ import StatusDialog from './components/dialog/StatusDialog.vue'
     <RouterView />
   </SystemSidebar>
 
-  <!-- 狀態 dialog -->
-  <StatusDialog />
+  <!-- progress alert -->
+  <ProgressAlert />
 </template>
 
 <style scoped></style>
