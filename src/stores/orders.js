@@ -4,6 +4,7 @@ import { createOrderAPI } from '@/api'
 import catchAsync from '@/utils/catchAsync'
 import { useUerStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
+import { resFunc } from '../utils/resFunc'
 
 export const useOrdersStore = defineStore('orders', () => {
   // 產品彈窗 dialog
@@ -34,6 +35,12 @@ export const useOrdersStore = defineStore('orders', () => {
       )
     }),
   })
+
+  function resetOrderList() {
+    ordersList.items = []
+    ordersList.note = ''
+    ordersList.isPaid = false
+  }
 
   // 刪除購物車指定項目
   function dropOrdersListItemByIndex(list, index) {
@@ -135,7 +142,7 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 送出訂單
-  const submitOrderList = catchAsync(async ({ list, isPaid }) => {
+  const submitOrderList = catchAsync(async ({ list, isPaid, dialog }) => {
     list.isPaid = isPaid
     const userStore = useUerStore()
     const appStore = useAppStore()
@@ -168,8 +175,12 @@ export const useOrdersStore = defineStore('orders', () => {
     formatData.customer = userStore.customer
     formatData.agent = userStore.agent
 
-    const { status } = await createOrderAPI()
+    dialog.confirmOrderList = false
+    const { status } = await createOrderAPI(formatData)
     appStore.resStatusDialog({ status: status, text: '新增訂單' })
+    resFunc(status, () => {
+      resetOrderList()
+    })
   })
 
   return {

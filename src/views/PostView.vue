@@ -16,7 +16,7 @@ const dialog = reactive({
   confirmOrderList: false,
 })
 
-// 選擇產品 dialog 關閉 -> 重置 resetActiveProductItem
+// 選擇產a 關閉 -> 重置 resetActiveProductItem
 watch(
   () => dialog.activeProductItem,
   (newStatus) => {
@@ -38,7 +38,7 @@ onMounted(async () => {
         <!-- 操作 -->
         <v-container class="py-0 px-2">
           <v-row dense>
-            <v-col cols="12" sm="6">
+            <v-col cols="12">
               <!-- 清空購物車 -->
               <v-btn block color="error" @click="ordersStore.ordersList.items.length = 0">
                 <v-icon icon="mdi-delete-empty" />
@@ -376,7 +376,11 @@ onMounted(async () => {
               <v-btn
                 size="large"
                 @click="
-                  ordersStore.submitOrderList({ list: ordersStore.ordersList, isPaid: false })
+                  ordersStore.submitOrderList({
+                    list: ordersStore.ordersList,
+                    isPaid: false,
+                    dialog,
+                  })
                 "
                 block
                 variant="outlined"
@@ -386,7 +390,13 @@ onMounted(async () => {
             <v-col cols="6" class="px-1">
               <v-btn
                 size="large"
-                @click="ordersStore.submitOrderList({ list: ordersStore.ordersList, isPaid: true })"
+                @click="
+                  ordersStore.submitOrderList({
+                    list: ordersStore.ordersList,
+                    isPaid: true,
+                    dialog,
+                  })
+                "
                 block
                 variant="flat"
                 color="success"
