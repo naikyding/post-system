@@ -8,10 +8,10 @@ systemOrderStore.getOrderList()
 <template>
   <v-table fixed-header height="100dvh">
     <thead>
-      <tr>
+      <tr class="text-caption">
         <th class="text-left">執行狀態</th>
-        <th class="text-left">序號</th>
-        <th class="text-left">訂單編號</th>
+        <th class="text-left">項目</th>
+        <th class="text-left">OrderID</th>
         <th class="text-left">商品名稱</th>
         <th class="text-left">加料</th>
         <th class="text-left">數量</th>
@@ -23,16 +23,19 @@ systemOrderStore.getOrderList()
         <tr v-for="(product, index) in items.items" :key="product._id">
           <td>
             <v-switch
+              @change="
+                systemOrderStore.updateProductItemStatus(product.product._id, product.status)
+              "
               hide-details
               color="success"
               v-model="product.status"
               :label="`${product.status ? '完成' : '未完成'}`"
             ></v-switch>
           </td>
-          <td>
+          <td class="text-caption">
             {{ `${index + 1} / ${items.items.length}` }}
           </td>
-          <td>{{ product._id.substring(product._id.length - 4) }}</td>
+          <td class="text-caption">{{ product._id.substring(product._id.length - 4) }}</td>
           <td>
             {{ product.product.name }}
           </td>
@@ -42,9 +45,12 @@ systemOrderStore.getOrderList()
               <span>{{ extra.name }}</span>
             </div>
           </td>
-          <td>{{ product.quantify }}</td>
+          <td class="text-caption">{{ product.quantify }}</td>
           <td>
-            <span class="px-2 py-1 rounded-lg" :class="[items.isPaid ? 'bg-success' : 'bg-red']">
+            <span
+              class="px-2 py-1 rounded-lg text-caption"
+              :class="[items.isPaid ? 'bg-success' : 'bg-error']"
+            >
               {{ items.isPaid ? '已付款' : '未付款' }}</span
             >
           </td>

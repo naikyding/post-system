@@ -205,5 +205,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     orderList.value = data
   }
 
-  return { getOrderList, orderList }
+  async function updateProductItemStatus(productItemId, status) {
+    console.log(productItemId, status)
+  }
+  return { getOrderList, orderList, updateProductItemStatus }
 })
