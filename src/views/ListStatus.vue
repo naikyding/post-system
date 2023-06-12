@@ -6,7 +6,7 @@ systemOrderStore.getOrderList()
 </script>
 
 <template>
-  <v-table fixed-header>
+  <v-table fixed-header height="100dvh">
     <thead>
       <tr>
         <th class="text-left">執行狀態</th>
