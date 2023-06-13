@@ -156,7 +156,7 @@ export const useOrdersStore = defineStore('orders', () => {
         init.items.push({
           product: cur.product._id,
           extras: curExtrasAry,
-          quantify: cur.quantity,
+          quantity: cur.quantity,
           price: cur.total,
         })
 
@@ -200,6 +200,12 @@ export const useOrdersStore = defineStore('orders', () => {
 export const useSystemOrderList = defineStore('systemOrder', () => {
   const orderList = ref([])
 
+  const activeOrderList = ref([])
+
+  function addActiveOrderList(order) {
+    activeOrderList.value = order
+  }
+
   async function getOrderList() {
     const { data } = await getOrderListAPI()
     orderList.value = data
@@ -208,5 +214,5 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   async function updateProductItemStatus(productItemId, status) {
     console.log(productItemId, status)
   }
-  return { getOrderList, orderList, updateProductItemStatus }
+  return { getOrderList, orderList, updateProductItemStatus, addActiveOrderList, activeOrderList }
 })
