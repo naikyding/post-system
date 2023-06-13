@@ -16,6 +16,7 @@ systemOrderStore.getOrderList()
         <th class="text-left">加料</th>
         <th class="text-left">數量</th>
         <th class="text-left">付款狀態</th>
+        <th class="text-center">-</th>
       </tr>
     </thead>
     <tbody>
@@ -53,6 +54,9 @@ systemOrderStore.getOrderList()
             >
               {{ items.isPaid ? '已付款' : '未付款' }}</span
             >
+          </td>
+          <td class="text-center">
+            <v-btn size="x-small" icon="mdi-dots-vertical" variant="text"> </v-btn>
           </td>
         </tr>
       </template>
