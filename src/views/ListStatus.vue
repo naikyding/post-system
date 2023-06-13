@@ -160,8 +160,15 @@ async function deleteDialog(orderListID, callback) {
               總計 {{ systemOrderStore.activeOrderList.totalPrice }} 元
             </div>
           </div>
-        </div></v-card-text
-      >
+
+          <v-alert
+            v-show="!systemOrderStore.activeOrderList.isPaid"
+            type="warning"
+            title="未付款"
+            text="此訂單，目前尚未付款完成，請確認付款後再更新訂單狀態。"
+          ></v-alert>
+        </div>
+      </v-card-text>
 
       <template #actions>
         <v-container class="pt-0">
