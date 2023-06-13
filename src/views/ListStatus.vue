@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import { useSystemOrderList } from '../stores/orders'
 import { dateFormat } from '@/utils/day'
+import Swal from 'sweetalert2'
 
 const systemOrderStore = useSystemOrderList()
 systemOrderStore.getOrderList()
@@ -13,6 +14,24 @@ const dialog = reactive({
 function showOrderListDetails(order) {
   systemOrderStore.addActiveOrderList(order)
   dialog.confirmOrderList = true
+}
+
+async function deleteDialog(orderListID, callback) {
+  dialog.confirmOrderList = false
+
+  const { isConfirmed } = await Swal.fire({
+    title: '確定刪除訂單內容?',
+    showCancelButton: true,
+    confirmButtonText: '確定刪除',
+    confirmButtonColor: '#dc3741',
+    cancelButtonText: '取消',
+  })
+
+  if (isConfirmed) {
+    return callback(orderListID)
+  }
+
+  console.log('取消')
 }
 </script>
 
@@ -97,6 +116,13 @@ function showOrderListDetails(order) {
             class="order-item d-flex align-center"
           >
             <div class="order-item_name font-weight-bold">
+              <v-btn
+                @click="deleteDialog(orderItem._id, systemOrderStore.deleteOrderItemById)"
+                size="x-small"
+                icon="mdi-trash-can-outline"
+                class="mr-2"
+                color="error"
+              ></v-btn>
               {{ orderItem.product.name }}
 
               <div v-for="extraItem in orderItem.extras" :key="extraItem._id" class="text-caption">
@@ -121,8 +147,13 @@ function showOrderListDetails(order) {
 
           <div class="order-list-total d-flex my-4 font-weight-bold">
             <div class="order-list-total__items">
-              <!-- {{ ordersStore.ordersList.total.quantity }}  -->
-              共 {{}} 項
+              共
+              {{
+                systemOrderStore.activeOrderList.items.reduce((init, cur) => {
+                  return init + cur.quantity
+                }, 0)
+              }}
+              項
             </div>
             <v-spacer></v-spacer>
             <div class="order-list-total__total">
@@ -135,35 +166,25 @@ function showOrderListDetails(order) {
       <template #actions>
         <v-container class="pt-0">
           <v-row class="px-6">
-            <v-col cols="6" class="px-1">
+            <v-col cols="12" class="px-1">
+              <v-btn size="large" block variant="flat" color="success">
+                所有項目完成，更新訂單狀態
+              </v-btn>
+            </v-col>
+
+            <v-col cols="12" class="px-1">
               <v-btn
-                size="large"
                 @click="
-                  ordersStore.submitOrderList({
-                    list: ordersStore.ordersList,
-                    isPaid: false,
-                    dialog,
-                  })
+                  deleteDialog(
+                    systemOrderStore.activeOrderList._id,
+                    systemOrderStore.deleteOrderById,
+                  )
                 "
+                size="large"
+                color="error"
                 block
                 variant="outlined"
-                >未付款，送出訂單</v-btn
-              >
-            </v-col>
-            <v-col cols="6" class="px-1">
-              <v-btn
-                size="large"
-                @click="
-                  ordersStore.submitOrderList({
-                    list: ordersStore.ordersList,
-                    isPaid: true,
-                    dialog,
-                  })
-                "
-                block
-                variant="flat"
-                color="success"
-                >已付款，送出訂單</v-btn
+                >刪除訂單所有項目</v-btn
               >
             </v-col>
           </v-row>
@@ -173,4 +194,9 @@ function showOrderListDetails(order) {
   </v-dialog>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.order-item {
+  border-bottom: solid #2e2e2e 1px;
+  padding: 1rem;
+}
+</style>

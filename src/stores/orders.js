@@ -1,6 +1,6 @@
 import { ref, reactive, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { createOrderAPI, getOrderListAPI } from '@/api'
+import { createOrderAPI, getOrderListAPI, deleteOrderAPI, deleteOrderItemAPI } from '@/api'
 import catchAsync from '@/utils/catchAsync'
 import { useUerStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
@@ -202,6 +202,10 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   const activeOrderList = ref([])
 
+  function resetActiveOrderList() {
+    activeOrderList.value = []
+  }
+
   function addActiveOrderList(order) {
     activeOrderList.value = order
   }
@@ -214,5 +218,33 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   async function updateProductItemStatus(productItemId, status) {
     console.log(productItemId, status)
   }
-  return { getOrderList, orderList, updateProductItemStatus, addActiveOrderList, activeOrderList }
+
+  function reFetchData() {
+    resetActiveOrderList()
+    getOrderList()
+  }
+
+  const deleteOrderById = catchAsync(async (id) => {
+    const appStore = useAppStore()
+    const { status } = await deleteOrderAPI(id)
+    appStore.resStatusDialog({ status: status, text: '已刪除訂單所有項目' })
+    resFunc(status, reFetchData)
+  })
+
+  const deleteOrderItemById = catchAsync(async (id) => {
+    const appStore = useAppStore()
+    const { status } = await deleteOrderItemAPI(id)
+    appStore.resStatusDialog({ status: status, text: '已刪除指定內容' })
+    resFunc(status, reFetchData)
+  })
+
+  return {
+    getOrderList,
+    orderList,
+    updateProductItemStatus,
+    addActiveOrderList,
+    activeOrderList,
+    deleteOrderById,
+    deleteOrderItemById,
+  }
 })
