@@ -374,6 +374,7 @@ onMounted(async () => {
           <v-row class="px-6">
             <v-col cols="6" class="px-1">
               <v-btn
+                color="error"
                 size="large"
                 @click="
                   ordersStore.submitOrderList({
