@@ -61,8 +61,13 @@ async function deleteDialog(orderListID, callback) {
               hide-details
               color="success"
               v-model="product.status"
-              :label="`${product.status ? '完成' : '未完成'}`"
-            ></v-switch>
+            >
+              <template #label>
+                <span class="text-caption">
+                  {{ `${product.status ? '完成' : '未完成'}` }}
+                </span>
+              </template>
+            </v-switch>
           </td>
           <td class="text-caption">
             {{ `${index + 1} / ${items.items.length}` }}
@@ -125,7 +130,11 @@ async function deleteDialog(orderListID, callback) {
               ></v-btn>
               {{ orderItem.product.name }}
 
-              <div v-for="extraItem in orderItem.extras" :key="extraItem._id" class="text-caption">
+              <div
+                v-for="extraItem in orderItem.extras"
+                :key="extraItem._id"
+                class="text-caption mt-2"
+              >
                 <v-icon icon="mdi-plus"></v-icon>
                 <span class="px-1 bg-grey rounded mr-1">{{ extraItem.type }}</span>
                 <span>
@@ -134,14 +143,9 @@ async function deleteDialog(orderListID, callback) {
               </div>
             </div>
             <v-spacer></v-spacer>
-            <div class="order-item_quantity mr-4">
-              {{ orderItem.quantity }}
-            </div>
-            <div class="order-item_total-price">
-              $
-              <span class="font-weight-bold">
-                {{ orderItem.price }}
-              </span>
+            <div class="order-item_quantity mr-3">x{{ orderItem.quantity }}</div>
+            <div class="order-item_total-price text-left">
+              <span class="font-weight-bold"> ${{ orderItem.price }} </span>
             </div>
           </div>
 
@@ -205,5 +209,8 @@ async function deleteDialog(orderListID, callback) {
 .order-item {
   border-bottom: solid #2e2e2e 1px;
   padding: 1rem;
+}
+.order-item_total-price {
+  width: 50px;
 }
 </style>
