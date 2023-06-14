@@ -162,7 +162,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
         if (!init.note) init.note = list.note
         if (!init.isPaid) init.isPaid = list.isPaid
-        if (!init.paymentType && list.isPaid) init.paymentType = 'cash'
+        if (!init.paymentType) init.paymentType = 'cash'
         if (!init.totalPrice) init.totalPrice = list.total.totalPrice
 
         return init
@@ -215,6 +215,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     orderList.value = data
   }
 
+  async function updateOrderList() {}
+
   async function updateProductItemStatus(productItemId, status) {
     console.log(productItemId, status)
   }
@@ -242,9 +244,13 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   return {
     getOrderList,
     orderList,
+
+    updateOrderList,
     updateProductItemStatus,
+
     addActiveOrderList,
     activeOrderList,
+
     deleteOrderById,
     deleteOrderItemById,
   }
