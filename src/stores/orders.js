@@ -1,6 +1,12 @@
 import { ref, reactive, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { createOrderAPI, getOrderListAPI, deleteOrderAPI, deleteOrderItemAPI } from '@/api'
+import {
+  createOrderAPI,
+  getOrderListAPI,
+  deleteOrderAPI,
+  deleteOrderItemAPI,
+  updateOrderAPI,
+} from '@/api'
 import catchAsync from '@/utils/catchAsync'
 import { useUerStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
@@ -217,8 +223,14 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   async function updateOrderList() {}
 
-  async function updateProductItemStatus(productItemId, status) {
-    console.log(productItemId, status)
+  async function updateOrderContent(orderId, updateData) {
+    const appStore = useAppStore()
+    const { status, data } = await updateOrderAPI(orderId, updateData)
+    appStore.resStatusDialog({ status: status, text: '已更新訂單內容' })
+    if (data) {
+      resetActiveOrderList()
+      orderList.value = data
+    }
   }
 
   const deleteOrderById = catchAsync(async (id) => {
@@ -246,7 +258,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     orderList,
 
     updateOrderList,
-    updateProductItemStatus,
+    updateOrderContent,
 
     addActiveOrderList,
     activeOrderList,

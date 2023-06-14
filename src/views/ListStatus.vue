@@ -30,8 +30,22 @@ async function deleteDialog(orderListID, callback) {
   if (isConfirmed) {
     return callback(orderListID)
   }
+}
 
-  console.log('取消')
+async function updateDialog(orderListID, updateData, callback) {
+  dialog.confirmOrderList = false
+
+  const { isConfirmed } = await Swal.fire({
+    title: '更新訂單狀態，確認項目都完成?',
+    showCancelButton: true,
+    confirmButtonText: '確定',
+    confirmButtonColor: '#4cae50',
+    cancelButtonText: '取消',
+  })
+
+  if (isConfirmed) {
+    return callback(orderListID, updateData)
+  }
 }
 </script>
 
@@ -178,7 +192,21 @@ async function deleteDialog(orderListID, callback) {
         <v-container class="pt-0">
           <v-row class="px-6">
             <v-col cols="12" class="px-1">
-              <v-btn size="large" block variant="flat" color="success">
+              <v-btn
+                @click="
+                  updateDialog(
+                    systemOrderStore.activeOrderList._id,
+                    {
+                      status: 'completed',
+                    },
+                    systemOrderStore.updateOrderContent,
+                  )
+                "
+                size="large"
+                block
+                variant="flat"
+                color="success"
+              >
                 所有項目完成，更新訂單狀態
               </v-btn>
             </v-col>
