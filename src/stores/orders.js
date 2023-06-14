@@ -219,23 +219,24 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     console.log(productItemId, status)
   }
 
-  function reFetchData() {
-    resetActiveOrderList()
-    getOrderList()
-  }
-
   const deleteOrderById = catchAsync(async (id) => {
     const appStore = useAppStore()
-    const { status } = await deleteOrderAPI(id)
+    const { status, data } = await deleteOrderAPI(id)
     appStore.resStatusDialog({ status: status, text: '已刪除訂單所有項目' })
-    resFunc(status, reFetchData)
+    if (data) {
+      resetActiveOrderList()
+      orderList.value = data
+    }
   })
 
   const deleteOrderItemById = catchAsync(async (id) => {
     const appStore = useAppStore()
-    const { status } = await deleteOrderItemAPI(id)
+    const { status, data } = await deleteOrderItemAPI(id)
     appStore.resStatusDialog({ status: status, text: '已刪除指定內容' })
-    resFunc(status, reFetchData)
+    if (data) {
+      resetActiveOrderList()
+      orderList.value = data
+    }
   })
 
   return {
