@@ -1,6 +1,6 @@
 <script setup>
-import { reactive, ref } from 'vue'
-import { useSystemOrderList } from '../stores/orders'
+import { reactive } from 'vue'
+import { useSystemOrderList } from '@/stores/orders'
 import { dateFormat } from '@/utils/day'
 import Swal from 'sweetalert2'
 
@@ -47,32 +47,10 @@ async function updateDialog(orderListID, updateData, callback) {
     return callback(orderListID, updateData)
   }
 }
-
-const tab = ref('one')
 </script>
 
 <template>
-  <v-card>
-    <v-tabs v-model="tab" bg-color="primary">
-      <v-tab value="three">待處理</v-tab>
-      <v-tab value="four">已完成</v-tab>
-      <v-tab value="two">未付款</v-tab>
-      <v-tab value="one">全部</v-tab>
-      <v-tab value="five">取消</v-tab>
-    </v-tabs>
-
-    <v-card-text>
-      <v-window v-model="tab">
-        <v-window-item value="three">待處理</v-window-item>
-        <v-window-item value="four">已完成</v-window-item>
-        <v-window-item value="two">未付款</v-window-item>
-        <v-window-item value="one">全部</v-window-item>
-        <v-window-item value="five">取消</v-window-item>
-      </v-window>
-    </v-card-text>
-  </v-card>
-
-  <v-table fixed-header height="100dvh">
+  <v-table fixed-header height="">
     <thead>
       <tr class="text-caption">
         <th class="text-left">執行狀態</th>
@@ -157,13 +135,6 @@ const tab = ref('one')
             class="order-item d-flex align-center"
           >
             <div class="order-item_name font-weight-bold">
-              <v-btn
-                @click="deleteDialog(orderItem._id, systemOrderStore.deleteOrderItemById)"
-                size="x-small"
-                icon="mdi-trash-can-outline"
-                class="mr-2"
-                color="error"
-              ></v-btn>
               {{ orderItem.product.name }}
 
               <div

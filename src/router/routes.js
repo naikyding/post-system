@@ -1,6 +1,6 @@
 import HomeView from '../views/HomeView.vue'
 import PostView from '../views/PostView.vue'
-import ListStatus from '../views/ListStatus.vue'
+import ListStatus from '../views/statusList/index.vue'
 
 const routes = [
   {
