@@ -10,5 +10,6 @@ module.exports = {
   rules: {
     // 忽略 eslint extends 規則與  prettier rules 衝突
     'prettier/prettier': 'off',
+    'vue/multi-word-component-names': 'off',
   },
 }
