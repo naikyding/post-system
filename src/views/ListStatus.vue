@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useSystemOrderList } from '../stores/orders'
 import { dateFormat } from '@/utils/day'
 import Swal from 'sweetalert2'
@@ -16,19 +16,19 @@ function showOrderListDetails(order) {
   dialog.confirmOrderList = true
 }
 
-async function deleteDialog(orderListID, callback) {
+async function deleteDialog(orderListID, updateData, callback) {
   dialog.confirmOrderList = false
 
   const { isConfirmed } = await Swal.fire({
-    title: '確定刪除訂單內容?',
+    title: '確定取消訂單?',
     showCancelButton: true,
-    confirmButtonText: '確定刪除',
+    confirmButtonText: '確定，取消訂單',
     confirmButtonColor: '#dc3741',
     cancelButtonText: '取消',
   })
 
   if (isConfirmed) {
-    return callback(orderListID)
+    return callback(orderListID, updateData)
   }
 }
 
@@ -47,9 +47,31 @@ async function updateDialog(orderListID, updateData, callback) {
     return callback(orderListID, updateData)
   }
 }
+
+const tab = ref('one')
 </script>
 
 <template>
+  <v-card>
+    <v-tabs v-model="tab" bg-color="primary">
+      <v-tab value="three">待處理</v-tab>
+      <v-tab value="four">已完成</v-tab>
+      <v-tab value="two">未付款</v-tab>
+      <v-tab value="one">全部</v-tab>
+      <v-tab value="five">取消</v-tab>
+    </v-tabs>
+
+    <v-card-text>
+      <v-window v-model="tab">
+        <v-window-item value="three">待處理</v-window-item>
+        <v-window-item value="four">已完成</v-window-item>
+        <v-window-item value="two">未付款</v-window-item>
+        <v-window-item value="one">全部</v-window-item>
+        <v-window-item value="five">取消</v-window-item>
+      </v-window>
+    </v-card-text>
+  </v-card>
+
   <v-table fixed-header height="100dvh">
     <thead>
       <tr class="text-caption">
@@ -216,14 +238,17 @@ async function updateDialog(orderListID, updateData, callback) {
                 @click="
                   deleteDialog(
                     systemOrderStore.activeOrderList._id,
-                    systemOrderStore.deleteOrderById,
+                    {
+                      status: 'cancelled',
+                    },
+                    systemOrderStore.updateOrderContent,
                   )
                 "
                 size="large"
                 color="error"
                 block
                 variant="outlined"
-                >刪除訂單所有項目</v-btn
+                >取消訂單</v-btn
               >
             </v-col>
           </v-row>
