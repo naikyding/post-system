@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import DataTable from './components/DataTable.vue'
 
-const tab = ref('three')
+const tab = ref('one')
 </script>
 
 <template>
@@ -15,7 +15,9 @@ const tab = ref('three')
   </v-tabs>
 
   <v-window v-model="tab">
-    <v-window-item value="three">待處理</v-window-item>
+    <v-window-item value="three">
+      <div>待處理</div>
+    </v-window-item>
     <v-window-item value="four">已完成</v-window-item>
     <v-window-item value="two">未付款</v-window-item>
     <v-window-item value="one">

@@ -1,15 +1,14 @@
 <script setup>
-import SystemSidebar from './components/SystemSidebar.vue'
+import SystemLayout from './views/SystemLayout.vue'
 import ProgressAlert from './components/dialog/progressAlert.vue'
 </script>
 
 <template>
-  <SystemSidebar>
-    <RouterView />
-  </SystemSidebar>
-
   <!-- progress alert -->
   <ProgressAlert />
+  <SystemLayout>
+    <RouterView />
+  </SystemLayout>
 </template>
 
 <style scoped></style>

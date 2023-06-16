@@ -57,7 +57,7 @@ async function updateDialog(orderListID, updateData, callback) {
   </template>
 
   <template v-else>
-    <v-table fixed-header>
+    <v-table fixed-header height="calc(100dvh - 48px)">
       <thead>
         <tr class="text-caption">
           <th class="text-left">執行狀態</th>

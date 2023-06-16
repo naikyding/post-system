@@ -22,6 +22,7 @@ function sidebarClose() {
   <!-- <img src="@/assets/images/ci/monster-crepes-ci.jpeg" /> -->
   <v-card>
     <v-layout>
+      <!-- sidebar 側邊欄 -->
       <v-navigation-drawer
         width="220"
         v-model="state.drawer"
@@ -63,7 +64,9 @@ function sidebarClose() {
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <v-main class="" style="height: 100dvh" @click="sidebarClose">
+
+      <!-- 內容 (右) -->
+      <v-main @click="sidebarClose">
         <slot />
       </v-main>
     </v-layout>
