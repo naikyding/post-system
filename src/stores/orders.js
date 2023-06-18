@@ -1,4 +1,4 @@
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import {
   createOrderAPI,
@@ -11,6 +11,7 @@ import catchAsync from '@/utils/catchAsync'
 import { useUerStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
 import { resFunc } from '../utils/resFunc'
+import dayJS from 'dayjs'
 
 export const useOrdersStore = defineStore('orders', () => {
   // 產品彈窗 dialog
@@ -204,8 +205,15 @@ export const useOrdersStore = defineStore('orders', () => {
 })
 
 export const useSystemOrderList = defineStore('systemOrder', () => {
-  const orderList = ref([])
+  const activeListTab = ref('pending')
+  const activeListDate = reactive({
+    from: null,
+    to: null,
+  })
 
+  watch(activeListTab, getOrderList)
+
+  const orderList = ref([])
   const activeOrderList = ref([])
 
   function resetActiveOrderList() {
@@ -216,8 +224,20 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     activeOrderList.value = order
   }
 
+  function getOrderListFilter(activeTab) {
+    let urlQueryString = '?limit=0&offset=0'
+
+    if (activeListDate.from && activeListDate.to)
+      urlQueryString += `&from=${activeListDate.from}&to=${activeListDate.to}`
+    if (!activeTab) return (urlQueryString += '&paid=false')
+    if (activeTab === 'all') return urlQueryString
+
+    return (urlQueryString += `&status=${activeTab}`)
+  }
+
   async function getOrderList() {
-    const { data } = await getOrderListAPI()
+    orderList.value.length = 0
+    const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
     orderList.value = data
   }
 
@@ -265,5 +285,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
     deleteOrderById,
     deleteOrderItemById,
+    activeListTab,
+    activeListDate,
   }
 })

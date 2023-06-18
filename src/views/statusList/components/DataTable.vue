@@ -2,11 +2,11 @@
 import { reactive } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
 import { dateFormat } from '@/utils/day'
+
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
 
 const systemOrderStore = useSystemOrderList()
-systemOrderStore.getOrderList()
 
 const dialog = reactive({
   confirmOrderList: false,
@@ -75,13 +75,16 @@ async function updateDialog(orderListID, updateData, callback) {
         <template v-for="items in systemOrderStore.orderList" :key="items._id">
           <tr v-for="(product, index) in items.items" :key="product._id">
             <td>
+              <template v-if="items.status === 'cancelled'">
+                <span class="px-2 py-1 rounded-lg text-caption bg-error"> 已取消 </span>
+              </template>
               <v-switch
-                @change="
-                  systemOrderStore.updateProductItemStatus(product.product._id, product.status)
-                "
+                v-else
+                inset
+                :readonly="items.status === 'completed'"
                 hide-details
                 color="success"
-                v-model="product.status"
+                :model-value="items.status === 'completed'"
               >
                 <template #label>
                   <span class="text-caption">

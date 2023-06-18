@@ -1,6 +1,6 @@
 import request from './request'
 
-export const getOrderList = () => request.get('/orders')
+export const getOrderList = (urlQueryString) => request.get(`/orders${urlQueryString}`)
 export const createOrder = (list) => request.post('/orders', list)
 export const updateOrder = (id, updateData) => request.patch(`/orders/${id}`, updateData)
 export const deleteOrder = (id) => request.delete(`/orders/${id}`)

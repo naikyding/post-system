@@ -1,29 +1,49 @@
 <script setup>
-import { ref } from 'vue'
 import DataTable from './components/DataTable.vue'
+import { useSystemOrderList } from '../../stores/orders'
+import dayJS from 'dayjs'
 
-const tab = ref('one')
+const systemOrderStore = useSystemOrderList()
+const now = dayJS(new Date()).format('YYYY-MM-DD')
+systemOrderStore.activeListDate.from = now
+systemOrderStore.activeListDate.to = now
+systemOrderStore.getOrderList()
 </script>
 
 <template>
-  <v-tabs v-model="tab" bg-color="primary">
-    <v-tab value="three">待處理</v-tab>
-    <v-tab value="four">已完成</v-tab>
-    <v-tab value="two">未付款</v-tab>
-    <v-tab value="one">全部</v-tab>
-    <v-tab value="five">取消</v-tab>
+  <v-tabs v-model="systemOrderStore.activeListTab" bg-color="primary">
+    <v-tab value="pending">待處理</v-tab>
+    <v-tab value="completed">已完成</v-tab>
+    <v-tab :value="false">未付款</v-tab>
+    <v-tab value="all">全部</v-tab>
+    <v-tab value="cancelled">取消</v-tab>
   </v-tabs>
 
-  <v-window v-model="tab">
-    <v-window-item value="three">
-      <div>待處理</div>
-    </v-window-item>
-    <v-window-item value="four">已完成</v-window-item>
-    <v-window-item value="two">未付款</v-window-item>
-    <v-window-item value="one">
+  <v-window v-model="systemOrderStore.activeListTab">
+    <!-- 待處理 -->
+    <v-window-item value="pending">
       <DataTable />
     </v-window-item>
-    <v-window-item value="five">取消</v-window-item>
+
+    <!-- 已完成 -->
+    <v-window-item value="completed">
+      <DataTable />
+    </v-window-item>
+
+    <!-- 未付款 -->
+    <v-window-item :value="false">
+      <DataTable />
+    </v-window-item>
+
+    <!-- 全部 -->
+    <v-window-item value="all">
+      <DataTable />
+    </v-window-item>
+
+    <!-- 取消 -->
+    <v-window-item value="cancelled">
+      <DataTable />
+    </v-window-item>
   </v-window>
 </template>
 
