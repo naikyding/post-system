@@ -53,7 +53,7 @@ async function updateDialog(orderListID, updateData, callback) {
 <template>
   <!-- 沒有資料 -->
   <template v-if="systemOrderStore.orderList.length < 1">
-    <EmptyBox />
+    <EmptyBox class="h-screen-pt-48px" />
   </template>
 
   <template v-else>

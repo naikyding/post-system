@@ -31,8 +31,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-container fluid class="ma-0 pa-0 h-100">
-    <v-row class="ma-0 pa-0 h-100">
+  <v-container fluid class="ma-0 pa-0">
+    <v-row class="ma-0 pa-0 h-screen">
       <!-- 點單項目 -->
       <v-col cols="4" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column">
         <!-- 操作 -->
@@ -234,10 +234,6 @@ onMounted(async () => {
 
   <!-- 產品資訊 Dialog -->
   <v-dialog transition="dialog-bottom-transition" v-model="dialog.activeProductItem" width="400">
-    <template #activator="{ props }">
-      <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
-    </template>
-
     <v-card>
       <v-card-title class="pt-4 px-6">
         {{ ordersStore.activeProductItem.product.name }}
