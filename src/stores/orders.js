@@ -216,10 +216,6 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   const orderList = ref([])
   const activeOrderList = ref([])
 
-  function resetActiveOrderList() {
-    activeOrderList.value = []
-  }
-
   function addActiveOrderList(order) {
     activeOrderList.value = order
   }
@@ -245,32 +241,23 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   async function updateOrderContent(orderId, updateData) {
     const appStore = useAppStore()
-    const { status, data } = await updateOrderAPI(orderId, updateData)
+    const { status } = await updateOrderAPI(orderId, updateData)
     appStore.resStatusDialog({ status: status, text: '已更新訂單內容' })
-    if (data) {
-      resetActiveOrderList()
-      orderList.value = data
-    }
+    if (status) getOrderList()
   }
 
   const deleteOrderById = catchAsync(async (id) => {
     const appStore = useAppStore()
-    const { status, data } = await deleteOrderAPI(id)
+    const { status } = await deleteOrderAPI(id)
     appStore.resStatusDialog({ status: status, text: '已刪除訂單所有項目' })
-    if (data) {
-      resetActiveOrderList()
-      orderList.value = data
-    }
+    if (status) getOrderList()
   })
 
   const deleteOrderItemById = catchAsync(async (id) => {
     const appStore = useAppStore()
-    const { status, data } = await deleteOrderItemAPI(id)
+    const { status } = await deleteOrderItemAPI(id)
     appStore.resStatusDialog({ status: status, text: '已刪除指定內容' })
-    if (data) {
-      resetActiveOrderList()
-      orderList.value = data
-    }
+    if (status) getOrderList()
   })
 
   return {
