@@ -187,6 +187,8 @@ export const useOrdersStore = defineStore('orders', () => {
     appStore.resStatusDialog({ status: status, text: '新增訂單' })
     resFunc(status, () => {
       resetOrderList()
+      const systemOrderListStore = useSystemOrderList()
+      systemOrderListStore.getTodayOrderList()
     })
   })
 
@@ -206,6 +208,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
 export const useSystemOrderList = defineStore('systemOrder', () => {
   const activeListTab = ref('pending')
+  const pendingQuantity = ref(0)
   const activeListDate = reactive({
     from: null,
     to: null,
@@ -231,10 +234,25 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     return (urlQueryString += `&status=${activeTab}`)
   }
 
+  function getTodayOrderList() {
+    const now = dayJS(new Date()).format('YYYY-MM-DD')
+    activeListDate.from = now
+    activeListDate.to = now
+    activeListTab.value = 'pending'
+
+    getOrderList()
+  }
+
   async function getOrderList() {
     orderList.value.length = 0
     const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
     orderList.value = data
+    if (activeListTab.value === 'pending') {
+      pendingQuantity.value = 0
+      pendingQuantity.value = data.reduce((init, cur) => {
+        return (init += cur.items.length)
+      }, 0)
+    }
   }
 
   async function updateOrderList() {}
@@ -274,5 +292,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     deleteOrderItemById,
     activeListTab,
     activeListDate,
+    pendingQuantity,
+    getTodayOrderList,
   }
 })

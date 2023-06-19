@@ -1,18 +1,24 @@
 <script setup>
 import DataTable from './components/DataTable.vue'
 import { useSystemOrderList } from '../../stores/orders'
-import dayJS from 'dayjs'
 
 const systemOrderStore = useSystemOrderList()
-const now = dayJS(new Date()).format('YYYY-MM-DD')
-systemOrderStore.activeListDate.from = now
-systemOrderStore.activeListDate.to = now
-systemOrderStore.getOrderList()
 </script>
 
 <template>
-  <v-tabs v-model="systemOrderStore.activeListTab" bg-color="primary">
-    <v-tab value="pending">待處理</v-tab>
+  <v-tabs
+    fixed-tabs
+    v-model="systemOrderStore.activeListTab"
+    color="primary"
+    bg-color="white"
+    class="rounded-t-lg"
+  >
+    <v-tab value="pending"
+      >待處理
+      <span class="text-error" v-show="systemOrderStore.pendingQuantity > 0"
+        >({{ systemOrderStore.pendingQuantity }})</span
+      >
+    </v-tab>
     <v-tab value="completed">已完成</v-tab>
     <v-tab :value="false">未付款</v-tab>
     <v-tab value="all">全部</v-tab>

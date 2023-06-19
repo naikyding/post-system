@@ -2,6 +2,11 @@
 import { ref } from 'vue'
 import monsterLogo from '@/assets/images/ci/monster-crepes-ci.jpeg'
 
+import { useSystemOrderList } from '@/stores/orders'
+
+const systemOrderStore = useSystemOrderList()
+systemOrderStore.getTodayOrderList()
+
 const state = ref({
   drawer: true,
   items: [
@@ -57,7 +62,13 @@ function sidebarClose() {
           <v-list-item to="/list-status" title="List" value="list">
             <!-- 圖示 -->
             <template v-slot:prepend>
-              <v-badge offset-x="-5" offset-y="-8" color="red" content="N" class="mr-8">
+              <v-badge
+                offset-x="-5"
+                offset-y="-8"
+                color="red"
+                :content="systemOrderStore.pendingQuantity"
+                class="mr-8"
+              >
                 <v-icon class="">mdi-list-status</v-icon>
               </v-badge>
             </template>
