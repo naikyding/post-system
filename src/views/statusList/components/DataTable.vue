@@ -202,6 +202,7 @@ async function updateDialog(orderListID, updateData, callback) {
                     systemOrderStore.activeOrderList._id,
                     {
                       status: 'completed',
+                      isPaid: true,
                     },
                     systemOrderStore.updateOrderContent,
                   )
