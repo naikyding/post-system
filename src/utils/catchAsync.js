@@ -21,7 +21,7 @@ const errorFunction = (errors) => {
 
     // log
     return console.warn(
-      '%c🔥 請求失敗:',
+      `%c🔥 ${errors.response.status} 請求失敗:`,
       'background: #F2B33D; border-radius: 4px; color: #fff; padding: .3rem 1rem;',
       `${errors.config.baseURL}/${errors.config.url}`,
       errors.response.data.errors,
