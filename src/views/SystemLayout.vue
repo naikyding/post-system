@@ -63,6 +63,7 @@ function sidebarClose() {
             <!-- 圖示 -->
             <template v-slot:prepend>
               <v-badge
+                v-show="systemOrderStore.pendingQuantity > 0"
                 offset-x="-5"
                 offset-y="-8"
                 color="red"
@@ -71,6 +72,8 @@ function sidebarClose() {
               >
                 <v-icon class="">mdi-list-status</v-icon>
               </v-badge>
+
+              <v-icon v-show="systemOrderStore.pendingQuantity < 1">mdi-list-status</v-icon>
             </template>
           </v-list-item>
         </v-list>
