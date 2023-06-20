@@ -257,12 +257,15 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   async function updateOrderList() {}
 
-  async function updateOrderContent(orderId, updateData) {
-    const appStore = useAppStore()
-    const { status } = await updateOrderAPI(orderId, updateData)
-    appStore.resStatusDialog({ status: status, text: '已更新訂單內容' })
-    if (status) getOrderList()
-  }
+  const updateOrderContent = catchAsync(
+    // 成功執行
+    async (orderId, updateData) => {
+      const appStore = useAppStore()
+      const { status } = await updateOrderAPI(orderId, updateData)
+      appStore.resStatusDialog({ status: status, text: '已更新訂單內容' })
+      if (status) getOrderList()
+    },
+  )
 
   const deleteOrderById = catchAsync(async (id) => {
     const appStore = useAppStore()
