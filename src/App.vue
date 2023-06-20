@@ -1,14 +1,12 @@
 <script setup>
-import SystemLayout from './views/SystemLayout.vue'
 import ProgressAlert from './components/dialog/progressAlert.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
   <!-- progress alert -->
   <ProgressAlert />
-  <SystemLayout>
-    <RouterView />
-  </SystemLayout>
+  <RouterView />
 </template>
 
 <style scoped></style>

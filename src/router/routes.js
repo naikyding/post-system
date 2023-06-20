@@ -1,23 +1,42 @@
 import HomeView from '../views/HomeView.vue'
 import PostView from '../views/PostView.vue'
 import ListStatus from '../views/statusList/index.vue'
+import Login from '../views/user/Login.vue'
+
+import Layout from '../views/layout/index.vue'
 
 const routes = [
   {
+    path: '/login',
+    component: Login,
+  },
+  {
     path: '/',
-    name: 'home',
-    component: HomeView,
+    component: Layout,
+    redirect: '/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        component: HomeView,
+      },
+      {
+        path: 'post',
+        name: 'post',
+        component: PostView,
+      },
+      {
+        path: 'list-status',
+        name: 'list-status',
+        component: ListStatus,
+      },
+    ],
   },
+
   {
-    path: '/post',
-    name: 'post',
-    component: PostView,
+    path: '/dash',
+    component: Layout,
   },
-  {
-    path: '/list-status',
-    name: 'list-status',
-    component: ListStatus,
-  },
+
   {
     path: '/about',
     name: 'about',
