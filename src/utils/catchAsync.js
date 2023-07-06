@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2'
 
 // 錯誤預設處理
-const errorFunction = (errors) => {
+export const errorFunction = (errors, message) => {
   // // 若後端有響應
   if (errors.response) {
     // format html 顯示字串
@@ -14,7 +14,7 @@ const errorFunction = (errors) => {
     // 前端 log
     Swal.fire({
       icon: 'error',
-      title: '🔥 請求失敗',
+      title: message || '🔥 請求失敗',
       html: formatText,
       width: '400px',
     })
@@ -57,9 +57,9 @@ const catchAsync =
       // 成功處理
       return await func(...args)
     } catch (errors) {
-      errorFunction(errors)
       // 錯誤處理: 組件內的錯誤處理
       if (errorFunc) return errorFunc(errors)
+      else errorFunction(errors)
     }
   }
 
