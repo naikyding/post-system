@@ -12,6 +12,7 @@ import { useUerStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
 import { resFunc } from '../utils/resFunc'
 import dayJS from 'dayjs'
+import { successErrorFunc } from '../utils/resFunc'
 
 export const useOrdersStore = defineStore('orders', () => {
   // 產品彈窗 dialog
@@ -214,8 +215,6 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     to: null,
   })
 
-  watch(activeListTab, getOrderList)
-
   const orderList = ref([])
   const activeOrderList = ref([])
 
@@ -243,17 +242,17 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     getOrderList()
   }
 
-  async function getOrderList() {
+  const getOrderList = catchAsync(async () => {
     orderList.value.length = 0
     const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
-    orderList.value = data
+    orderList.value = data.items
     if (activeListTab.value === 'pending') {
       pendingQuantity.value = 0
-      pendingQuantity.value = data.reduce((init, cur) => {
+      pendingQuantity.value = data.items.reduce((init, cur) => {
         return (init += cur.items.length)
       }, 0)
     }
-  }
+  })
 
   async function updateOrderList() {}
 
@@ -280,6 +279,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     appStore.resStatusDialog({ status: status, text: '已刪除指定內容' })
     if (status) getOrderList()
   })
+
+  watch(activeListTab, getOrderList)
 
   return {
     getOrderList,
