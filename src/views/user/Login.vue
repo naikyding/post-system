@@ -1,8 +1,6 @@
 <script setup>
-import { computed, onUpdated, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useUerStore } from '@/stores/users'
-import catchAsync from '@/utils/catchAsync'
-import { errorFunction } from '@/utils/catchAsync'
 
 const uerStore = useUerStore()
 const loginForm = ref(null)
@@ -18,14 +16,6 @@ const form = reactive({
     email: [(email) => !!email || '請輸入 email'],
     password: [(password) => (!password ? '請輸入密碼' : true)],
   },
-})
-
-const login = catchAsync(async () => {
-  const res = await uerStore.login({
-    email: form.email,
-    password: form.password,
-  })
-  console.log(res)
 })
 </script>
 
@@ -58,7 +48,17 @@ const login = catchAsync(async () => {
       ></v-text-field>
 
       <!-- 登入 -->
-      <v-btn color="primary" size="x-large" block :disabled="!form.valid" @click="login"
+      <v-btn
+        color="primary"
+        size="x-large"
+        block
+        :disabled="!form.valid"
+        @click="
+          uerStore.login({
+            email: form.email,
+            password: form.password,
+          })
+        "
         >登入</v-btn
       >
     </v-form>

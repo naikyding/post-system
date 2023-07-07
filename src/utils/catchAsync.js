@@ -2,19 +2,24 @@ import Swal from 'sweetalert2'
 
 // 錯誤預設處理
 export const errorFunction = (errors, message) => {
+  console.log(errors.response)
+  let formatText = null
+
   // // 若後端有響應
   if (errors.response) {
     // format html 顯示字串
-    const formatText = errors.response.data.errors.reduce((init, cur, curIndex) => {
-      const str = `<li>❌ ${cur}</li>`
-      if (errors.response.data.errors.length === curIndex - 1) return (init += `${str}</ul>`)
-      return (init += str)
-    }, '<ul>')
+    if (errors.response.data.errors) {
+      formatText = errors.response.data.errors.reduce((init, cur, curIndex) => {
+        const str = `<li>❌ ${cur}</li>`
+        if (errors.response.data.errors.length === curIndex - 1) return (init += `${str}</ul>`)
+        return (init += str)
+      }, '<ul>')
+    }
 
     // 前端 log
     Swal.fire({
       icon: 'error',
-      title: message || '🔥 請求失敗',
+      title: message || errors.response.data.message || '🔥 請求失敗',
       html: formatText,
       width: '400px',
     })
@@ -58,6 +63,7 @@ const catchAsync =
       return await func(...args)
     } catch (errors) {
       // 錯誤處理: 組件內的錯誤處理
+      console.log(123)
       if (errorFunc) return errorFunc(errors)
       else errorFunction(errors)
     }
