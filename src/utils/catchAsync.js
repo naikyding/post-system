@@ -22,6 +22,8 @@ export const errorFunction = (errors, message) => {
       title: message || errors.response.data.message || '🔥 請求失敗',
       html: formatText,
       width: '400px',
+      timer: 2000,
+      showConfirmButton: false,
     })
 
     // log
@@ -39,6 +41,8 @@ export const errorFunction = (errors, message) => {
       title: '🔥 網路連線失敗:',
       text: errors.message,
       width: '400px',
+      timer: 1500,
+      showConfirmButton: false,
     })
 
     return console.warn(
@@ -63,7 +67,6 @@ const catchAsync =
       return await func(...args)
     } catch (errors) {
       // 錯誤處理: 組件內的錯誤處理
-      console.log(123)
       if (errorFunc) return errorFunc(errors)
       else errorFunction(errors)
     }
