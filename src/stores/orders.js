@@ -242,17 +242,22 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     getOrderList()
   }
 
-  const getOrderList = catchAsync(async () => {
-    orderList.value.length = 0
-    const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
-    orderList.value = data.items
-    if (activeListTab.value === 'pending') {
-      pendingQuantity.value = 0
-      pendingQuantity.value = data.items.reduce((init, cur) => {
-        return (init += cur.items.length)
-      }, 0)
-    }
-  })
+  const getOrderList = catchAsync(
+    async () => {
+      orderList.value.length = 0
+      const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
+      orderList.value = data.items
+      if (activeListTab.value === 'pending') {
+        pendingQuantity.value = 0
+        pendingQuantity.value = data.items.reduce((init, cur) => {
+          return (init += cur.items.length)
+        }, 0)
+      }
+    },
+    () => {
+      console.log('getOrderList Error')
+    },
+  )
 
   async function updateOrderList() {}
 

@@ -5,6 +5,17 @@ export const errorFunction = (errors, message) => {
   console.log(errors.response)
   let formatText = null
 
+  // 直接操作
+  if (errors === null) {
+    Swal.fire({
+      icon: 'error',
+      title: message || '🔥 請求失敗',
+      width: '400px',
+      timer: 2000,
+      showConfirmButton: false,
+    })
+  }
+
   // // 若後端有響應
   if (errors.response) {
     // format html 顯示字串
@@ -52,10 +63,11 @@ export const errorFunction = (errors, message) => {
       errors.message,
     )
   }
+
   console.warn(
     '%c🔥 catchAsync 發生錯誤:',
     'background: #F2B33D; border-radius: 4px; color: #fff; padding: .3rem 1rem;',
-    errors,
+    errors || '',
   )
 }
 
@@ -68,7 +80,8 @@ const catchAsync =
     } catch (errors) {
       // 錯誤處理: 組件內的錯誤處理
       if (errorFunc) return errorFunc(errors)
-      else errorFunction(errors)
+      console.log(123)
+      return errorFunction(errors)
     }
   }
 
