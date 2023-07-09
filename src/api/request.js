@@ -56,7 +56,12 @@ request.interceptors.response.use(
 
     // statusCode 401
     if (error.response.status === 401) {
-      if (originalRequest.url === '/auth/refresh-token') return false
+      // 如果請求 refreshToken 且 未經授權，則不再請求
+      if (
+        originalRequest.url === '/auth/refresh-token' &&
+        error.response.data.message === 'Unauthorized'
+      )
+        return false
 
       const userStore = useUerStore()
       console.log('refreshToken')

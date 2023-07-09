@@ -40,11 +40,12 @@ export const useUerStore = defineStore('user', () => {
   const refreshTokenError = (errors) => {
     errorFunction(errors, '請重新登入')
     logout('/login')
+    return false
   }
 
   const refreshToken = catchAsync(
     async (refreshTokenJson) => {
-      if (!refreshTokenJson.refreshToken) {
+      const errorFunc = () => {
         Swal.fire({
           icon: 'error',
           title: '請重新登入',
@@ -56,7 +57,14 @@ export const useUerStore = defineStore('user', () => {
         return false
       }
 
+      // 如果沒有 refreshToken
+      if (!refreshTokenJson.refreshToken) return errorFunc()
+
       const { data } = await refreshTokenAPI(refreshTokenJson)
+
+      // 如果沒有 accessToken
+      if (!data.accessToken) return errorFunc()
+
       saveUserToken(data)
       return data.refreshToken
     },
