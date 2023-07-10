@@ -10,7 +10,7 @@ export const useProductsStore = defineStore('products', () => {
   // 取得產品列表
   const getProducts = catchAsync(async () => {
     const { data } = await getProductsAPI()
-    products.value = data
+    if (data) products.value = data.items
   })
 
   return {
