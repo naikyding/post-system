@@ -1,11 +1,11 @@
 <script setup>
 import { reactive, ref } from 'vue'
-import { useUerStore } from '@/stores/users'
+import { useUserStore } from '@/stores/users'
 import { successErrorFunc } from '@/utils/resFunc'
 import { useRouter } from 'vue-router'
 
 const $router = useRouter()
-const uerStore = useUerStore()
+const userStore = useUserStore()
 const loginForm = ref(null)
 const form = reactive({
   // 表單狀態
@@ -22,7 +22,7 @@ const form = reactive({
 })
 
 const login = async () => {
-  const loginStatus = await uerStore.login({
+  const loginStatus = await userStore.login({
     email: form.email,
     password: form.password,
   })
