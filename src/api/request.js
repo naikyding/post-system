@@ -1,7 +1,6 @@
 import axios from 'axios'
-import { statusCodeHandler } from '../utils/requestHandler'
 import { useAppStore } from '../stores/app'
-import { useUerStore } from '../stores/users.js'
+import { useUserStore } from '../stores/users.js'
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -14,11 +13,12 @@ request.interceptors.request.use(
     const appStore = useAppStore()
     appStore.progressStatus = true
 
+    const userStore = useUserStore()
+
     // 設置 header authorization
-    const accessToken = localStorage.getItem('accessToken')
-    const accessTokenType = localStorage.getItem('type')
-    if (accessToken && accessTokenType) {
-      config.headers.Authorization = `${accessTokenType} ${accessToken}`
+    const { type, accessToken } = userStore.checkLocalTokenAndReturnAccessToken()
+    if (accessToken && type) {
+      config.headers.Authorization = `${type} ${accessToken}`
     }
 
     return config
@@ -63,7 +63,7 @@ request.interceptors.response.use(
       )
         return false
 
-      const userStore = useUerStore()
+      const userStore = useUserStore()
       console.log('refreshToken')
       // 刷新 token
       await userStore.refreshToken({
@@ -71,10 +71,9 @@ request.interceptors.response.use(
       })
 
       // 設置 header authorization
-      const accessToken = localStorage.getItem('accessToken')
-      const accessTokenType = localStorage.getItem('type')
-      if (accessToken && accessTokenType) {
-        error.config.headers.Authorization = `${accessTokenType} ${accessToken}`
+      const { type, accessToken } = userStore.checkLocalTokenAndReturnAccessToken()
+      if (accessToken && type) {
+        error.config.headers.Authorization = `${type} ${accessToken}`
 
         // 重新請求失敗的 request
         return request(originalRequest)
