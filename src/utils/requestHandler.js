@@ -1,8 +1,8 @@
-import { useUerStore } from '../stores/users.js'
+import { useUserStore } from '../stores/users.js'
 
 export const statusCodeHandler = (error) => {
   const { status } = error.response
-  const userStore = useUerStore()
+  const userStore = useUserStore()
 
   switch (status) {
     // 身份驗證失效

@@ -8,7 +8,7 @@ import {
   updateOrderAPI,
 } from '@/api'
 import catchAsync from '@/utils/catchAsync'
-import { useUerStore } from '../stores/users'
+import { useUserStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
 import { resFunc } from '../utils/resFunc'
 import dayJS from 'dayjs'
@@ -152,7 +152,7 @@ export const useOrdersStore = defineStore('orders', () => {
   // 送出訂單
   const submitOrderList = catchAsync(async ({ list, isPaid, dialog }) => {
     list.isPaid = isPaid
-    const userStore = useUerStore()
+    const userStore = useUserStore()
     const appStore = useAppStore()
 
     const formatData = list.items.reduce(
