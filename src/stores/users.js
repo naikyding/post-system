@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue'
+import { reactive, ref, watchEffect } from 'vue'
 import { defineStore } from 'pinia'
 import { loginAPI, refreshTokenAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
@@ -6,13 +6,21 @@ import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
 import Swal from 'sweetalert2'
 
-export const useUerStore = defineStore('user', () => {
+export const useUserStore = defineStore('user', () => {
   const customer = ref('6476f4088940f49853aa062e')
   const agent = ref('64741f07778d6a978ef85f10')
   const token = ref({
-    type: localStorage.getItem('accessTokenType') || null,
+    type: localStorage.getItem('type') || null,
     accessToken: localStorage.getItem('accessToken') || null,
     refreshToken: localStorage.getItem('refreshToken') || null,
+  })
+
+  const isLogin = ref(false)
+
+  watchEffect(() => {
+    if (token.value.accessToken && token.value.refreshToken && token.value.type) {
+      isLogin.value = true
+    } else isLogin.value = false
   })
 
   function saveUserToken(tokenData) {
@@ -23,13 +31,36 @@ export const useUerStore = defineStore('user', () => {
     })
   }
 
+  function checkLocalTokenAndReturnAccessToken() {
+    const accessToken = localStorage.getItem('accessToken') || null
+    const type = localStorage.getItem('type') || null
+    const refreshToken = localStorage.getItem('refreshToken') || null
+
+    if (accessToken && type && refreshToken) {
+      const tokenObj = {
+        type,
+        accessToken,
+        refreshToken,
+      }
+
+      loginFunc(tokenObj)
+      return tokenObj
+    }
+
+    return false
+  }
+
   const login = catchAsync(async (emailNPassword) => {
     const { data } = await loginAPI(emailNPassword)
-    if (data) saveUserToken(data)
+    if (data) loginFunc(data)
     return true
   })
 
-  const logout = (path) => {
+  const loginFunc = (data) => {
+    saveUserToken(data)
+  }
+
+  const logoutFunc = (path) => {
     localStorage.removeItem('type')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
@@ -39,7 +70,7 @@ export const useUerStore = defineStore('user', () => {
 
   const refreshTokenError = (errors) => {
     errorFunction(errors, '請重新登入')
-    logout('/login')
+    logoutFunc('/login')
     return false
   }
 
@@ -53,7 +84,7 @@ export const useUerStore = defineStore('user', () => {
           timer: 1500,
           showConfirmButton: false,
         })
-        logout('/login')
+        logoutFunc('/login')
         return false
       }
 
@@ -77,9 +108,11 @@ export const useUerStore = defineStore('user', () => {
   return {
     customer,
     agent,
+    token,
+    isLogin,
 
     login,
-    token,
     refreshToken,
+    checkLocalTokenAndReturnAccessToken,
   }
 })
