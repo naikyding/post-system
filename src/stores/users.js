@@ -1,6 +1,6 @@
-import { reactive, ref, watchEffect } from 'vue'
+import { reactive, ref, watch, watchEffect } from 'vue'
 import { defineStore } from 'pinia'
-import { loginAPI, refreshTokenAPI } from '@/api'
+import { loginAPI, refreshTokenAPI, gerUserBaseInfoAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
@@ -14,6 +14,9 @@ export const useUserStore = defineStore('user', () => {
     accessToken: localStorage.getItem('accessToken') || null,
     refreshToken: localStorage.getItem('refreshToken') || null,
   })
+
+  // 使用者基本資料
+  const baseInfo = ref([])
 
   const isLogin = ref(false)
 
@@ -29,9 +32,11 @@ export const useUserStore = defineStore('user', () => {
       token.value[key] = tokenData[key]
       localStorage.setItem(key, tokenData[key])
     })
+    isLogin.value = true
   }
 
   function checkLocalTokenAndReturnAccessToken() {
+    console.log('checkLocalTokenAndReturnAccessToken')
     const accessToken = localStorage.getItem('accessToken') || null
     const type = localStorage.getItem('type') || null
     const refreshToken = localStorage.getItem('refreshToken') || null
@@ -43,7 +48,7 @@ export const useUserStore = defineStore('user', () => {
         refreshToken,
       }
 
-      loginFunc(tokenObj)
+      saveUserToken(tokenObj)
       return tokenObj
     }
 
@@ -56,8 +61,16 @@ export const useUserStore = defineStore('user', () => {
     return true
   })
 
-  const loginFunc = (data) => {
-    saveUserToken(data)
+  const getUserBaseInfo = catchAsync(async () => {
+    console.log('getUserBaseInfo')
+    const { data } = await gerUserBaseInfoAPI()
+    if (data) baseInfo.value = data
+  })
+
+  const loginFunc = async (data) => {
+    console.log('loginFunc')
+    await saveUserToken(data)
+    await getUserBaseInfo()
   }
 
   const logoutFunc = (path) => {
@@ -110,6 +123,7 @@ export const useUserStore = defineStore('user', () => {
     agent,
     token,
     isLogin,
+    baseInfo,
 
     login,
     refreshToken,

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
+import request from '../api/request'
 
 import { useUserStore } from '../stores/users'
 
