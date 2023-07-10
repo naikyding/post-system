@@ -8,25 +8,28 @@ import Layout from '../views/layout/index.vue'
 const routes = [
   {
     path: '/login',
+    name: 'Login',
     component: Login,
   },
   {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
+
     children: [
       {
         path: 'dashboard',
         component: HomeView,
+        name: 'Home',
       },
       {
         path: 'post',
-        name: 'post',
+        name: 'Order',
         component: PostView,
       },
       {
         path: 'list-status',
-        name: 'list-status',
+        name: 'ListStatus',
         component: ListStatus,
       },
     ],
