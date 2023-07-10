@@ -11,7 +11,10 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
 
-  // 如果已經登入，就導首頁
+  // 沒有登入 && 不在登入頁
+  if (to.name !== 'Login' && !userStore.isLogin) return next({ path: '/login' })
+
+  // 已經登入 && 進入登入頁面
   if (to.name === 'Login' && userStore.isLogin) {
     if (to.query.redirect) {
       return next({ path: to.query.redirect })
