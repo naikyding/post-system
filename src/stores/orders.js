@@ -180,8 +180,9 @@ export const useOrdersStore = defineStore('orders', () => {
       },
     )
 
-    formatData.customer = userStore.customer
-    formatData.agent = userStore.agent
+    formatData.customer =
+      userStore.roles.name === 'admin' ? userStore.adminCustomer : userStore.baseInfo._id
+    formatData.agent = userStore.agents._id
 
     dialog.confirmOrderList = false
     const { status } = await createOrderAPI(formatData)
