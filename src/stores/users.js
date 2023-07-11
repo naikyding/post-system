@@ -1,4 +1,4 @@
-import { reactive, ref, watch, watchEffect } from 'vue'
+import { ref, watchEffect, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { loginAPI, refreshTokenAPI, gerUserBaseInfoAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
@@ -7,18 +7,23 @@ import router from '../router'
 import Swal from 'sweetalert2'
 
 export const useUserStore = defineStore('user', () => {
-  const customer = ref('6476f4088940f49853aa062e')
-  const agent = ref('64741f07778d6a978ef85f10')
+  const adminCustomer = ref('6476f4088940f49853aa062e')
   const token = ref({
     type: localStorage.getItem('type') || null,
     accessToken: localStorage.getItem('accessToken') || null,
     refreshToken: localStorage.getItem('refreshToken') || null,
   })
-
+  // 登入狀態
+  const isLogin = ref(false)
   // 使用者基本資料
   const baseInfo = ref([])
 
-  const isLogin = ref(false)
+  const agents = computed(() => {
+    return baseInfo.value.agents[0]
+  })
+  const roles = computed(() => {
+    return baseInfo.value.roles[0]
+  })
 
   watchEffect(() => {
     if (token.value.accessToken && token.value.refreshToken && token.value.type) {
@@ -27,8 +32,6 @@ export const useUserStore = defineStore('user', () => {
   })
 
   function saveUserToken(tokenData) {
-    console.log(`saveUserToken`)
-
     localStorage.removeItem('accessToken')
     Object.keys(tokenData).forEach((key) => {
       token.value[key] = tokenData[key]
@@ -38,8 +41,6 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function checkLocalTokenAndReturnAccessToken() {
-    console.log('checkLocalTokenAndReturnAccessToken')
-
     const storeAccessToken = token.value.accessToken
     const storeAccessTokenType = token.value.type
     const storeRefreshToken = token.value.refreshToken
@@ -83,7 +84,6 @@ export const useUserStore = defineStore('user', () => {
   })
 
   const getUserBaseInfo = catchAsync(async () => {
-    console.log('getUserBaseInfo')
     const { data } = await gerUserBaseInfoAPI()
     if (data) baseInfo.value = data
   })
@@ -134,14 +134,14 @@ export const useUserStore = defineStore('user', () => {
       return data.refreshToken
     },
     (errors) => {
-      console.log(123)
       refreshTokenError(errors)
     },
   )
 
   return {
-    customer,
-    agent,
+    adminCustomer,
+    agents,
+    roles,
     token,
     isLogin,
     baseInfo,
