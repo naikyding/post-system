@@ -9,8 +9,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  console.log('beforeEach')
-
   const userStore = useUserStore()
 
   // 如果有登入，取得基本資料
@@ -29,8 +27,6 @@ router.beforeEach((to, from, next) => {
   next()
 })
 
-router.afterEach(() => {
-  console.log(`afterEach`)
-})
+router.afterEach(() => {})
 
 export default router
