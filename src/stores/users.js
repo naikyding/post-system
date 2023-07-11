@@ -27,6 +27,8 @@ export const useUserStore = defineStore('user', () => {
   })
 
   function saveUserToken(tokenData) {
+    console.log(`saveUserToken`)
+
     localStorage.removeItem('accessToken')
     Object.keys(tokenData).forEach((key) => {
       token.value[key] = tokenData[key]
@@ -37,10 +39,29 @@ export const useUserStore = defineStore('user', () => {
 
   function checkLocalTokenAndReturnAccessToken() {
     console.log('checkLocalTokenAndReturnAccessToken')
-    const accessToken = localStorage.getItem('accessToken') || null
-    const type = localStorage.getItem('type') || null
-    const refreshToken = localStorage.getItem('refreshToken') || null
 
+    const storeAccessToken = token.value.accessToken
+    const storeAccessTokenType = token.value.type
+    const storeRefreshToken = token.value.refreshToken
+
+    let tokenObj = []
+
+    // 如果 STORE 有資料
+    if (storeAccessToken && storeAccessTokenType && storeRefreshToken) {
+      tokenObj = {
+        type: storeAccessTokenType,
+        accessToken: storeAccessToken,
+        refreshToken: storeRefreshToken,
+      }
+
+      return tokenObj
+    }
+
+    const accessToken = localStorage.getItem('accessToken')
+    const type = localStorage.getItem('type')
+    const refreshToken = localStorage.getItem('refreshToken')
+
+    // 如果 local 有資料
     if (accessToken && type && refreshToken) {
       const tokenObj = {
         type,
@@ -127,6 +148,7 @@ export const useUserStore = defineStore('user', () => {
 
     login,
     refreshToken,
+    getUserBaseInfo,
     checkLocalTokenAndReturnAccessToken,
   }
 })

@@ -8,7 +8,7 @@ const request = axios.create({
 
 // Interceptors ((REQUEST))
 request.interceptors.request.use(
-  function (config) {
+  async function (config) {
     // loading display
     const appStore = useAppStore()
     appStore.progressStatus = true
@@ -16,7 +16,7 @@ request.interceptors.request.use(
     const userStore = useUserStore()
 
     // 設置 header authorization
-    const { type, accessToken } = userStore.checkLocalTokenAndReturnAccessToken()
+    const { type, accessToken } = await userStore.checkLocalTokenAndReturnAccessToken()
     if (accessToken && type) {
       config.headers.Authorization = `${type} ${accessToken}`
     }
@@ -71,7 +71,7 @@ request.interceptors.response.use(
       })
 
       // 設置 header authorization
-      const { type, accessToken } = userStore.checkLocalTokenAndReturnAccessToken()
+      const { type, accessToken } = await userStore.checkLocalTokenAndReturnAccessToken()
       if (accessToken && type) {
         error.config.headers.Authorization = `${type} ${accessToken}`
 
