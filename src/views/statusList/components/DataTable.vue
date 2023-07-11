@@ -60,13 +60,13 @@ async function updateDialog(orderListID, updateData, callback) {
     <v-table fixed-header height="calc(100dvh - 48px)">
       <thead>
         <tr class="text-caption">
-          <th class="text-left">執行狀態</th>
-          <th class="text-left">項目</th>
+          <th class="text-left min-width-128px">執行狀態</th>
+          <th class="text-left min-width-63px">項目</th>
           <th class="text-left">時間</th>
           <th class="text-left">商品名稱</th>
           <th class="text-left">加料</th>
           <th class="text-left">數量</th>
-          <th class="text-left">付款狀態</th>
+          <th class="text-left min-width-90px">付款狀態</th>
           <th class="text-left">備註</th>
           <th class="text-center">-</th>
         </tr>
@@ -76,19 +76,15 @@ async function updateDialog(orderListID, updateData, callback) {
           <tr v-for="(product, index) in items.items" :key="product._id">
             <td>
               <template v-if="items.status === 'cancelled'">
-                <span class="px-2 py-1 rounded-lg text-caption bg-error"> 已取消 </span>
+                <span class="px-2 py-1 rounded-lg text-caption bg-error"> 取消 </span>
               </template>
-              <v-switch
-                v-else
-                inset
-                :readonly="items.status === 'completed'"
-                hide-details
-                color="success"
-                :model-value="items.status === 'completed'"
-              >
+              <template v-else-if="items.status === 'completed'">
+                <span class="px-2 py-1 rounded-lg text-caption bg-success"> 完成 </span>
+              </template>
+              <v-switch v-else inset hide-details color="success" v-model="product.status">
                 <template #label>
                   <span class="text-caption">
-                    {{ `${product.status ? '完成' : '未完成'}` }}
+                    {{ `${product.status ? '完成' : '待處理'}` }}
                   </span>
                 </template>
               </v-switch>
@@ -248,5 +244,14 @@ async function updateDialog(orderListID, updateData, callback) {
 }
 .order-item_total-price {
   width: 50px;
+}
+.min-width-90px {
+  min-width: 90px;
+}
+.min-width-128px {
+  min-width: 128px;
+}
+.min-width-63px {
+  min-width: 63px;
 }
 </style>
