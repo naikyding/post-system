@@ -54,7 +54,12 @@ function sidebarClose() {
 
         <v-list density="compact" nav>
           <!-- 首頁 -->
-          <v-list-item to="/" prepend-icon="mdi-home" title="Home" value="home"></v-list-item>
+          <v-list-item
+            to="/dashboard"
+            prepend-icon="mdi-home"
+            title="Home"
+            value="home"
+          ></v-list-item>
           <!-- 點餐 -->
           <v-list-item to="/post" prepend-icon="mdi-food" title="Order" value="order">
           </v-list-item>
