@@ -80,7 +80,6 @@ const catchAsync =
     } catch (errors) {
       // 錯誤處理: 組件內的錯誤處理
       if (errorFunc) return errorFunc(errors)
-      console.log(123)
       return errorFunction(errors)
     }
   }

@@ -25,12 +25,7 @@ export const resFunc = (status, successFunc = defaultSuccessFunc, errorFunc = de
   return errorFunc()
 }
 
-export const successErrorFunc = ({
-  status,
-  message,
-  successCallback,
-  errorCallback = defaultErrorFunc,
-}) => {
+export const successErrorFunc = ({ status, message, successCallback, errorCallback }) => {
   if (status) {
     defaultSuccessFunc(message)
     if (successCallback) successCallback(message)
