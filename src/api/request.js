@@ -6,6 +6,8 @@ const request = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 })
 
+let requestTokenQueue = []
+
 // Interceptors ((REQUEST))
 request.interceptors.request.use(
   async function (config) {
@@ -64,20 +66,35 @@ request.interceptors.response.use(
         return false
 
       const userStore = useUserStore()
-      console.log('refreshToken')
-      // 刷新 token
-      await userStore.refreshToken({
-        refreshToken: userStore.token.refreshToken,
-      })
 
-      // 設置 header authorization
-      const { type, accessToken } = await userStore.checkLocalTokenAndReturnAccessToken()
-      if (accessToken && type) {
-        error.config.headers.Authorization = `${type} ${accessToken}`
+      // 只有一個被刷新
+      if (requestTokenQueue.length === 0) {
+        requestTokenQueue.push('refreshToken')
+        requestTokenQueue.push(originalRequest)
 
-        // 重新請求失敗的 request
-        return request(originalRequest)
+        // 刷新 token
+        await userStore.refreshToken({
+          refreshToken: userStore.token.refreshToken,
+        })
+
+        // 設置 header authorization
+        const { type, accessToken } = await userStore.checkLocalTokenAndReturnAccessToken()
+        if (accessToken && type) {
+          error.config.headers.Authorization = `${type} ${accessToken}`
+          // 移除 refreshRequest
+          requestTokenQueue.shift()
+
+          // 重新請求失敗的 request
+
+          await requestTokenQueue.forEach((originalRequestItem) => request(originalRequestItem))
+          return (requestTokenQueue.length = 0)
+          // return request(originalRequest)
+        }
+      } else {
+        requestTokenQueue.push(originalRequest)
       }
+
+      // 401 end
     }
 
     // Any status codes that falls outside the range of 2xx cause this function to trigger
