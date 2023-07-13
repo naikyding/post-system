@@ -1,6 +1,17 @@
 <script setup>
+import { watch } from 'vue'
 import ProgressAlert from './components/dialog/progressAlert.vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
+import VConsole from 'vconsole'
+
+const route = useRoute()
+
+watch(
+  () => route.query,
+  (newRouteQuery) => {
+    if (newRouteQuery.log) new VConsole()
+  },
+)
 </script>
 
 <template>
