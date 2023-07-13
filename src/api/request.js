@@ -70,7 +70,7 @@ request.interceptors.response.use(
       // 只有一個被刷新
       if (requestTokenQueue.length === 0) {
         requestTokenQueue.push('refreshToken')
-        requestTokenQueue.push(originalRequest)
+        requestTokenQueue.push(Promise)
 
         // 刷新 token
         await userStore.refreshToken({
@@ -85,17 +85,19 @@ request.interceptors.response.use(
           requestTokenQueue.shift()
 
           // 重新請求失敗的 request
+          console.log(requestTokenQueue)
 
           await requestTokenQueue.forEach((originalRequestItem) => request(originalRequestItem))
           return (requestTokenQueue.length = 0)
           // return request(originalRequest)
         }
       } else {
-        requestTokenQueue.push(originalRequest)
+        requestTokenQueue.push(Promise)
       }
 
       // 401 end
     }
+    console.log('end')
 
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
