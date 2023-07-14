@@ -19,10 +19,10 @@ export const useUserStore = defineStore('user', () => {
   const baseInfo = ref([])
 
   const agents = computed(() => {
-    return baseInfo.value.agents[0]
+    return baseInfo.value.agents ? baseInfo.value.agents[0] : null
   })
   const roles = computed(() => {
-    return baseInfo.value.roles[0]
+    return baseInfo.value.roles ? baseInfo.value.roles[0] : null
   })
 
   watchEffect(() => {
@@ -37,7 +37,6 @@ export const useUserStore = defineStore('user', () => {
       token.value[key] = tokenData[key]
       localStorage.setItem(key, tokenData[key])
     })
-    isLogin.value = true
   }
 
   function checkLocalTokenAndReturnAccessToken() {
@@ -83,23 +82,41 @@ export const useUserStore = defineStore('user', () => {
     return true
   })
 
-  const getUserBaseInfo = catchAsync(async () => {
-    const { data } = await gerUserBaseInfoAPI()
-    if (data) baseInfo.value = data
-  })
+  const getUserBaseInfo = catchAsync(
+    async () => {
+      const { data } = await gerUserBaseInfoAPI()
+
+      baseInfo.value = data
+    },
+    () => {
+      console.log('getUserBaseInfo Error')
+    },
+  )
 
   const loginFunc = async (data) => {
     console.log('loginFunc')
     await saveUserToken(data)
     await getUserBaseInfo()
+
+    Swal.fire({
+      icon: 'success',
+      title: '登入成功',
+      width: '400px',
+      timer: 1500,
+      showConfirmButton: false,
+    })
+
+    router.push('/')
   }
 
-  const logoutFunc = (path) => {
+  const logoutFunc = async (path) => {
     localStorage.removeItem('type')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
-
-    router.push(path)
+    ;(token.value.type = null),
+      (token.value.accessToken = null),
+      (token.value.refreshToken = null),
+      router.push(path)
   }
 
   const refreshTokenError = (errors) => {
@@ -147,6 +164,7 @@ export const useUserStore = defineStore('user', () => {
     baseInfo,
 
     login,
+    logoutFunc,
     refreshToken,
     getUserBaseInfo,
     checkLocalTokenAndReturnAccessToken,

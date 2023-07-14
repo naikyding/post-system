@@ -1,10 +1,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useUserStore } from '@/stores/users'
-import { successErrorFunc } from '@/utils/resFunc'
-import { useRouter } from 'vue-router'
 
-const $router = useRouter()
 const userStore = useUserStore()
 const loginForm = ref(null)
 const form = reactive({
@@ -20,21 +17,6 @@ const form = reactive({
     password: [(password) => (!password ? '請輸入密碼' : true)],
   },
 })
-
-const login = async () => {
-  const loginStatus = await userStore.login({
-    email: form.email,
-    password: form.password,
-  })
-
-  successErrorFunc({
-    status: loginStatus,
-    message: '登入成功',
-    successCallback: () => {
-      $router.push('/')
-    },
-  })
-}
 </script>
 
 <template>
@@ -51,7 +33,12 @@ const login = async () => {
         prepend-inner-icon="mdi-account"
         variant="solo-filled"
         clearable
-        @keyup.enter="login"
+        @keyup.enter="
+          userStore.login({
+            email: form.email,
+            password: form.password,
+          })
+        "
       ></v-text-field>
 
       <!-- 密碼 -->
@@ -64,11 +51,26 @@ const login = async () => {
         prepend-inner-icon="mdi-lock"
         variant="solo-filled"
         clearable
-        @keyup.enter="login"
+        @keyup.enter="
+          userStore.login({
+            email: form.email,
+            password: form.password,
+          })
+        "
       ></v-text-field>
 
       <!-- 登入 -->
-      <v-btn color="primary" size="x-large" block :disabled="!form.valid" @click="login"
+      <v-btn
+        color="primary"
+        size="x-large"
+        block
+        :disabled="!form.valid"
+        @click="
+          userStore.login({
+            email: form.email,
+            password: form.password,
+          })
+        "
         >登入</v-btn
       >
     </v-form>
