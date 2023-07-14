@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 import monsterLogo from '@/assets/images/ci/monster-crepes-ci.jpeg'
-
+import { useUserStore } from '../../stores/users'
 import { useSystemOrderList } from '@/stores/orders'
 
 const systemOrderStore = useSystemOrderList()
 systemOrderStore.getTodayOrderList()
 
+const userStore = useUserStore()
 const state = ref({
   drawer: true,
   items: [
@@ -56,12 +57,12 @@ function sidebarClose() {
           <!-- 首頁 -->
           <v-list-item
             to="/dashboard"
-            prepend-icon="mdi-home"
+            prepend-icon="mdi-chart-box-outline"
             title="Home"
             value="home"
           ></v-list-item>
           <!-- 點餐 -->
-          <v-list-item to="/post" prepend-icon="mdi-food" title="Order" value="order">
+          <v-list-item to="/post" prepend-icon="mdi-plus-box-outline" title="Order" value="order">
           </v-list-item>
           <!-- 訂單狀態 -->
           <v-list-item to="/list-status" title="List" value="list">
@@ -82,6 +83,19 @@ function sidebarClose() {
             </template>
           </v-list-item>
         </v-list>
+
+        <!-- 登出 -->
+        <template v-slot:append>
+          <div>
+            <v-list-item
+              @click="userStore.logoutFunc('/login')"
+              prepend-icon="mdi-logout"
+              title="Logout"
+              value="logout"
+            >
+            </v-list-item>
+          </div>
+        </template>
       </v-navigation-drawer>
 
       <!-- 內容 (右) -->
