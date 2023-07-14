@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2'
+import { useErrorStore } from '../stores/errorStore'
 
 // 錯誤預設處理
 export const errorFunction = (errors, message) => {
@@ -78,7 +79,13 @@ const catchAsync =
       // 成功處理
       return await func(...args)
     } catch (errors) {
+      // const errorStore = useErrorStore()
       // 錯誤處理: 組件內的錯誤處理
+      // errorStore.errorActions[errors.status].push(() => func(...args))
+
+      // errorStore.errorActions[errors.response.status].push(() => func(...args))
+      // console.log(errorStore.errorActions)
+
       if (errorFunc) return errorFunc(errors)
       return errorFunction(errors)
     }
