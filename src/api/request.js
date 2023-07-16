@@ -54,55 +54,35 @@ request.interceptors.response.use(
     appStore.progressStatus = false
 
     // 請求的內容
-    // const originalRequest = error.config
+    const originalRequest = error.config
 
-    // statusCode 401
-    // if (error.response.status === 401) {
-    //   // 如果請求 refreshToken 且 未經授權，則不再請求
-    //   if (
-    //     originalRequest.url === '/auth/refresh-token' &&
-    //     error.response.data.message === 'Unauthorized'
-    //   )
-    //     return false
-
-    //   const userStore = useUserStore()
-
-    //   // 只有一個被刷新
-    //   if (requestTokenQueue.length === 0) {
-    //     requestTokenQueue.push('refreshToken')
-    //     requestTokenQueue.push(originalRequest)
-
-    //     // 刷新 token
-    //     await userStore.refreshToken({
-    //       refreshToken: userStore.token.refreshToken,
-    //     })
-
-    //     // 設置 header authorization
-    //     const { type, accessToken } = await userStore.checkLocalTokenAndReturnAccessToken()
-    //     if (accessToken && type) {
-    //       error.config.headers.Authorization = `${type} ${accessToken}`
-    //       // 移除 refreshRequest
-    //       requestTokenQueue.shift()
-
-    //       console.log(123)
-    //       // 重新請求失敗的 request
-    //       const errorStore = useErrorStore()
-    //       console.log(errorStore.errorActions)
-    //       // await requestTokenQueue.forEach((originalRequestItem) => request(originalRequestItem))
-    //       // return (requestTokenQueue.length = 0)
-    //       // return request(originalRequest)
-    //     }
-    //   } else {
-    //     requestTokenQueue.push(originalRequest)
-    //   }
-
-    //   // 401 end
-    // // }
-
+    // 如果 401 且沒有重新請求過
     if (error.response.status === 401 && !retry) {
-      retry = true
       const userStore = useUserStore()
-      userStore.logoutFunc('/login')
+
+      // 如果 refresh token 401
+      if (
+        originalRequest.url === '/auth/refresh-token' &&
+        error.response.data.message === 'Unauthorized'
+      ) {
+        return userStore.logoutFunc('/login')
+      }
+
+      // 刷新 token
+      await userStore.refreshToken({
+        refreshToken: userStore.token.refreshToken,
+      })
+      console.log('after refreshToken')
+      // 設置 header authorization
+      const { type, accessToken } = await userStore.checkLocalTokenAndReturnAccessToken()
+      if (accessToken && type) {
+        error.config.headers.Authorization = `${type} ${accessToken}`
+
+        // 重新請求失敗的 request
+        const response = await request(originalRequest)
+
+        return response
+      }
     }
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error

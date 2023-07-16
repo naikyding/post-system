@@ -85,7 +85,6 @@ export const useUserStore = defineStore('user', () => {
   const getUserBaseInfo = catchAsync(
     async () => {
       const { data } = await gerUserBaseInfoAPI()
-
       baseInfo.value = data
     },
     () => {
