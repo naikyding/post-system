@@ -72,7 +72,6 @@ request.interceptors.response.use(
       await userStore.refreshToken({
         refreshToken: userStore.token.refreshToken,
       })
-      console.log('after refreshToken')
       // 設置 header authorization
       const { type, accessToken } = await userStore.checkLocalTokenAndReturnAccessToken()
       if (accessToken && type) {
