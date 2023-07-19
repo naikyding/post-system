@@ -12,7 +12,6 @@ import { useUserStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
 import { resFunc } from '../utils/resFunc'
 import dayJS from 'dayjs'
-import { successErrorFunc } from '../utils/resFunc'
 
 export const useOrdersStore = defineStore('orders', () => {
   // 產品彈窗 dialog
@@ -219,6 +218,21 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   const orderList = ref([])
   const activeOrderList = ref([])
 
+  const selectDate = reactive([
+    {
+      name: '日',
+    },
+    {
+      name: '月',
+    },
+    {
+      name: '季',
+    },
+    {
+      name: '年',
+    },
+  ])
+
   function addActiveOrderList(order) {
     activeOrderList.value = order
   }
@@ -304,5 +318,6 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     activeListDate,
     pendingQuantity,
     getTodayOrderList,
+    selectDate,
   }
 })
