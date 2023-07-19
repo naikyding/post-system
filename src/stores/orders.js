@@ -215,6 +215,21 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     to: null,
   })
 
+  const selectDate = reactive([
+    {
+      name: '日',
+    },
+    {
+      name: '月',
+    },
+    {
+      name: '季',
+    },
+    {
+      name: '年',
+    },
+  ])
+
   const orderList = ref([])
   const activeOrderList = ref([])
 
@@ -318,6 +333,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     activeListDate,
     pendingQuantity,
     getTodayOrderList,
+
     selectDate,
   }
 })

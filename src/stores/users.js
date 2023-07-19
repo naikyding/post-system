@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { loginAPI, refreshTokenAPI, gerUserBaseInfoAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 import { errorFunction } from '../utils/catchAsync'
-import router from '../router'
+// import router from '../router'
 import Swal from 'sweetalert2'
 
 export const useUserStore = defineStore('user', () => {
@@ -93,7 +93,6 @@ export const useUserStore = defineStore('user', () => {
   )
 
   const loginFunc = async (data) => {
-    console.log('loginFunc')
     await saveUserToken(data)
     await getUserBaseInfo()
 
