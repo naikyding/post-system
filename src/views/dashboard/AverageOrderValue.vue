@@ -3,7 +3,7 @@
 
 <template>
   <div>
-    <h1>客單價</h1>
+    <p>客單價</p>
   </div>
 </template>
 

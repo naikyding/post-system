@@ -3,7 +3,7 @@
 
 <template>
   <div>
-    <h1>來客數</h1>
+    <p>來客數</p>
   </div>
 </template>
 

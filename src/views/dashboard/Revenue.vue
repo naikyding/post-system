@@ -3,7 +3,7 @@
 
 <template>
   <div>
-    <h1>營業額</h1>
+    <p>營業額</p>
   </div>
 </template>
 
