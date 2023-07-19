@@ -218,17 +218,27 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   const selectDate = reactive([
     {
       name: '日',
+      range: 'day',
+    },
+    {
+      name: '周',
+      range: 'week',
     },
     {
       name: '月',
+      range: 'month',
     },
     {
       name: '季',
+      range: 'quarter',
     },
     {
       name: '年',
+      range: 'year',
     },
   ])
+
+  const activeRange = ref('day')
 
   const orderList = ref([])
   const activeOrderList = ref([])
@@ -271,6 +281,23 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     },
     () => {
       console.log('getOrderList Error')
+    },
+  )
+
+  const getOrderListFromSystem = catchAsync(
+    async (activeDate) => {
+      // ?status=pending&from=2023-06-18&to=2023-06-19
+      orderList.value.length = 0
+
+      const { from, to } = activeDate
+      let requestParamsString = `?from=${from}&to=${to}`
+
+      const { data } = await getOrderListAPI(requestParamsString)
+      orderList.value = data.items
+      console.log(orderList.value)
+    },
+    () => {
+      console.log('getOrderListFromSystem Error')
     },
   )
 
@@ -320,5 +347,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     getTodayOrderList,
 
     selectDate,
+    activeRange,
+    getOrderListFromSystem,
   }
 })
