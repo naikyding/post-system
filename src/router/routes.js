@@ -19,7 +19,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: HomeView,
+        component: () => import('@/views/HomeView.vue'),
       },
       {
         path: 'post',
