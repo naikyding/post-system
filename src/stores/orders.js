@@ -233,21 +233,6 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   const orderList = ref([])
   const activeOrderList = ref([])
 
-  const selectDate = reactive([
-    {
-      name: '日',
-    },
-    {
-      name: '月',
-    },
-    {
-      name: '季',
-    },
-    {
-      name: '年',
-    },
-  ])
-
   function addActiveOrderList(order) {
     activeOrderList.value = order
   }
