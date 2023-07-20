@@ -44,21 +44,23 @@ function changeSearchData(type) {
         </v-btn>
       </div>
     </div>
-    <v-container>
+    <v-container fluid class="mt-4">
       <v-row>
-        <v-col cols="6" sm="3" class="pa-1">
+        <v-col cols="12" sm="6" md="3" class="pa-1">
           <!-- 營業額 -->
           <Revenue />
         </v-col>
-        <v-col cols="6" sm="3" class="pa-1">
+        <v-col cols="12" sm="6" md="3" class="pa-1">
           <!-- 來客數 -->
           <Visitors />
         </v-col>
-        <v-col cols="6" sm="3" class="pa-1">
+        <v-col cols="12" sm="6" md="3" class="pa-1">
           <!-- 客單價 -->
           <AverageOrderValue />
         </v-col>
-        <v-col cols="6" sm="3">--</v-col>
+        <v-col cols="12" sm="6" md="3" class="pa-1">
+          <AverageOrderValue />
+        </v-col>
       </v-row>
     </v-container>
   </div>
