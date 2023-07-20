@@ -3,6 +3,7 @@ import DataTable from './components/DataTable.vue'
 import { useSystemOrderList } from '../../stores/orders'
 
 const systemOrderStore = useSystemOrderList()
+systemOrderStore.getTodayOrderList()
 </script>
 
 <template>
