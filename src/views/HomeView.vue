@@ -27,8 +27,8 @@ function changeSearchData(type) {
 </script>
 
 <template>
-  <div class="h-screen pa-4">
-    <div class="d-sm-flex justify-space-between align-center">
+  <div class="h-screen">
+    <div class="d-sm-flex justify-space-between align-center pa-4">
       <h3>Dashboard</h3>
       <div>
         <v-btn-toggle
@@ -50,8 +50,8 @@ function changeSearchData(type) {
         </v-btn-toggle>
       </div>
     </div>
-    <v-container fluid>
-      <v-row>
+    <v-container fluid class="mt-2">
+      <v-row class="px-2">
         <v-col cols="12" sm="6" md="3" class="pa-1">
           <!-- 營業額 -->
           <Revenue />
