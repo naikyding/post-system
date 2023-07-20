@@ -7,8 +7,15 @@ import dayJs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 dayJs.extend(quarterOfYear)
 import { dateFormat } from '../utils/day'
+import { nextTick, onMounted } from 'vue'
 
 const SystemOrderListStore = useSystemOrderList()
+
+onMounted(() => {
+  nextTick(() => {
+    SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
+  })
+})
 
 function changeSearchData(type) {
   if (SystemOrderListStore.activeRange === type) return false
@@ -39,15 +46,15 @@ function changeSearchData(type) {
     </div>
     <v-container>
       <v-row>
-        <v-col cols="6" sm="3">
+        <v-col cols="6" sm="3" class="pa-1">
           <!-- 營業額 -->
           <Revenue />
         </v-col>
-        <v-col cols="6" sm="3">
+        <v-col cols="6" sm="3" class="pa-1">
           <!-- 來客數 -->
           <Visitors />
         </v-col>
-        <v-col cols="6" sm="3">
+        <v-col cols="6" sm="3" class="pa-1">
           <!-- 客單價 -->
           <AverageOrderValue />
         </v-col>
