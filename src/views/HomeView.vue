@@ -18,8 +18,6 @@ onMounted(() => {
 })
 
 function changeSearchData(type) {
-  if (SystemOrderListStore.activeRange === type) return false
-  SystemOrderListStore.activeRange = type
   SystemOrderListStore.activeListDate.from = dateFormat(
     dayJs().subtract(type === 'day' ? 0 : 1, type),
   )
@@ -30,21 +28,29 @@ function changeSearchData(type) {
 
 <template>
   <div class="h-screen pa-4">
-    <div class="d-sm-flex justify-space-between">
+    <div class="d-sm-flex justify-space-between align-center">
       <h3>Dashboard</h3>
       <div>
-        <v-btn
-          v-for="(date, index) in SystemOrderListStore.selectDate"
-          :key="date + index"
-          density="compact"
-          :active="date.range === SystemOrderListStore.activeRange"
-          @click="changeSearchData(date.range)"
+        <v-btn-toggle
+          divided
+          v-model="SystemOrderListStore.activeRange"
+          rounded
+          variant="outlined"
+          color="deep-purple-accent-3"
+          group
         >
-          {{ date.name }}
-        </v-btn>
+          <v-btn
+            v-for="(date, index) in SystemOrderListStore.selectDate"
+            :key="date + index"
+            :value="date.range"
+            @click="changeSearchData(date.range)"
+          >
+            {{ date.name }}</v-btn
+          >
+        </v-btn-toggle>
       </div>
     </div>
-    <v-container fluid class="mt-4">
+    <v-container fluid>
       <v-row>
         <v-col cols="12" sm="6" md="3" class="pa-1">
           <!-- 營業額 -->
