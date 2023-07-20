@@ -258,20 +258,22 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     return (urlQueryString += `&status=${activeTab}`)
   }
 
-  function getTodayOrderList() {
+  function getTodayOrderList(type) {
     const now = dayJS(new Date()).format('YYYY-MM-DD')
     activeListDate.from = now
     activeListDate.to = now
     activeListTab.value = 'pending'
 
-    getOrderList()
+    getOrderList(type)
   }
 
   const getOrderList = catchAsync(
-    async () => {
+    async (type) => {
       orderList.value.length = 0
       const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
-      orderList.value = data.items
+      if (type !== 'getPendingQuantity') {
+        orderList.value = data.items
+      }
       if (activeListTab.value === 'pending') {
         pendingQuantity.value = 0
         pendingQuantity.value = data.items.reduce((init, cur) => {
@@ -294,7 +296,6 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
       const { data } = await getOrderListAPI(requestParamsString)
       orderList.value = data.items
-      console.log(orderList.value)
     },
     () => {
       console.log('getOrderListFromSystem Error')
@@ -329,6 +330,33 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   watch(activeListTab, getOrderList)
 
+  const dashboardDataStep1 = computed(() => {
+    let initData = {
+      revenue: '--',
+      visitors: '--',
+      averageOrderValue: '--',
+    }
+
+    if (orderList.value.length < 1) return initData
+
+    return orderList.value.reduce(
+      (init, cur) => {
+        if (cur.status === 'cancelled') return init
+
+        init.visitors === '--' ? (init.visitors = 1) : (init.visitors += 1)
+        init.revenue === '--' ? (init.revenue = cur.totalPrice) : (init.revenue += cur.totalPrice)
+        init.averageOrderValue =
+          init.revenue === '--' || init.visitors === '--' ? '--' : init.revenue / init.visitors
+        return init
+      },
+      {
+        revenue: '--',
+        visitors: '--',
+        averageOrderValue: '--',
+      },
+    )
+  })
+
   return {
     getOrderList,
     orderList,
@@ -349,5 +377,6 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     selectDate,
     activeRange,
     getOrderListFromSystem,
+    dashboardDataStep1,
   }
 })
