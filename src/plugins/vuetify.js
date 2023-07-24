@@ -20,7 +20,11 @@ const vuetify = createVuetify({
     defaultTheme: 'dark',
     themes: {
       // custom themes https://vuetifyjs.com/en/features/theme/#changing-theme
-      dark: {},
+      dark: {
+        colors: {
+          primary: '#BFA473',
+        },
+      },
       light: {},
     },
   },
