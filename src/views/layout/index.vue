@@ -5,7 +5,7 @@ import { useUserStore } from '../../stores/users'
 import { useSystemOrderList } from '@/stores/orders'
 
 const systemOrderStore = useSystemOrderList()
-systemOrderStore.getTodayOrderList('getPendingQuantity')
+systemOrderStore.getOrderList('getPendingQuantity')
 
 const userStore = useUserStore()
 const state = ref({

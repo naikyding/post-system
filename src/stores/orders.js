@@ -189,7 +189,7 @@ export const useOrdersStore = defineStore('orders', () => {
     resFunc(status, () => {
       resetOrderList()
       const systemOrderListStore = useSystemOrderList()
-      systemOrderListStore.getTodayOrderList()
+      systemOrderListStore.getOrderList('today')
     })
   })
 
@@ -258,17 +258,17 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     return (urlQueryString += `&status=${activeTab}`)
   }
 
-  function getTodayOrderList(type) {
+  function initTodayAndTab() {
     const now = dayJS(new Date()).format('YYYY-MM-DD')
     activeListDate.from = now
     activeListDate.to = now
     activeListTab.value = 'pending'
-
-    getOrderList(type)
   }
 
   const getOrderList = catchAsync(
     async (type) => {
+      if (type === 'today') initTodayAndTab()
+
       orderList.value.length = 0
       const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
       if (type !== 'getPendingQuantity') {
@@ -372,7 +372,6 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     activeListTab,
     activeListDate,
     pendingQuantity,
-    getTodayOrderList,
 
     selectDate,
     activeRange,
