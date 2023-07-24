@@ -133,7 +133,7 @@ async function updateDialog(orderListID, updateData, callback) {
   <!-- confirm Dialog -->
   <v-dialog transition="dialog-bottom-transition" v-model="dialog.confirmOrderList" width="400">
     <v-card>
-      <v-card-item class="bg-grey text-center pb-2" title="訂單明細"></v-card-item>
+      <v-card-item class="bg-primary text-center pb-2" title="訂單明細"></v-card-item>
       <v-card-text>
         <div class="order-list-area px-4">
           <div

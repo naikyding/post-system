@@ -164,7 +164,7 @@ onMounted(async () => {
       <!-- 產品 -->
       <v-col cols="8" md="8" class="order-type bg-grey-darken-3 pa-0">
         <!-- TABs -->
-        <v-tabs v-model="tabActiveId" bg-color="secondary" class="px-6">
+        <v-tabs v-model="tabActiveId" color="primary" class="px-6">
           <v-tab
             v-for="(productItems, index) in productsStore.products"
             :key="productItems + index"
@@ -194,7 +194,7 @@ onMounted(async () => {
                     <v-card @click="ordersStore.selectedProduct(productItem, dialog, true)">
                       <template #title>
                         <div class="d-flex flex-column">
-                          <div class="text-subtitle-1 font-weight-bold">
+                          <div class="text-subtitle-1 font-weight-bold text-primary">
                             {{ productItem.name }}
                           </div>
                           <div class="text-caption">
@@ -235,7 +235,7 @@ onMounted(async () => {
   <!-- 產品資訊 Dialog -->
   <v-dialog transition="dialog-bottom-transition" v-model="dialog.activeProductItem" width="400">
     <v-card>
-      <v-card-title class="pt-4 px-6">
+      <v-card-title class="pt-4 px-6 text-primary">
         {{ ordersStore.activeProductItem.product.name }}
       </v-card-title>
       <v-card-subtitle class="px-6">
