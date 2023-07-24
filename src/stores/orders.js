@@ -288,6 +288,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   const getOrderListFromSystem = catchAsync(
     async (activeDate) => {
+      initTodayAndTab()
+
       // ?status=pending&from=2023-06-18&to=2023-06-19
       orderList.value.length = 0
 
