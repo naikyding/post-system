@@ -11,7 +11,9 @@ const SystemOrderListStore = useSystemOrderList()
     <v-card-text class="py-0">
       <v-row align="center" no-gutters>
         <v-col class="text-h2" cols="12">
-          {{ SystemOrderListStore.dashboardDataStep1.revenue }}
+          <span class="text-primary">
+            {{ SystemOrderListStore.dashboardDataStep1.revenue }}
+          </span>
           <span class="text-caption">元</span>
         </v-col>
       </v-row>

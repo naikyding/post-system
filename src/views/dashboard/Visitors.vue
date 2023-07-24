@@ -11,7 +11,9 @@ const SystemOrderListStore = useSystemOrderList()
     <v-card-text class="py-0">
       <v-row align="center" no-gutters>
         <v-col class="text-h2" cols="12">
-          {{ SystemOrderListStore.dashboardDataStep1.visitors }}
+          <span class="text-primary">
+            {{ SystemOrderListStore.dashboardDataStep1.visitors }}
+          </span>
           <span class="text-caption">人</span>
         </v-col>
       </v-row>
