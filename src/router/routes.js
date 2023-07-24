@@ -1,8 +1,4 @@
-import HomeView from '../views/HomeView.vue'
-import PostView from '../views/PostView.vue'
-import ListStatus from '../views/statusList/index.vue'
 import Login from '../views/user/Login.vue'
-
 import Layout from '../views/layout/index.vue'
 
 const routes = [
@@ -24,12 +20,12 @@ const routes = [
       {
         path: 'post',
         name: 'Order',
-        component: PostView,
+        component: () => import('@/views/PostView.vue'),
       },
       {
         path: 'list-status',
         name: 'ListStatus',
-        component: ListStatus,
+        component: () => import('@/views/statusList/index.vue'),
       },
     ],
   },
