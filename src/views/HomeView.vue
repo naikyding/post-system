@@ -5,6 +5,7 @@ import Revenue from './dashboard/Revenue.vue'
 import Visitors from './dashboard/Visitors.vue'
 import dayJs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
+
 dayJs.extend(quarterOfYear)
 import { dateFormat } from '../utils/day'
 import { nextTick, onMounted } from 'vue'
@@ -36,7 +37,7 @@ function changeSearchData(type) {
           v-model="SystemOrderListStore.activeRange"
           rounded
           variant="outlined"
-          color="deep-purple-accent-3"
+          color="primary"
           group
         >
           <v-btn
