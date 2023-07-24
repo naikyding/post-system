@@ -3,17 +3,12 @@ import DataTable from './components/DataTable.vue'
 import { useSystemOrderList } from '../../stores/orders'
 
 const systemOrderStore = useSystemOrderList()
-systemOrderStore.getTodayOrderList()
+
+systemOrderStore.getOrderList('today')
 </script>
 
 <template>
-  <v-tabs
-    fixed-tabs
-    v-model="systemOrderStore.activeListTab"
-    color="primary"
-    bg-color="white"
-    class="rounded-t-lg"
-  >
+  <v-tabs fixed-tabs v-model="systemOrderStore.activeListTab" color="primary" class="rounded-t-lg">
     <v-tab value="pending"
       >待處理
       <span class="text-error" v-show="systemOrderStore.pendingQuantity > 0"
