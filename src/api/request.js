@@ -22,6 +22,7 @@ request.interceptors.request.use(
     if (accessToken && type) {
       config.headers.Authorization = `${type} ${accessToken}`
     }
+    if (userStore.agents) config.headers['Mc-Agents-Id'] = userStore.agents
 
     return config
   },

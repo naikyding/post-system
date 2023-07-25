@@ -181,7 +181,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
     formatData.customer =
       userStore.roles.name === 'admin' ? userStore.adminCustomer : userStore.baseInfo._id
-    formatData.agent = userStore.agents._id
+    formatData.agent = userStore.agents
 
     dialog.confirmOrderList = false
     const { status } = await createOrderAPI(formatData)
@@ -288,7 +288,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   const getOrderListFromSystem = catchAsync(
     async (activeDate) => {
-      initTodayAndTab()
+      if (activeRange.value === 'day') initTodayAndTab()
 
       // ?status=pending&from=2023-06-18&to=2023-06-19
       orderList.value.length = 0

@@ -19,7 +19,9 @@ export const useUserStore = defineStore('user', () => {
   const baseInfo = ref([])
 
   const agents = computed(() => {
-    return baseInfo.value.agents ? baseInfo.value.agents[0] : null
+    return baseInfo.value.agents
+      ? baseInfo.value.agents[0]._id
+      : localStorage.getItem('agentsId') || null
   })
   const roles = computed(() => {
     return baseInfo.value.roles ? baseInfo.value.roles[0] : null
@@ -37,6 +39,10 @@ export const useUserStore = defineStore('user', () => {
       token.value[key] = tokenData[key]
       localStorage.setItem(key, tokenData[key])
     })
+  }
+
+  function saveUserAgentsId(agentsId) {
+    localStorage.setItem('agentsId', agentsId)
   }
 
   function checkLocalTokenAndReturnAccessToken() {
@@ -85,6 +91,9 @@ export const useUserStore = defineStore('user', () => {
   const getUserBaseInfo = catchAsync(
     async () => {
       const { data } = await gerUserBaseInfoAPI()
+
+      await saveUserAgentsId(data.agents[0]._id)
+
       baseInfo.value = data
     },
     () => {
@@ -111,6 +120,7 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('type')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
+    localStorage.removeItem('agentsId')
     ;(token.value.type = null),
       (token.value.accessToken = null),
       (token.value.refreshToken = null),
