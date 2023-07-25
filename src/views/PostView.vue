@@ -164,11 +164,12 @@ onMounted(async () => {
       <!-- 產品 -->
       <v-col cols="8" md="8" class="order-type bg-grey-darken-3 pa-0">
         <!-- TABs -->
-        <v-tabs v-model="tabActiveId" color="primary" class="px-6">
+        <v-tabs v-model="tabActiveId" color="primary" class="px-6" center-active show-arrows>
           <v-tab
             v-for="(productItems, index) in productsStore.products"
             :key="productItems + index"
             :value="index"
+            class="text-subtitle-1"
           >
             {{ productItems.type }}
           </v-tab>
