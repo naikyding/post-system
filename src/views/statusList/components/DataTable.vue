@@ -99,7 +99,7 @@ async function updateDialog(orderListID, updateData, callback) {
             <td>
               {{ product.product.name }}
             </td>
-            <td class="text-caption font-weight-bold">
+            <td class="text-caption font-weight-bold text-primary">
               <div v-for="extra in product.extras" :key="extra._id">
                 +<span class="bg-primary px-1 rounded mx-1 text-black">
                   {{ extra.type }}
