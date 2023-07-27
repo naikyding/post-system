@@ -23,6 +23,7 @@ const vuetify = createVuetify({
       dark: {
         colors: {
           primary: '#BFA473',
+          black: '#2e2e2e',
         },
       },
       light: {},
