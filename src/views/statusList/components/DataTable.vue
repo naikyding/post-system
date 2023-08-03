@@ -93,13 +93,14 @@ async function updateDialog(orderListID, updateData, callback) {
               {{ `${index + 1} / ${items.items.length}` }}
             </td>
             <td class="text-caption">
-              <div class="day">{{ dateFormat(items.createdAt).split(' ')[0] }}</div>
-              <div class="day">{{ dateFormat(items.createdAt).split(' ')[1] }}</div>
+              <div class="day">
+                {{ dateFormat(items.createdAt).split(' ')[0] }}
+              </div>
             </td>
             <td>
               {{ product.product.name }}
             </td>
-            <td class="text-caption font-weight-bold text-primary">
+            <td class="text-subtitle-2 font-weight-bold text-primary py-2">
               <div v-for="extra in product.extras" :key="extra._id">
                 +<span class="bg-primary px-1 rounded mx-1 text-black">
                   {{ extra.type }}
@@ -107,7 +108,7 @@ async function updateDialog(orderListID, updateData, callback) {
                 <span>{{ extra.name }}</span>
               </div>
             </td>
-            <td class="text-h3">{{ product.quantity }}</td>
+            <td class="text-right text-h3">{{ product.quantity }}</td>
             <td>
               <span
                 class="px-2 py-1 rounded-lg text-caption"
