@@ -107,7 +107,7 @@ async function updateDialog(orderListID, updateData, callback) {
                 <span>{{ extra.name }}</span>
               </div>
             </td>
-            <td class="text-caption">{{ product.quantity }}</td>
+            <td class="text-h3">{{ product.quantity }}</td>
             <td>
               <span
                 class="px-2 py-1 rounded-lg text-caption"
