@@ -5,6 +5,7 @@ import { dateFormat } from '@/utils/day'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
+import dayJS from 'dayjs'
 
 const systemOrderStore = useSystemOrderList()
 
@@ -94,7 +95,7 @@ async function updateDialog(orderListID, updateData, callback) {
             </td>
             <td class="text-caption">
               <div class="day">
-                {{ dateFormat(items.createdAt).split(' ')[0] }}
+                {{ dayJS(items.createdAt).format('HH:mm') }}
               </div>
             </td>
             <td>
