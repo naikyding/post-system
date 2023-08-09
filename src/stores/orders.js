@@ -21,6 +21,7 @@ export const useOrdersStore = defineStore('orders', () => {
   const ordersList = reactive({
     items: [],
     note: '',
+    mobileNoThreeDigits: null,
     isPaid: false,
 
     total: computed(() => {
@@ -47,6 +48,7 @@ export const useOrdersStore = defineStore('orders', () => {
     ordersList.items = []
     ordersList.note = ''
     ordersList.isPaid = false
+    ordersList.mobileNoThreeDigits = null
   }
 
   // 刪除購物車指定項目
@@ -168,6 +170,7 @@ export const useOrdersStore = defineStore('orders', () => {
         })
 
         if (!init.note) init.note = list.note
+        if (!init.mobileNoThreeDigits) init.mobileNoThreeDigits = list.mobileNoThreeDigits
         if (!init.isPaid) init.isPaid = list.isPaid
         if (!init.paymentType) init.paymentType = 'cash'
         if (!init.totalPrice) init.totalPrice = list.total.totalPrice

@@ -67,7 +67,8 @@ async function updateDialog(orderListID, updateData, callback) {
           <th class="text-left">商品名稱</th>
           <th class="text-left">加料</th>
           <th class="text-left">數量</th>
-          <th class="text-left min-width-90px">付款狀態</th>
+          <th class="text-left min-width-90px">備註</th>
+          <!-- <th class="text-left min-width-90px">付款狀態</th> -->
           <th class="text-left">未三碼</th>
           <th class="text-center">-</th>
         </tr>
@@ -110,19 +111,23 @@ async function updateDialog(orderListID, updateData, callback) {
               </div>
             </td>
             <td class="text-right text-h3">{{ product.quantity }}</td>
-            <td>
-              <span
-                class="px-2 py-1 rounded-lg text-caption"
-                :class="[items.isPaid ? 'bg-success' : 'bg-error']"
-              >
-                {{ items.isPaid ? '已付款' : '未付款' }}</span
-              >
-            </td>
             <td class="font-weight-bold">
               <span class="text-primary">
                 {{ items.note }}
               </span>
             </td>
+            <td>
+              <span class="px-2 py-1 rounded-lg text-caption bg-success">
+                {{ items.mobileNoThreeDigits || '--' }}
+              </span>
+              <!-- <span
+                class="px-2 py-1 rounded-lg text-caption"
+                :class="[items.isPaid ? 'bg-success' : 'bg-error']"
+              >
+                {{ items.isPaid ? '已付款' : '未付款' }}
+                </span> -->
+            </td>
+
             <td class="text-center">
               <v-btn
                 @click="showOrderListDetails(items)"

@@ -344,6 +344,18 @@ onMounted(async () => {
             </div>
           </div>
 
+          <!-- 手機未三碼 -->
+          <div class="mt-4">
+            <v-text-field
+              v-model="ordersStore.ordersList.mobileNoThreeDigits"
+              clearable
+              type="tel"
+              label="手機未三碼"
+              variant="outlined"
+            ></v-text-field>
+          </div>
+
+          <!-- 備註 -->
           <div class="note-area">
             <v-textarea
               v-model="ordersStore.ordersList.note"
