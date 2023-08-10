@@ -296,6 +296,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
         pendingQuantity.value = 0
         pendingQuantity.value = data.items.reduce((init, cur) => {
           return (init += cur.items.reduce((init, cur) => {
+            if (cur.product.type === '塑膠提袋') return init
             return (init += cur.quantity)
           }, 0))
         }, 0)
@@ -364,17 +365,14 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
     return orderList.value.reduce((init, cur) => {
       if (cur.status === 'cancelled') return init
-      console.log(
-        cur.items.reduce((init, cur) => {
-          return (init += cur.quantity)
-        }, 0),
-      )
+
       init.visitors === '--' ? (init.visitors = 1) : (init.visitors += 1)
       init.revenue === '--' ? (init.revenue = cur.totalPrice) : (init.revenue += cur.totalPrice)
       init.averageOrderValue =
         init.revenue === '--' || init.visitors === '--' ? '--' : init.revenue / init.visitors
 
       const quantityTotal = cur.items.reduce((init, cur) => {
+        if (cur.product.type === '塑膠提袋') return init
         return (init += cur.quantity)
       }, 0)
 
