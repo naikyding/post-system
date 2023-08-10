@@ -83,7 +83,7 @@ onMounted(async () => {
                     <v-icon
                       v-show="item.quantity > 1"
                       icon="mdi-minus"
-                      @click="item.quantity--"
+                      @click="ordersStore.orderItemQuantityPlusOrMinus('minus', item)"
                     ></v-icon>
 
                     <v-icon
@@ -94,7 +94,10 @@ onMounted(async () => {
                     <span>
                       {{ item.quantity }}
                     </span>
-                    <v-icon icon="mdi-plus" @click="item.quantity++"></v-icon>
+                    <v-icon
+                      icon="mdi-plus"
+                      @click="ordersStore.orderItemQuantityPlusOrMinus('plus', item)"
+                    ></v-icon>
                   </td>
                   <td class="text-right pl-1 pr-4">
                     {{ item.total }}

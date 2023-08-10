@@ -140,10 +140,23 @@ export const useOrdersStore = defineStore('orders', () => {
     activeProductItem.product = {}
   }
 
+  // 選單項目數量 增/減 功能
+  function orderItemQuantityPlusOrMinus(type, orderItem) {
+    const plus = type === 'plus'
+
+    const itemPrice = orderItem.total / orderItem.quantity
+    if (plus) {
+      orderItem.quantity++
+      orderItem.total = itemPrice * orderItem.quantity
+      return
+    }
+    orderItem.quantity--
+    orderItem.total = itemPrice * orderItem.quantity
+  }
+
   // 當前選擇產品項目 (dialog) 加減數量
   function activeProductItemQuantity(plusType) {
     if (plusType) {
-      if (activeProductItem.quantity > 4) return false
       return activeProductItem.quantity++
     }
     if (activeProductItem.quantity < 2) return false
@@ -207,6 +220,8 @@ export const useOrdersStore = defineStore('orders', () => {
     selectedProduct,
     selectorDialog,
     submitOrderList,
+
+    orderItemQuantityPlusOrMinus,
   }
 })
 
