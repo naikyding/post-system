@@ -29,7 +29,7 @@ export const useOrdersStore = defineStore('orders', () => {
         (init, cur) => {
           init.quantity += cur.quantity
           init.subTotal += cur.total
-          init.totalPrice += cur.total * cur.quantity + init.service + init.discount
+          init.totalPrice += cur.total + init.service + init.discount
 
           return init
         },
