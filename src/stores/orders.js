@@ -295,7 +295,9 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
       if (activeListTab.value === 'pending') {
         pendingQuantity.value = 0
         pendingQuantity.value = data.items.reduce((init, cur) => {
-          return (init += cur.items.length)
+          return (init += cur.items.reduce((init, cur) => {
+            return (init += cur.quantity)
+          }, 0))
         }, 0)
       }
     },
@@ -362,14 +364,21 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
     return orderList.value.reduce((init, cur) => {
       if (cur.status === 'cancelled') return init
-
+      console.log(
+        cur.items.reduce((init, cur) => {
+          return (init += cur.quantity)
+        }, 0),
+      )
       init.visitors === '--' ? (init.visitors = 1) : (init.visitors += 1)
       init.revenue === '--' ? (init.revenue = cur.totalPrice) : (init.revenue += cur.totalPrice)
       init.averageOrderValue =
         init.revenue === '--' || init.visitors === '--' ? '--' : init.revenue / init.visitors
-      init.quantity === '--'
-        ? (init.quantity = cur.items.length)
-        : (init.quantity += cur.items.length)
+
+      const quantityTotal = cur.items.reduce((init, cur) => {
+        return (init += cur.quantity)
+      }, 0)
+
+      init.quantity === '--' ? (init.quantity = quantityTotal) : (init.quantity += quantityTotal)
       return init
     }, initData)
   })
