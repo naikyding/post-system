@@ -247,7 +247,8 @@ onMounted(async () => {
       </v-card-subtitle>
       <v-divider class="mt-4" />
       <v-card-text>
-        <div>
+        <!-- 加料 -->
+        <div v-if="ordersStore.activeProductItem.product?.extras?.length > 0">
           <h4 class="mb-4">加料</h4>
 
           <div
