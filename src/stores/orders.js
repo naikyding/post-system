@@ -313,7 +313,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
         pendingQuantity.value = 0
         pendingQuantity.value = data.items.reduce((init, cur) => {
           return (init += cur.items.reduce((init, cur) => {
-            if (cur.product.type === '塑膠提袋') return init
+            if (cur.product && cur.product.type === '塑膠提袋') return init
             return (init += cur.quantity)
           }, 0))
         }, 0)
@@ -389,7 +389,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
         init.revenue === '--' || init.visitors === '--' ? '--' : init.revenue / init.visitors
 
       const quantityTotal = cur.items.reduce((init, cur) => {
-        if (cur.product.type === '塑膠提袋') return init
+        if (cur.product && cur.product.type === '塑膠提袋') return init
         return (init += cur.quantity)
       }, 0)
 
