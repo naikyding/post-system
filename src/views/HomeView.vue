@@ -21,7 +21,9 @@ onMounted(() => {
 
 function changeSearchData(type) {
   if (type === 'yesterday') {
-    SystemOrderListStore.activeListDate.from = dateFormat(dayJs().add(-1, 'day'))
+    const yesterday = dateFormat(dayJs().add(-1, 'day'))
+    SystemOrderListStore.activeListDate.from = yesterday
+    SystemOrderListStore.activeListDate.to = yesterday
   } else {
     SystemOrderListStore.activeListDate.from = dateFormat(
       dayJs().subtract(type === 'day' ? 0 : 1, type),
