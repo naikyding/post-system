@@ -227,6 +227,7 @@ onMounted(async () => {
                       </button>
                       <!-- 快捷新增按鈕 (含提袋) -->
                       <button
+                        v-show="productItem.type !== '塑膠提袋'"
                         class="fast-add-item-and-sack-btn"
                         @click.stop="
                           ordersStore.fashAddActiveProductItemAndBagToOrdersList(
