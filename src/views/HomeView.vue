@@ -30,28 +30,31 @@ function changeSearchData(type) {
 
 <template>
   <div class="h-screen">
-    <div class="d-sm-flex justify-space-between align-center pa-4">
-      <h3>Dashboard</h3>
-      <div>
-        <v-btn-toggle
-          divided
-          v-model="SystemOrderListStore.activeRange"
-          rounded
-          variant="outlined"
-          color="primary"
-          group
-        >
-          <v-btn
-            v-for="(date, index) in SystemOrderListStore.selectDate"
-            :key="date + index"
-            :value="date.range"
-            @click="changeSearchData(date.range)"
+    <v-container fluid class="mt-2">
+      <v-row>
+        <v-col sm="12" md="6" cols="6"> <h3>Dashboard</h3></v-col>
+        <v-col sm="12" md="6" cols="6" class="text-md-right">
+          <v-btn-toggle
+            divided
+            v-model="SystemOrderListStore.activeRange"
+            rounded
+            variant="outlined"
+            color="primary"
+            group
           >
-            {{ date.name }}</v-btn
-          >
-        </v-btn-toggle>
-      </div>
-    </div>
+            <v-btn
+              v-for="(date, index) in SystemOrderListStore.selectDate"
+              :key="date + index"
+              :value="date.range"
+              @click="changeSearchData(date.range)"
+            >
+              {{ date.name }}</v-btn
+            >
+          </v-btn-toggle>
+        </v-col>
+      </v-row>
+    </v-container>
+
     <v-container fluid class="mt-2">
       <v-row class="px-2">
         <v-col cols="12" sm="6" md="3" class="pa-1">
