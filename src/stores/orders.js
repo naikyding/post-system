@@ -252,23 +252,27 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   const selectDate = reactive([
     {
-      name: '日',
+      name: '今日',
       range: 'day',
     },
     {
-      name: '周',
+      name: '昨日',
+      range: 'yesterday',
+    },
+    {
+      name: '本週',
       range: 'week',
     },
     {
-      name: '月',
+      name: '本月',
       range: 'month',
     },
     {
-      name: '季',
+      name: '本季',
       range: 'quarter',
     },
     {
-      name: '年',
+      name: '今年',
       range: 'year',
     },
   ])

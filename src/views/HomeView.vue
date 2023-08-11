@@ -20,9 +20,13 @@ onMounted(() => {
 })
 
 function changeSearchData(type) {
-  SystemOrderListStore.activeListDate.from = dateFormat(
-    dayJs().subtract(type === 'day' ? 0 : 1, type),
-  )
+  if (type === 'yesterday') {
+    SystemOrderListStore.activeListDate.from = dateFormat(dayJs().add(-1, 'day'))
+  } else {
+    SystemOrderListStore.activeListDate.from = dateFormat(
+      dayJs().subtract(type === 'day' ? 0 : 1, type),
+    )
+  }
 
   SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
 }
@@ -32,8 +36,8 @@ function changeSearchData(type) {
   <div class="h-screen">
     <v-container fluid class="mt-2">
       <v-row>
-        <v-col sm="12" md="6" cols="6"> <h3>Dashboard</h3></v-col>
-        <v-col sm="12" md="6" cols="6" class="text-md-right">
+        <v-col sm="12" md="6"> <h3>Dashboard</h3></v-col>
+        <v-col sm="12" md="6" class="text-md-right">
           <v-btn-toggle
             divided
             v-model="SystemOrderListStore.activeRange"
