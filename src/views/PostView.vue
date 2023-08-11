@@ -223,7 +223,20 @@ onMounted(async () => {
                           )
                         "
                       >
-                        <v-icon size="30" icon="mdi-lightning-bolt-circle" />
+                        <v-icon size="30" color="blue" icon="mdi-lightning-bolt-circle" />
+                      </button>
+                      <!-- 快捷新增按鈕 (含提袋) -->
+                      <button
+                        class="fast-add-item-and-sack-btn"
+                        @click.stop="
+                          ordersStore.fashAddActiveProductItemAndBagToOrdersList(
+                            ordersStore.ordersList,
+                            productItem,
+                            dialog,
+                          )
+                        "
+                      >
+                        <v-icon size="30" color="error" icon="mdi-sack" />
                       </button>
                     </v-card>
                   </v-col>
@@ -441,8 +454,13 @@ table {
 
 .fast-add-item-btn {
   position: absolute;
-  bottom: 1px;
-  right: 1px;
+  bottom: 5px;
+  right: 5px;
+}
+.fast-add-item-and-sack-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }
 
 .order-item {
