@@ -23,13 +23,16 @@ onMounted(() => {
 const date = ref()
 
 watch(date, (newValue) => {
-  SystemOrderListStore.activeListDate.from = newValue[0]
-  SystemOrderListStore.activeListDate.to = newValue[1]
+  console.log(`watch`)
+  // if (!newValue) return false
+  SystemOrderListStore.activeListDate.from = dateFormat(dayJs(newValue[0]))
+  SystemOrderListStore.activeListDate.to = dateFormat(dayJs(newValue[0]))
 
   SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
 })
 
 watchEffect(() => {
+  console.log(`watchEffect`)
   date.value = [SystemOrderListStore.activeListDate.from, SystemOrderListStore.activeListDate.to]
   // SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
 })
@@ -45,7 +48,7 @@ function changeSearchData(type) {
     )
   }
 
-  SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
+  // SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
 }
 </script>
 
@@ -73,7 +76,7 @@ function changeSearchData(type) {
             >
           </v-btn-toggle>
 
-          <VueDatePicker class="mt-4" v-model="date" range />
+          <VueDatePicker class="mt-4" v-model="date" range multi-calendars-solo />
         </v-col>
       </v-row>
     </v-container>
