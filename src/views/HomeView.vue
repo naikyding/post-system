@@ -5,11 +5,12 @@ import Revenue from './dashboard/Revenue.vue'
 import Visitors from './dashboard/Visitors.vue'
 import Quantity from './dashboard/Quantity.vue'
 import dayJs from 'dayjs'
+
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 
 dayJs.extend(quarterOfYear)
 import { dateFormat } from '../utils/day'
-import { nextTick, onMounted } from 'vue'
+import { ref, watch, nextTick, onMounted, watchEffect } from 'vue'
 
 const SystemOrderListStore = useSystemOrderList()
 
@@ -17,6 +18,20 @@ onMounted(() => {
   nextTick(() => {
     SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
   })
+})
+
+const date = ref()
+
+watch(date, (newValue) => {
+  SystemOrderListStore.activeListDate.from = newValue[0]
+  SystemOrderListStore.activeListDate.to = newValue[1]
+
+  SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
+})
+
+watchEffect(() => {
+  date.value = [SystemOrderListStore.activeListDate.from, SystemOrderListStore.activeListDate.to]
+  // SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
 })
 
 function changeSearchData(type) {
@@ -57,6 +72,8 @@ function changeSearchData(type) {
               {{ date.name }}</v-btn
             >
           </v-btn-toggle>
+
+          <VueDatePicker class="mt-4" v-model="date" range />
         </v-col>
       </v-row>
     </v-container>
