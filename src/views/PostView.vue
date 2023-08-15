@@ -61,7 +61,7 @@ onMounted(async () => {
                 >
                   <td class="py-3 pr-0">
                     <div class="d-flex">
-                      <span class="">
+                      <span class="text-white">
                         {{ item.product.name }}
                       </span>
                     </div>
@@ -71,36 +71,45 @@ onMounted(async () => {
                         :key="extraItem._id"
                         class="text-caption"
                       >
-                        <v-icon icon="mdi-plus"></v-icon>
-                        <span class="px-1 bg-grey rounded mr-1">{{ extraItem.type }}</span>
-                        <span>
+                        <v-icon icon="mdi-plus" color="grey"></v-icon>
+                        <span class="px-1 bg-grey rounded mr-1 font-weight-bold text-black">{{
+                          extraItem.type
+                        }}</span>
+                        <span class="text-grey font-weight-bold">
                           {{ extraItem.name }}
                         </span>
                       </div>
                     </div>
                   </td>
-                  <td class="text-right px-1">
-                    <v-icon
-                      v-show="item.quantity > 1"
-                      icon="mdi-minus"
-                      @click="ordersStore.orderItemQuantityPlusOrMinus('minus', item)"
-                    ></v-icon>
+                  <td class="px-1">
+                    <div class="d-flex align-center justify-end">
+                      <v-icon
+                        v-show="item.quantity > 1"
+                        icon="mdi-minus-circle"
+                        color="error"
+                        @click="ordersStore.orderItemQuantityPlusOrMinus('minus', item)"
+                      ></v-icon>
 
-                    <v-icon
-                      v-show="item.quantity < 2"
-                      icon="mdi-trash-can-outline"
-                      @click="ordersStore.dropOrdersListItemByIndex(ordersStore.ordersList, index)"
-                    ></v-icon>
-                    <span>
-                      {{ item.quantity }}
-                    </span>
-                    <v-icon
-                      icon="mdi-plus"
-                      @click="ordersStore.orderItemQuantityPlusOrMinus('plus', item)"
-                    ></v-icon>
+                      <v-icon
+                        v-show="item.quantity < 2"
+                        icon="mdi-trash-can-outline"
+                        color="error"
+                        @click="
+                          ordersStore.dropOrdersListItemByIndex(ordersStore.ordersList, index)
+                        "
+                      ></v-icon>
+                      <span class="mx-2 text-h4 text-white">
+                        {{ item.quantity }}
+                      </span>
+                      <v-icon
+                        icon="mdi-plus-circle"
+                        color="success"
+                        @click="ordersStore.orderItemQuantityPlusOrMinus('plus', item)"
+                      ></v-icon>
+                    </div>
                   </td>
-                  <td class="text-right pl-1 pr-4">
-                    {{ item.total }}
+                  <td class="text-right pl-1 pr-4 text-white font-weight-bold text-h6">
+                    $ {{ item.total }}
                   </td>
                 </tr>
               </tbody>
