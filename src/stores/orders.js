@@ -260,19 +260,19 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
       range: 'yesterday',
     },
     {
-      name: '本週',
+      name: '週',
       range: 'week',
     },
     {
-      name: '本月',
+      name: '月',
       range: 'month',
     },
     {
-      name: '本季',
+      name: '季',
       range: 'quarter',
     },
     {
-      name: '今年',
+      name: '年',
       range: 'year',
     },
   ])
