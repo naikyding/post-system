@@ -22,19 +22,17 @@ onMounted(() => {
 
 const date = ref()
 
-watch(date, (newValue) => {
-  console.log(`watch`)
-  // if (!newValue) return false
-  SystemOrderListStore.activeListDate.from = dateFormat(dayJs(newValue[0]))
-  SystemOrderListStore.activeListDate.to = dateFormat(dayJs(newValue[0]))
+function datePickerUpdate(changeDate) {
+  console.log(`datePickerUpdate`)
+
+  SystemOrderListStore.activeListDate.from = dateFormat(dayJs(changeDate[0]))
+  SystemOrderListStore.activeListDate.to = dateFormat(dayJs(changeDate[1]))
 
   SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
-})
+}
 
 watchEffect(() => {
-  console.log(`watchEffect`)
   date.value = [SystemOrderListStore.activeListDate.from, SystemOrderListStore.activeListDate.to]
-  // SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
 })
 
 function changeSearchData(type) {
@@ -48,7 +46,7 @@ function changeSearchData(type) {
     )
   }
 
-  // SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
+  SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
 }
 </script>
 
@@ -59,6 +57,7 @@ function changeSearchData(type) {
         <v-col sm="12" md="6"> <h3>Dashboard</h3></v-col>
         <v-col sm="12" md="6" class="text-md-right">
           <v-btn-toggle
+            class="w-100"
             divided
             v-model="SystemOrderListStore.activeRange"
             rounded
@@ -76,7 +75,13 @@ function changeSearchData(type) {
             >
           </v-btn-toggle>
 
-          <VueDatePicker class="mt-4" v-model="date" range multi-calendars-solo />
+          <VueDatePicker
+            class="mt-4"
+            v-model="date"
+            range
+            multi-calendars-solo
+            @update:model-value="datePickerUpdate"
+          />
         </v-col>
       </v-row>
     </v-container>
