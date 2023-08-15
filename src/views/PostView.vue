@@ -399,7 +399,50 @@ onMounted(async () => {
       <template #actions>
         <v-container class="pt-0">
           <v-row class="px-6">
-            <v-col cols="6" class="px-1">
+            <!-- 已付款 -->
+            <v-col cols="12" class="px-1">
+              <v-btn
+                size="large"
+                @click="
+                  ordersStore.submitOrderList({
+                    list: ordersStore.ordersList,
+                    isPaid: true,
+                    paymentType: 'cash',
+                    dialog,
+                  })
+                "
+                block
+                variant="flat"
+                color="blue"
+              >
+                <span class="px-2 py-1 bg-white rounded mr-2">現金</span>
+                已付款，送出訂單</v-btn
+              >
+            </v-col>
+
+            <!-- LINE PAY 已付款 -->
+            <v-col cols="12" class="px-1">
+              <v-btn
+                size="large"
+                @click="
+                  ordersStore.submitOrderList({
+                    list: ordersStore.ordersList,
+                    isPaid: true,
+                    paymentType: 'Line Pay',
+                    dialog,
+                  })
+                "
+                block
+                variant="flat"
+                color="success"
+              >
+                <span class="px-2 py-1 bg-white rounded mr-2">LINE Pay</span>
+                已支付，送出訂單</v-btn
+              >
+            </v-col>
+
+            <!-- 未付款 -->
+            <v-col cols="12" class="px-1">
               <v-btn
                 color="error"
                 size="large"
@@ -413,22 +456,6 @@ onMounted(async () => {
                 block
                 variant="outlined"
                 >未付款，送出訂單</v-btn
-              >
-            </v-col>
-            <v-col cols="6" class="px-1">
-              <v-btn
-                size="large"
-                @click="
-                  ordersStore.submitOrderList({
-                    list: ordersStore.ordersList,
-                    isPaid: true,
-                    dialog,
-                  })
-                "
-                block
-                variant="flat"
-                color="success"
-                >已付款，送出訂單</v-btn
               >
             </v-col>
           </v-row>

@@ -178,8 +178,10 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 送出訂單
-  const submitOrderList = catchAsync(async ({ list, isPaid, dialog }) => {
+  const submitOrderList = catchAsync(async ({ list, isPaid, dialog, paymentType }) => {
     list.isPaid = isPaid
+    list.paymentType = paymentType
+
     const userStore = useUserStore()
     const appStore = useAppStore()
 
