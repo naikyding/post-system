@@ -201,7 +201,9 @@ onMounted(async () => {
                   <v-col
                     v-for="(productItem, index) in productItems.items"
                     :key="productItem + index"
-                    cols="4"
+                    cols="12"
+                    sm="6"
+                    md="4"
                     class="pa-1"
                   >
                     <v-card @click="ordersStore.selectedProduct(productItem, dialog, true)">
