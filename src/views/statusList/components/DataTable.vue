@@ -145,15 +145,9 @@ async function updateDialog(orderListID, updateData, callback) {
               </span>
             </td>
             <td>
-              <span class="px-2 py-1 rounded-lg text-caption bg-success">
+              <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
                 {{ items.mobileNoThreeDigits || '--' }}
               </span>
-              <!-- <span
-                class="px-2 py-1 rounded-lg text-caption"
-                :class="[items.isPaid ? 'bg-success' : 'bg-error']"
-              >
-                {{ items.isPaid ? '已付款' : '未付款' }}
-                </span> -->
             </td>
 
             <td class="text-center">
@@ -174,8 +168,17 @@ async function updateDialog(orderListID, updateData, callback) {
   <!-- confirm Dialog -->
   <v-dialog transition="dialog-bottom-transition" v-model="dialog.confirmOrderList" width="400">
     <v-card>
-      <v-card-item class="bg-primary text-center pb-2" title="訂單明細"></v-card-item>
+      <v-card-item class="text-primary text-center pb-2" title="訂單明細"></v-card-item>
       <v-card-text>
+        <div class="px-4">
+          <v-btn rounded="xl" variant="tonal" block>
+            未三碼
+            <span class="text-h6 ml-2 font-italic">
+              {{ systemOrderStore.activeOrderList.mobileNoThreeDigits || '--' }}
+            </span>
+          </v-btn>
+        </div>
+
         <div class="order-list-area px-4">
           <div
             v-for="orderItem in systemOrderStore.activeOrderList.items"
