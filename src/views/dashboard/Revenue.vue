@@ -6,8 +6,8 @@ const SystemOrderListStore = useSystemOrderList()
 </script>
 
 <template>
-  <v-card variant="tonal">
-    <v-card-item title="營業額"> </v-card-item>
+  <v-card variant="tonal" rounded="xl" class="py-6">
+    <v-card-item title="營業額" class="pt-0" />
     <v-card-text class="py-0">
       <v-row align="center" no-gutters>
         <v-col class="text-h2" cols="12">
