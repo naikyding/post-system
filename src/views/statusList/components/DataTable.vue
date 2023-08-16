@@ -63,7 +63,18 @@ async function updateDialog(orderListID, updateData, callback) {
         <tr class="text-caption">
           <th class="text-left min-width-128px">執行狀態</th>
           <th class="text-left min-width-63px">項目</th>
-          <th class="text-left">時間</th>
+          <th class="text-left">
+            <span
+              v-if="
+                systemOrderStore.activeListTab === 'completed' ||
+                systemOrderStore.activeListTab === 'cancelled'
+              "
+            >
+              更新時間
+            </span>
+
+            <span v-else> 建立時間 </span>
+          </th>
           <th class="text-left">商品名稱</th>
           <th class="text-left">加料</th>
           <th class="text-left">數量</th>
@@ -96,7 +107,18 @@ async function updateDialog(orderListID, updateData, callback) {
             </td>
             <td class="text-caption">
               <div class="day">
-                {{ dayJS(items.createdAt).format('HH:mm') }}
+                <span
+                  v-if="
+                    systemOrderStore.activeListTab === 'completed' ||
+                    systemOrderStore.activeListTab === 'cancelled'
+                  "
+                >
+                  {{ dayJS(items.updatedAt).format('HH:mm') }}
+                </span>
+
+                <span v-else>
+                  {{ dayJS(items.createdAt).format('HH:mm') }}
+                </span>
               </div>
             </td>
             <td class="font-weight-bold">
