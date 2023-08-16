@@ -122,7 +122,13 @@ async function updateDialog(orderListID, updateData, callback) {
               </div>
             </td>
             <td class="font-weight-bold">
-              {{ product.product.name }}
+              <a
+                href="javascript:;"
+                class="text-primary font-weight-bold"
+                @click="showOrderListDetails(items)"
+              >
+                {{ product.product.name }}
+              </a>
             </td>
             <td class="text-subtitle-2 font-weight-bold text-primary py-2">
               <div v-for="extra in product.extras" :key="extra._id">
