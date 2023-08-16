@@ -200,8 +200,8 @@ export const useOrdersStore = defineStore('orders', () => {
 
         if (!init.note) init.note = list.note
         if (!init.mobileNoThreeDigits) init.mobileNoThreeDigits = list.mobileNoThreeDigits
-        if (!init.isPaid) init.isPaid = list.isPaid
-        if (!init.paymentType) init.paymentType = 'cash'
+        if (!init.isPaid) init.isPaid = list.isPaid || false
+        if (!init.paymentType) init.paymentType = list.paymentType || 'cash'
         if (!init.totalPrice) init.totalPrice = list.total.totalPrice
 
         return init
