@@ -32,7 +32,7 @@ onMounted(async () => {
 
 <template>
   <v-container fluid class="ma-0 pa-0">
-    <v-row class="ma-0 pa-0 h-screen">
+    <v-row class="ma-0 pa-0 h-screen overflow-x-hidden overflow-y-auto">
       <!-- 點單項目 -->
       <v-col cols="4" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column">
         <!-- 操作 -->
