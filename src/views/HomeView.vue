@@ -53,7 +53,7 @@ function changeSearchData(type) {
 </script>
 
 <template>
-  <div class="h-screen overflow-y-auto">
+  <div class="h-screen overflow-x-hidden overflow-y-auto">
     <v-container fluid class="mt-2">
       <v-row>
         <v-col sm="12" md="6" class="d-flex align-center"> <h3>Dashboard</h3></v-col>
