@@ -32,9 +32,9 @@ onMounted(async () => {
 
 <template>
   <v-container fluid class="ma-0 pa-0">
-    <v-row class="ma-0 pa-0 h-screen overflow-x-hidden overflow-y-auto">
+    <v-row class="ma-0 pa-0">
       <!-- 點單項目 -->
-      <v-col cols="4" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column">
+      <v-col cols="4" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column h-screen">
         <!-- 操作 -->
         <v-container class="py-0 px-2">
           <v-row dense>
@@ -174,9 +174,20 @@ onMounted(async () => {
       </v-col>
 
       <!-- 產品 -->
-      <v-col cols="8" md="8" class="order-type bg-grey-darken-3 pa-0">
+      <v-col
+        cols="8"
+        md="8"
+        class="order-type bg-grey-darken-3 pa-0 h-screen overflow-x-hidden overflow-y-auto"
+      >
         <!-- TABs -->
-        <v-tabs v-model="tabActiveId" color="primary" class="px-6" center-active show-arrows>
+        <v-tabs
+          v-model="tabActiveId"
+          color="primary"
+          bg-color="grey-darken-3"
+          class="px-6 product-tabs"
+          center-active
+          show-arrows
+        >
           <v-tab
             v-for="(productItems, index) in productsStore.products"
             :key="productItems + index"
@@ -505,5 +516,11 @@ table {
 .order-item {
   border-bottom: solid #2e2e2e 1px;
   padding: 1rem;
+}
+
+.product-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 </style>
