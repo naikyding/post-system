@@ -53,7 +53,7 @@ function changeSearchData(type) {
 </script>
 
 <template>
-  <div class="h-screen">
+  <div class="h-screen overflow-y-auto">
     <v-container fluid class="mt-2">
       <v-row>
         <v-col sm="12" md="6" class="d-flex align-center"> <h3>Dashboard</h3></v-col>
@@ -111,7 +111,7 @@ function changeSearchData(type) {
 
         <!-- Chart -->
         <v-col cols="12" class="px-0">
-          <TopProduct class="bg-red" />
+          <TopProduct />
         </v-col>
       </v-row>
     </v-container>
