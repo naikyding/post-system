@@ -77,7 +77,7 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
-                <div class="d-sm-flex">
+                <div class="d-sm-flex align-center">
                   <!-- 數量 -->
                   <div class="product-quantity mr-sm-2">
                     <div class="d-flex align-center justify-center">
