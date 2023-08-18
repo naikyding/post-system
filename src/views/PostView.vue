@@ -34,7 +34,7 @@ onMounted(async () => {
   <v-container fluid class="ma-0 pa-0">
     <v-row class="ma-0 pa-0">
       <!-- 點單項目 -->
-      <v-col cols="4" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column h-screen">
+      <v-col cols="5" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column h-screen">
         <!-- 操作 -->
         <v-container class="py-0 px-2">
           <v-row dense>
@@ -52,37 +52,35 @@ onMounted(async () => {
         <div class="flex-grow-1 d-flex flex-column">
           <!-- 點單項目 -->
           <div class="flex-grow-1 h-0 overflow-y-auto">
-            <v-table hover>
-              <tbody>
-                <tr
-                  v-for="(item, index) in ordersStore.ordersList.items"
-                  :key="item.product._id"
-                  class="order-item"
-                >
-                  <td class="py-3 pr-0">
-                    <div class="d-flex">
-                      <span class="text-white">
-                        {{ item.product.name }}
+            <!-- new -->
+            <div class="order-list">
+              <div
+                class="order-item d-sm-flex align-sm-center justify-sm-space-between"
+                v-for="(item, index) in ordersStore.ordersList.items"
+                :key="item.product._id"
+              >
+                <div>
+                  <!-- 產品名稱 -->
+                  <div class="product-name text-subtitle-2">
+                    {{ item.product.name }}
+                  </div>
+                  <!-- 加料 -->
+                  <div class="special my-2">
+                    <div v-for="extraItem in item.extras" :key="extraItem._id" class="text-caption">
+                      <v-icon icon="mdi-plus" color="grey"></v-icon>
+                      <span class="px-1 bg-grey rounded mr-1 font-weight-bold text-black">
+                        {{ extraItem.type }}
+                      </span>
+                      <span class="text-grey font-weight-bold">
+                        {{ extraItem.name }}
                       </span>
                     </div>
-                    <div class="special">
-                      <div
-                        v-for="extraItem in item.extras"
-                        :key="extraItem._id"
-                        class="text-caption"
-                      >
-                        <v-icon icon="mdi-plus" color="grey"></v-icon>
-                        <span class="px-1 bg-grey rounded mr-1 font-weight-bold text-black">{{
-                          extraItem.type
-                        }}</span>
-                        <span class="text-grey font-weight-bold">
-                          {{ extraItem.name }}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-1">
-                    <div class="d-flex align-center justify-end">
+                  </div>
+                </div>
+                <div class="d-sm-flex">
+                  <!-- 數量 -->
+                  <div class="product-quantity mr-sm-2">
+                    <div class="d-flex align-center justify-center">
                       <v-icon
                         v-show="item.quantity > 1"
                         icon="mdi-minus-circle"
@@ -98,7 +96,7 @@ onMounted(async () => {
                           ordersStore.dropOrdersListItemByIndex(ordersStore.ordersList, index)
                         "
                       ></v-icon>
-                      <span class="mx-2 text-h4 text-white">
+                      <span class="mx-2 text-h6 text-md-h4 text-white">
                         {{ item.quantity }}
                       </span>
                       <v-icon
@@ -107,13 +105,14 @@ onMounted(async () => {
                         @click="ordersStore.orderItemQuantityPlusOrMinus('plus', item)"
                       ></v-icon>
                     </div>
-                  </td>
-                  <td class="text-right pl-1 pr-4 text-white font-weight-bold text-h6">
+                  </div>
+                  <!-- 小計 -->
+                  <div class="product-total text-center font-weight-bold text-h6">
                     $ {{ item.total }}
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <v-divider />
@@ -150,7 +149,7 @@ onMounted(async () => {
             <v-divider class="my-2" />
 
             <!-- 總價 -->
-            <div class="d-flex my-1 text-h5">
+            <div class="d-flex flex-column flex-sm-row my-1 text-h5">
               <span class="">總價</span>
               <v-spacer />
               <span>{{ ordersStore.ordersList.total.totalPrice }}</span>
@@ -175,7 +174,7 @@ onMounted(async () => {
 
       <!-- 產品 -->
       <v-col
-        cols="8"
+        cols="7"
         md="8"
         class="order-type bg-grey-darken-3 pa-0 h-screen overflow-x-hidden overflow-y-auto"
       >
@@ -353,7 +352,7 @@ onMounted(async () => {
   <!-- confirm Dialog -->
   <v-dialog transition="dialog-bottom-transition" v-model="dialog.confirmOrderList" width="400">
     <v-card>
-      <v-card-item class="bg-grey text-center pb-2" title="訂單明細"></v-card-item>
+      <v-card-item class="text-primary text-center pb-2" title="訂單明細"></v-card-item>
       <v-card-text>
         <div class="order-list-area px-4">
           <div
@@ -516,6 +515,7 @@ table {
 .order-item {
   border-bottom: solid #2e2e2e 1px;
   padding: 1rem;
+  background: rgb(var(--v-theme-surface));
 }
 
 .product-tabs {
