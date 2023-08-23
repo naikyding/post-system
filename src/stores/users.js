@@ -5,6 +5,7 @@ import catchAsync from '../utils/catchAsync'
 import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
 import Swal from 'sweetalert2'
+import { isDev } from '../utils/devTool'
 
 export const useUserStore = defineStore('user', () => {
   const adminCustomer = ref('6476f4088940f49853aa062e')
@@ -19,10 +20,13 @@ export const useUserStore = defineStore('user', () => {
   const baseInfo = ref([])
 
   const agents = computed(() => {
+    if (isDev()) return 'agentsId', '64e59b234803348644b99706'
+
     return baseInfo.value.agents
       ? baseInfo.value.agents[0]._id
       : localStorage.getItem('agentsId') || null
   })
+
   const roles = computed(() => {
     return baseInfo.value.roles ? baseInfo.value.roles[0] : null
   })
@@ -42,6 +46,9 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function saveUserAgentsId(agentsId) {
+    // 開發商家
+    if (isDev()) return localStorage.setItem('agentsId', '64e59b234803348644b99706')
+
     localStorage.setItem('agentsId', agentsId)
   }
 
