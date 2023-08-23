@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
 import { dateFormat } from '@/utils/day'
 
@@ -200,12 +200,35 @@ async function updateDialog(orderListID, updateData, callback) {
                 </span>
               </div>
             </div>
+
             <v-spacer></v-spacer>
+
             <div class="order-item_quantity mr-3">x{{ orderItem.quantity }}</div>
             <div class="order-item_total-price text-left">
               <span class="font-weight-bold"> ${{ orderItem.price }} </span>
             </div>
           </div>
+
+          <v-row class="mt-2">
+            <v-col cols="6">
+              <!-- 加購 -->
+              <v-btn height="56" block rounded="lg" variant="flat" color="blue">
+                <div class="d-flex justify-center align-center">
+                  <v-icon icon="mdi-plus" />
+                  1
+                </div>
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <!-- 加購 -->
+              <v-btn height="56" block rounded="lg" variant="flat" color="blue">
+                <div class="d-flex justify-center align-center">
+                  <v-icon icon="mdi-plus" />
+                  2
+                </div>
+              </v-btn>
+            </v-col>
+          </v-row>
 
           <div class="order-list-total d-flex my-4 font-weight-bold">
             <div class="order-list-total__items">
