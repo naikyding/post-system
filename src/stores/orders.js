@@ -295,7 +295,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
       urlQueryString += `&from=${activeListDate.from}&to=${activeListDate.to}`
     if (!activeTab) return (urlQueryString += '&paid=false')
     if (localStorage.getItem('agentsId'))
-      return (urlQueryString += `&agent=${localStorage.getItem('agentsId')}`)
+      urlQueryString += `&agent=${localStorage.getItem('agentsId')}`
     if (activeTab === 'all') return urlQueryString
 
     return (urlQueryString += `&status=${activeTab}`)
