@@ -294,6 +294,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     if (activeListDate.from && activeListDate.to)
       urlQueryString += `&from=${activeListDate.from}&to=${activeListDate.to}`
     if (!activeTab) return (urlQueryString += '&paid=false')
+    if (localStorage.getItem('agentsId'))
+      urlQueryString += `&agent=${localStorage.getItem('agentsId')}`
     if (activeTab === 'all') return urlQueryString
 
     return (urlQueryString += `&status=${activeTab}`)
@@ -330,23 +332,22 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     },
   )
 
-  const getOrderListFromSystem = catchAsync(
-    async (activeDate) => {
-      if (activeRange.value === 'day') initTodayAndTab()
+  const getOrderListFromSystem = catchAsync(async (activeDate) => {
+    if (activeRange.value === 'day') initTodayAndTab()
 
-      // ?status=pending&from=2023-06-18&to=2023-06-19
-      orderList.value.length = 0
+    // ?status=pending&from=2023-06-18&to=2023-06-19
+    orderList.value.length = 0
 
-      const { from, to } = activeDate
-      let requestParamsString = `?from=${from}&to=${to}`
+    const { from, to } = activeDate
+    let requestParamsString = `?from=${from}&to=${to}`
 
-      const { data } = await getOrderListAPI(requestParamsString)
-      orderList.value = data.items
-    },
-    () => {
-      console.log('getOrderListFromSystem Error')
-    },
-  )
+    localStorage.getItem('agentsId') &&
+      (requestParamsString += `&agent=${localStorage.getItem('agentsId')}`)
+
+    console.log(`requestParamsString`, requestParamsString)
+    const { data } = await getOrderListAPI(requestParamsString)
+    orderList.value = data.items
+  })
 
   async function updateOrderList() {}
 
