@@ -13,6 +13,8 @@ const dialog = reactive({
   confirmOrderList: false,
 })
 
+const confirmEditOrderDialog = ref(false)
+
 function showOrderListDetails(order) {
   systemOrderStore.addActiveOrderList(order)
   dialog.confirmOrderList = true
@@ -48,6 +50,16 @@ async function updateDialog(orderListID, updateData, callback) {
   if (isConfirmed) {
     return callback(orderListID, updateData)
   }
+}
+
+function addBagToOrderItem(orderList, productItem) {
+  confirmEditOrderDialog.value = true
+  console.log(orderList, productItem.extras)
+}
+
+function addBag(bagExtrasId, orderItem) {
+  console.log(`addBag`)
+  console.log(bagExtrasId, orderItem.extras)
 }
 </script>
 
@@ -185,8 +197,17 @@ async function updateDialog(orderListID, updateData, callback) {
             :key="orderItem.product._id"
             class="order-item d-flex align-center"
           >
+            <v-btn
+              @click="addBagToOrderItem(systemOrderStore.activeOrderList, orderItem)"
+              icon="mdi-medical-bag"
+              color="warning"
+              class="mr-2"
+            ></v-btn>
+
             <div class="order-item_name font-weight-bold">
-              {{ orderItem.product.name }}
+              <span>
+                {{ orderItem.product.name }}
+              </span>
 
               <div
                 v-for="extraItem in orderItem.extras"
@@ -212,7 +233,14 @@ async function updateDialog(orderListID, updateData, callback) {
           <v-row class="mt-2">
             <v-col cols="6">
               <!-- 加購 -->
-              <v-btn height="56" block rounded="lg" variant="flat" color="blue">
+              <v-btn
+                @click="addBag('64cf45d1ee6af4dc14dcb456', systemOrderStore.activeOrderList)"
+                height="56"
+                block
+                rounded="lg"
+                variant="flat"
+                color="blue"
+              >
                 <div class="d-flex justify-center align-center">
                   <v-icon icon="mdi-plus" />
                   1
@@ -221,7 +249,14 @@ async function updateDialog(orderListID, updateData, callback) {
             </v-col>
             <v-col cols="6">
               <!-- 加購 -->
-              <v-btn height="56" block rounded="lg" variant="flat" color="blue">
+              <v-btn
+                @click="addBag('64f009480b4da165c7eebddd', systemOrderStore.activeOrderList)"
+                height="56"
+                block
+                rounded="lg"
+                variant="flat"
+                color="blue"
+              >
                 <div class="d-flex justify-center align-center">
                   <v-icon icon="mdi-plus" />
                   2
@@ -300,6 +335,21 @@ async function updateDialog(orderListID, updateData, callback) {
           </v-row>
         </v-container>
       </template>
+    </v-card>
+  </v-dialog>
+
+  <!-- 修改訂定確認 -->
+  <v-dialog v-model="confirmEditOrderDialog" width="auto">
+    <v-card>
+      <v-card-text> 確定修改訂單項目嗎? </v-card-text>
+      <v-card-actions class="px-4">
+        <v-btn variant="flat" color="success" block>是的，修改</v-btn>
+      </v-card-actions>
+      <v-card-actions class="px-4">
+        <v-btn variant="outlined" color="error" block @click="confirmEditOrderDialog = false"
+          >取消</v-btn
+        >
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
