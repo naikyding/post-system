@@ -6,6 +6,7 @@ import {
   deleteOrderAPI,
   deleteOrderItemAPI,
   updateOrderAPI,
+  updateOrderItemAPI,
 } from '@/api'
 import catchAsync from '@/utils/catchAsync'
 import { useUserStore } from '../stores/users'
@@ -405,12 +406,18 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     }, initData)
   })
 
+  const updateOrderProductItem = catchAsync(async (data) => {
+    const res = await updateOrderItemAPI(data)
+    console.log(res)
+  })
+
   return {
     getOrderList,
     orderList,
 
     updateOrderList,
     updateOrderContent,
+    updateOrderProductItem,
 
     addActiveOrderList,
     activeOrderList,

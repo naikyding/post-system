@@ -52,14 +52,71 @@ async function updateDialog(orderListID, updateData, callback) {
   }
 }
 
-function addBagToOrderItem(orderList, productItem) {
-  confirmEditOrderDialog.value = true
-  console.log(orderList, productItem.extras)
-}
-
 function addBag(bagExtrasId, orderItem) {
   console.log(`addBag`)
   console.log(bagExtrasId, orderItem.extras)
+}
+
+function ShowAddBagToOrderItemDialog(activeOrderItem, productItem) {
+  confirmEditOrderDialog.value = true
+
+  saveOrderListProductEditForm(activeOrderItem, productItem)
+}
+
+const saveOrderListProductEditForm = (orderItem, productItem) => {
+  orderListProductEditForm.orderId = orderItem._id
+  orderListProductEditForm.orderItemId = productItem._id
+
+  orderListProductEditForm.originProductItemContent = productItem
+}
+
+const orderListProductEditForm = reactive({
+  orderId: null,
+  orderItemId: null,
+  putExtrasContent: {
+    ids: [],
+    total: null,
+  },
+
+  originOrderItemContent: {},
+  originProductItemContent: {},
+})
+
+function addBagToOrderItem() {
+  const bagSizeSId = '64cf45d1ee6af4dc14dcb456'
+
+  const addExtrasItem = orderListProductEditForm.originProductItemContent.product.extras.find(
+    (extrasId) => extrasId._id === bagSizeSId,
+  )
+
+  if (addExtrasItem) {
+    orderListProductEditForm.putExtrasContent =
+      orderListProductEditForm.originProductItemContent.extras.reduce(
+        (init, cur, index) => {
+          init = { ids: [...init.ids, cur._id], total: init.total + cur.price }
+
+          if (index + 1 === orderListProductEditForm.originProductItemContent.extras.length) {
+            init = {
+              ids: [...init.ids, addExtrasItem._id],
+              total: init.total + addExtrasItem.price,
+            }
+            return init
+          }
+
+          return init
+        },
+        { ids: [], total: 0 },
+      )
+
+    const data = {
+      orderId: orderListProductEditForm.orderId,
+      itemId: orderListProductEditForm.orderItemId,
+      extras: [...orderListProductEditForm.putExtrasContent.ids],
+      extrasTotal: orderListProductEditForm.putExtrasContent.total,
+    }
+
+    systemOrderStore.updateOrderProductItem(data)
+  }
 }
 </script>
 
@@ -198,7 +255,7 @@ function addBag(bagExtrasId, orderItem) {
             class="order-item d-flex align-center"
           >
             <v-btn
-              @click="addBagToOrderItem(systemOrderStore.activeOrderList, orderItem)"
+              @click="ShowAddBagToOrderItemDialog(systemOrderStore.activeOrderList, orderItem)"
               icon="mdi-medical-bag"
               color="warning"
               class="mr-2"
@@ -341,9 +398,14 @@ function addBag(bagExtrasId, orderItem) {
   <!-- 修改訂定確認 -->
   <v-dialog v-model="confirmEditOrderDialog" width="auto">
     <v-card>
-      <v-card-text> 確定修改訂單項目嗎? </v-card-text>
+      <v-card-text>
+        <div class="text-center text-primary mb-4 text-h6 font-weight-bold">
+          {{ orderListProductEditForm.originProductItemContent.product.name }}
+        </div>
+        確定修改訂單內容嗎?
+      </v-card-text>
       <v-card-actions class="px-4">
-        <v-btn variant="flat" color="success" block>是的，修改</v-btn>
+        <v-btn @click="addBagToOrderItem" variant="flat" color="success" block>是的，修改</v-btn>
       </v-card-actions>
       <v-card-actions class="px-4">
         <v-btn variant="outlined" color="error" block @click="confirmEditOrderDialog = false"
