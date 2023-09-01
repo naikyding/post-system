@@ -1,5 +1,12 @@
 import { getProducts } from './products'
-import { createOrder, getOrderList, deleteOrder, updateOrder, deleteOrderItem } from './orders'
+import {
+  createOrder,
+  getOrderList,
+  deleteOrder,
+  updateOrder,
+  deleteOrderItem,
+  updateOrderItem,
+} from './orders'
 import { login, refreshToken, gerUserBaseInfo } from './auth'
 
 export const getProductsAPI = getProducts
@@ -7,6 +14,7 @@ export const getProductsAPI = getProducts
 export const getOrderListAPI = getOrderList
 export const createOrderAPI = createOrder
 export const updateOrderAPI = updateOrder
+export const updateOrderItemAPI = updateOrderItem
 export const deleteOrderAPI = deleteOrder
 export const deleteOrderItemAPI = deleteOrderItem
 
