@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, reactive, watch } from 'vue'
+import { ref, onMounted, reactive, watch, computed } from 'vue'
 
 import { useProductsStore } from '../stores/products'
 import { useOrdersStore } from '../stores/orders'
@@ -15,6 +15,23 @@ const dialog = reactive({
   // 確認訂單
   confirmOrderList: false,
 })
+
+const computedDialog = reactive({
+  status: false,
+  deposit: 0,
+  computedNumber: computed(() =>
+    computedDialog.deposit > ordersStore.ordersList.total.totalPrice
+      ? computedDialog.deposit - ordersStore.ordersList.total.totalPrice
+      : '--',
+  ),
+})
+
+watch(
+  () => computedDialog.status,
+  (newValue) => {
+    if (!newValue) computedDialog.deposit = 0
+  },
+)
 
 // 選擇產a 關閉 -> 重置 resetActiveProductItem
 watch(
@@ -411,7 +428,9 @@ onMounted(async () => {
             </div>
             <v-spacer></v-spacer>
             <div class="order-list-total__total">
-              總計 {{ ordersStore.ordersList.total.totalPrice }} 元
+              <v-btn variant="outlined" @click="computedDialog.status = true">
+                總計 {{ ordersStore.ordersList.total.totalPrice }} 元
+              </v-btn>
             </div>
           </div>
         </div></v-card-text
@@ -482,6 +501,28 @@ onMounted(async () => {
           </v-row>
         </v-container>
       </template>
+    </v-card>
+  </v-dialog>
+
+  <!-- 計算 -->
+  <v-dialog v-model="computedDialog.status" width="280">
+    <v-card>
+      <v-card-title> 找零 </v-card-title>
+      <v-card-text>
+        <div>
+          <v-text-field
+            v-model.number="computedDialog.deposit"
+            clearable
+            label="收入金額"
+            variant="outlined"
+          ></v-text-field>
+        </div>
+        <div>訂單總金額: {{ ordersStore.ordersList.total.totalPrice }}</div>
+        <div class="text-h6">找錢: {{ computedDialog.computedNumber }}</div>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="primary" variant="text" @click="computedDialog.status = false"> Close </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
