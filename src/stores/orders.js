@@ -6,6 +6,7 @@ import {
   deleteOrderAPI,
   deleteOrderItemAPI,
   updateOrderAPI,
+  updateOrderItemAPI,
 } from '@/api'
 import catchAsync from '@/utils/catchAsync'
 import { useUserStore } from '../stores/users'
@@ -405,12 +406,25 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     }, initData)
   })
 
+  const updateOrderProductItem = catchAsync(async (data) => {
+    const { status } = await updateOrderItemAPI(data)
+
+    resFunc(status, () => {
+      const appStore = useAppStore()
+      appStore.resStatusDialog({ status: status, text: '更新成功' })
+      getOrderList()
+    })
+
+    return status
+  })
+
   return {
     getOrderList,
     orderList,
 
     updateOrderList,
     updateOrderContent,
+    updateOrderProductItem,
 
     addActiveOrderList,
     activeOrderList,

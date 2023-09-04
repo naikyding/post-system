@@ -20,11 +20,7 @@ export const useUserStore = defineStore('user', () => {
   const baseInfo = ref([])
 
   const agents = computed(() => {
-    if (isDev()) return 'agentsId', '64e59b234803348644b99706'
-
-    return baseInfo.value.agents
-      ? baseInfo.value.agents[0]._id
-      : localStorage.getItem('agentsId') || null
+    return localStorage.getItem('agentsId')
   })
 
   const roles = computed(() => {

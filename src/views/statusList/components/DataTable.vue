@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
 import { dateFormat } from '@/utils/day'
 
@@ -12,6 +12,8 @@ const systemOrderStore = useSystemOrderList()
 const dialog = reactive({
   confirmOrderList: false,
 })
+
+const confirmEditOrderDialog = ref(false)
 
 function showOrderListDetails(order) {
   systemOrderStore.addActiveOrderList(order)
@@ -47,6 +49,82 @@ async function updateDialog(orderListID, updateData, callback) {
 
   if (isConfirmed) {
     return callback(orderListID, updateData)
+  }
+}
+
+function addBag(bagExtrasId, orderItem) {
+  console.log(`addBag`)
+  console.log(bagExtrasId, orderItem.extras)
+}
+
+function ShowAddBagToOrderItemDialog(activeOrderItem, productItem) {
+  confirmEditOrderDialog.value = true
+
+  saveOrderListProductEditForm(activeOrderItem, productItem)
+}
+
+const saveOrderListProductEditForm = (orderItem, productItem) => {
+  orderListProductEditForm.orderId = orderItem._id
+  orderListProductEditForm.orderItemId = productItem._id
+
+  orderListProductEditForm.originProductItemContent = productItem
+}
+
+const orderListProductEditForm = reactive({
+  orderId: null,
+  orderItemId: null,
+  putExtrasContent: {
+    ids: [],
+    total: null,
+  },
+
+  originOrderItemContent: {},
+  originProductItemContent: {},
+})
+
+async function addBagToOrderItem() {
+  const bagSizeSId = '64cf45d1ee6af4dc14dcb456'
+
+  const addExtrasItem = orderListProductEditForm.originProductItemContent.product.extras.find(
+    (extrasId) => extrasId._id === bagSizeSId,
+  )
+
+  if (addExtrasItem) {
+    if (orderListProductEditForm.originProductItemContent.extras.length < 1) {
+      orderListProductEditForm.putExtrasContent = {
+        ids: [addExtrasItem._id],
+        total: addExtrasItem.price,
+      }
+    } else {
+      orderListProductEditForm.putExtrasContent =
+        orderListProductEditForm.originProductItemContent.extras.reduce(
+          (init, cur, index) => {
+            init = { ids: [...init.ids, cur._id], total: init.total + cur.price }
+
+            if (index + 1 === orderListProductEditForm.originProductItemContent.extras.length) {
+              init = {
+                ids: [...init.ids, addExtrasItem._id],
+                total: init.total + addExtrasItem.price,
+              }
+              return init
+            }
+
+            return init
+          },
+          { ids: [], total: 0 },
+        )
+    }
+
+    const data = {
+      orderId: orderListProductEditForm.orderId,
+      itemId: orderListProductEditForm.orderItemId,
+      extras: [...orderListProductEditForm.putExtrasContent.ids],
+      extrasTotal: orderListProductEditForm.putExtrasContent.total,
+    }
+
+    confirmEditOrderDialog.value = false
+    dialog.confirmOrderList = false
+    await systemOrderStore.updateOrderProductItem(data)
   }
 }
 </script>
@@ -179,15 +257,26 @@ async function updateDialog(orderListID, updateData, callback) {
           </v-btn>
         </div>
 
-        <div class="order-list-area px-4">
+        <div class="order-list-area">
           <div
             v-for="orderItem in systemOrderStore.activeOrderList.items"
             :key="orderItem.product._id"
             class="order-item d-flex align-center"
           >
-            <div class="order-item_name font-weight-bold">
-              {{ orderItem.product.name }}
+            <v-btn
+              v-show="!orderItem.extras.find((item) => item._id === '64cf45d1ee6af4dc14dcb456')"
+              @click="ShowAddBagToOrderItemDialog(systemOrderStore.activeOrderList, orderItem)"
+              icon="mdi-medical-bag"
+              color="warning"
+              size="x-small"
+              class="mr-2"
+            >
+            </v-btn>
 
+            <div class="order-item_name font-weight-bold">
+              <span>
+                {{ orderItem.product.name }}
+              </span>
               <div
                 v-for="extraItem in orderItem.extras"
                 :key="extraItem._id"
@@ -200,12 +289,49 @@ async function updateDialog(orderListID, updateData, callback) {
                 </span>
               </div>
             </div>
+
             <v-spacer></v-spacer>
+
             <div class="order-item_quantity mr-3">x{{ orderItem.quantity }}</div>
             <div class="order-item_total-price text-left">
               <span class="font-weight-bold"> ${{ orderItem.price }} </span>
             </div>
           </div>
+
+          <v-row v-show="false" class="mt-2">
+            <v-col cols="6">
+              <!-- 加購 -->
+              <v-btn
+                @click="addBag('64cf45d1ee6af4dc14dcb456', systemOrderStore.activeOrderList)"
+                height="56"
+                block
+                rounded="lg"
+                variant="flat"
+                color="blue"
+              >
+                <div class="d-flex justify-center align-center">
+                  <v-icon icon="mdi-plus" />
+                  1
+                </div>
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <!-- 加購 -->
+              <v-btn
+                @click="addBag('64f009480b4da165c7eebddd', systemOrderStore.activeOrderList)"
+                height="56"
+                block
+                rounded="lg"
+                variant="flat"
+                color="blue"
+              >
+                <div class="d-flex justify-center align-center">
+                  <v-icon icon="mdi-plus" />
+                  2
+                </div>
+              </v-btn>
+            </v-col>
+          </v-row>
 
           <div class="order-list-total d-flex my-4 font-weight-bold">
             <div class="order-list-total__items">
@@ -277,6 +403,26 @@ async function updateDialog(orderListID, updateData, callback) {
           </v-row>
         </v-container>
       </template>
+    </v-card>
+  </v-dialog>
+
+  <!-- 修改訂定確認 -->
+  <v-dialog v-model="confirmEditOrderDialog" width="auto">
+    <v-card>
+      <v-card-text>
+        <div class="text-center text-primary mb-4 text-h6 font-weight-bold">
+          {{ orderListProductEditForm.originProductItemContent.product.name }}
+        </div>
+        確定修改訂單內容嗎?
+      </v-card-text>
+      <v-card-actions class="px-4">
+        <v-btn @click="addBagToOrderItem" variant="flat" color="success" block>是的，修改</v-btn>
+      </v-card-actions>
+      <v-card-actions class="px-4">
+        <v-btn variant="outlined" color="error" block @click="confirmEditOrderDialog = false"
+          >取消</v-btn
+        >
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
