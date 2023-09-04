@@ -511,6 +511,7 @@ onMounted(async () => {
       <v-card-text>
         <div>
           <v-text-field
+            autofocus
             v-model.number="computedDialog.deposit"
             clearable
             label="收入金額"
@@ -518,10 +519,12 @@ onMounted(async () => {
           ></v-text-field>
         </div>
         <div>訂單總金額: {{ ordersStore.ordersList.total.totalPrice }}</div>
-        <div class="text-h6">找錢: {{ computedDialog.computedNumber }}</div>
+        <div class="text-h6 font-italic text-primary">
+          找錢: {{ computedDialog.computedNumber }}
+        </div>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="primary" variant="text" @click="computedDialog.status = false"> Close </v-btn>
+        <v-btn color="error" variant="text" @click="computedDialog.status = false"> Close </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
