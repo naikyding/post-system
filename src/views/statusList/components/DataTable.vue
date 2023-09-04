@@ -82,7 +82,7 @@ const orderListProductEditForm = reactive({
   originProductItemContent: {},
 })
 
-function addBagToOrderItem() {
+async function addBagToOrderItem() {
   const bagSizeSId = '64cf45d1ee6af4dc14dcb456'
 
   const addExtrasItem = orderListProductEditForm.originProductItemContent.product.extras.find(
@@ -122,7 +122,9 @@ function addBagToOrderItem() {
       extrasTotal: orderListProductEditForm.putExtrasContent.total,
     }
 
-    systemOrderStore.updateOrderProductItem(data)
+    confirmEditOrderDialog.value = false
+    dialog.confirmOrderList = false
+    await systemOrderStore.updateOrderProductItem(data)
   }
 }
 </script>
@@ -255,24 +257,26 @@ function addBagToOrderItem() {
           </v-btn>
         </div>
 
-        <div class="order-list-area px-4">
+        <div class="order-list-area">
           <div
             v-for="orderItem in systemOrderStore.activeOrderList.items"
             :key="orderItem.product._id"
             class="order-item d-flex align-center"
           >
             <v-btn
+              v-show="!orderItem.extras.find((item) => item._id === '64cf45d1ee6af4dc14dcb456')"
               @click="ShowAddBagToOrderItemDialog(systemOrderStore.activeOrderList, orderItem)"
               icon="mdi-medical-bag"
               color="warning"
+              size="x-small"
               class="mr-2"
-            ></v-btn>
+            >
+            </v-btn>
 
             <div class="order-item_name font-weight-bold">
               <span>
                 {{ orderItem.product.name }}
               </span>
-
               <div
                 v-for="extraItem in orderItem.extras"
                 :key="extraItem._id"
@@ -294,7 +298,7 @@ function addBagToOrderItem() {
             </div>
           </div>
 
-          <v-row class="mt-2">
+          <v-row v-show="false" class="mt-2">
             <v-col cols="6">
               <!-- 加購 -->
               <v-btn

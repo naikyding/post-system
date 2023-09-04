@@ -407,8 +407,15 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   })
 
   const updateOrderProductItem = catchAsync(async (data) => {
-    const res = await updateOrderItemAPI(data)
-    console.log(res)
+    const { status } = await updateOrderItemAPI(data)
+
+    resFunc(status, () => {
+      const appStore = useAppStore()
+      appStore.resStatusDialog({ status: status, text: '更新成功' })
+      getOrderList()
+    })
+
+    return status
   })
 
   return {
