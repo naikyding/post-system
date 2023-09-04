@@ -513,6 +513,7 @@ onMounted(async () => {
           <v-text-field
             autofocus
             v-model.number="computedDialog.deposit"
+            inputmode="decimal"
             clearable
             label="收入金額"
             variant="outlined"
