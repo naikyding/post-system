@@ -90,23 +90,30 @@ function addBagToOrderItem() {
   )
 
   if (addExtrasItem) {
-    orderListProductEditForm.putExtrasContent =
-      orderListProductEditForm.originProductItemContent.extras.reduce(
-        (init, cur, index) => {
-          init = { ids: [...init.ids, cur._id], total: init.total + cur.price }
+    if (orderListProductEditForm.originProductItemContent.extras.length < 1) {
+      orderListProductEditForm.putExtrasContent = {
+        ids: [addExtrasItem._id],
+        total: addExtrasItem.price,
+      }
+    } else {
+      orderListProductEditForm.putExtrasContent =
+        orderListProductEditForm.originProductItemContent.extras.reduce(
+          (init, cur, index) => {
+            init = { ids: [...init.ids, cur._id], total: init.total + cur.price }
 
-          if (index + 1 === orderListProductEditForm.originProductItemContent.extras.length) {
-            init = {
-              ids: [...init.ids, addExtrasItem._id],
-              total: init.total + addExtrasItem.price,
+            if (index + 1 === orderListProductEditForm.originProductItemContent.extras.length) {
+              init = {
+                ids: [...init.ids, addExtrasItem._id],
+                total: init.total + addExtrasItem.price,
+              }
+              return init
             }
-            return init
-          }
 
-          return init
-        },
-        { ids: [], total: 0 },
-      )
+            return init
+          },
+          { ids: [], total: 0 },
+        )
+    }
 
     const data = {
       orderId: orderListProductEditForm.orderId,
