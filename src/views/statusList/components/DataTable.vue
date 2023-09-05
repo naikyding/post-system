@@ -360,7 +360,7 @@ async function addBagToOrderItem() {
 
       <template #actions>
         <v-container class="pt-0">
-          <v-row class="px-6">
+          <v-row>
             <v-col cols="12" class="px-1">
               <v-btn
                 @click="
