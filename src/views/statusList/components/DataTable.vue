@@ -1,7 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
-import { dateFormat } from '@/utils/day'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
@@ -126,6 +125,25 @@ async function addBagToOrderItem() {
     dialog.confirmOrderList = false
     await systemOrderStore.updateOrderProductItem(data)
   }
+}
+
+function isShowAddBagBtn(orderItemData) {
+  const bagAry = ['64cf45d1ee6af4dc14dcb456', '64f009480b4da165c7eebddd']
+  const productExtrasAry = orderItemData.product.extras
+
+  // 訂單項目是否存在袋子
+  const bagInOrderItemExtras = orderItemData.extras.find((orderItemExtraItem) =>
+    bagAry.includes(orderItemExtraItem._id),
+  )
+
+  // 產品本身沒有配料
+  const bagInOrderItemProductExtras = productExtrasAry.find((bagInOrderItemProductExtrasItem) =>
+    bagAry.includes(bagInOrderItemProductExtrasItem._id),
+  )
+
+  if (bagInOrderItemExtras || !bagInOrderItemProductExtras) return false
+
+  return true
 }
 </script>
 
@@ -263,8 +281,9 @@ async function addBagToOrderItem() {
             :key="orderItem.product._id"
             class="order-item d-flex align-center"
           >
+            <!-- 如果訂單項目不存在 || 產品有這個配料 -->
             <v-btn
-              v-show="!orderItem.extras.find((item) => item._id === '64cf45d1ee6af4dc14dcb456')"
+              v-show="isShowAddBagBtn(orderItem)"
               @click="ShowAddBagToOrderItemDialog(systemOrderStore.activeOrderList, orderItem)"
               icon="mdi-medical-bag"
               color="warning"
