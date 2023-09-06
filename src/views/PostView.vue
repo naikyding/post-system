@@ -507,7 +507,7 @@ onMounted(async () => {
   <!-- 計算 -->
   <v-dialog v-model="computedDialog.status" width="280">
     <v-card>
-      <v-card-title> 找零 </v-card-title>
+      <v-card-title>計算</v-card-title>
       <v-card-text>
         <div>
           <v-text-field
@@ -519,13 +519,23 @@ onMounted(async () => {
             variant="outlined"
           ></v-text-field>
         </div>
-        <div>訂單總金額: {{ ordersStore.ordersList.total.totalPrice }}</div>
-        <div class="text-h6 font-italic text-primary">
-          找錢: {{ computedDialog.computedNumber }}
+        <div>
+          訂單總金額
+          <span class="font-weight-bold text-primary font-italic">
+            {{ ordersStore.ordersList.total.totalPrice }}
+          </span>
+        </div>
+        <div class="text-h6 text-primary mt-2">
+          找零
+          <span class="text-h5 font-italic font-weight-bold">
+            {{ computedDialog.computedNumber }}
+          </span>
         </div>
       </v-card-text>
-      <v-card-actions>
-        <v-btn color="error" variant="text" @click="computedDialog.status = false"> Close </v-btn>
+      <v-card-actions class="px-6 pb-4">
+        <v-btn block color="error" variant="tonal" @click="computedDialog.status = false">
+          Close
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
