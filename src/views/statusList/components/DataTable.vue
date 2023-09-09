@@ -12,7 +12,10 @@ const dialog = reactive({
   confirmOrderList: false,
 })
 
-const confirmEditOrderDialog = ref(false)
+const confirmEditOrderDialog = reactive({
+  type: null,
+  status: false,
+})
 
 function showOrderListDetails(order) {
   systemOrderStore.addActiveOrderList(order)
@@ -57,7 +60,8 @@ function addBag(bagExtrasId, orderItem) {
 }
 
 function ShowAddBagToOrderItemDialog(activeOrderItem, productItem) {
-  confirmEditOrderDialog.value = true
+  confirmEditOrderDialog.type = 'add'
+  confirmEditOrderDialog.status = true
 
   saveOrderListProductEditForm(activeOrderItem, productItem)
 }
@@ -121,7 +125,8 @@ async function addBagToOrderItem() {
       extrasTotal: orderListProductEditForm.putExtrasContent.total,
     }
 
-    confirmEditOrderDialog.value = false
+    confirmEditOrderDialog.status = false
+    confirmEditOrderDialog.type = null
     dialog.confirmOrderList = false
     await systemOrderStore.updateOrderProductItem(data)
   }
@@ -144,6 +149,38 @@ function isShowAddBagBtn(orderItemData) {
   if (bagInOrderItemExtras || !bagInOrderItemProductExtras) return false
 
   return true
+}
+
+function showRemoveBagDialog(activeOrderItem, productItem) {
+  confirmEditOrderDialog.type = 'remove'
+  confirmEditOrderDialog.status = true
+  saveOrderListProductEditForm(activeOrderItem, productItem)
+}
+
+async function removeProductItemBagS() {
+  const bagSizeSId = '64cf45d1ee6af4dc14dcb456'
+
+  orderListProductEditForm.putExtrasContent =
+    orderListProductEditForm.originProductItemContent.extras.reduce(
+      (init, cur) => {
+        if (cur._id !== bagSizeSId) {
+          return (init = { ids: [...init.ids, cur._id], total: init.total + cur.price })
+        } else return init
+      },
+      { ids: [], total: 0 },
+    )
+
+  const data = {
+    orderId: orderListProductEditForm.orderId,
+    itemId: orderListProductEditForm.orderItemId,
+    extras: [...orderListProductEditForm.putExtrasContent.ids],
+    extrasTotal: orderListProductEditForm.putExtrasContent.total,
+  }
+
+  confirmEditOrderDialog.status = false
+  confirmEditOrderDialog.type = null
+  dialog.confirmOrderList = false
+  await systemOrderStore.updateOrderProductItem(data)
 }
 </script>
 
@@ -281,7 +318,7 @@ function isShowAddBagBtn(orderItemData) {
             :key="orderItem.product._id"
             class="order-item d-flex align-center"
           >
-            <!-- 如果訂單項目不存在 || 產品有這個配料 -->
+            <!-- 加購提袋 如果訂單項目不存在 || 產品有這個配料 -->
             <v-btn
               v-show="isShowAddBagBtn(orderItem)"
               @click="ShowAddBagToOrderItemDialog(systemOrderStore.activeOrderList, orderItem)"
@@ -306,6 +343,16 @@ function isShowAddBagBtn(orderItemData) {
                 <span>
                   {{ extraItem.name }}
                 </span>
+
+                <!-- 移除加購的提袋 -->
+                <v-btn
+                  @click="showRemoveBagDialog(systemOrderStore.activeOrderList, orderItem)"
+                  v-show="extraItem._id === '64cf45d1ee6af4dc14dcb456'"
+                  icon="mdi-delete"
+                  color="error"
+                  size="x-small"
+                  class="ml-2"
+                ></v-btn>
               </div>
             </div>
 
@@ -326,11 +373,11 @@ function isShowAddBagBtn(orderItemData) {
                 block
                 rounded="lg"
                 variant="flat"
-                color="blue"
+                color="warning"
               >
                 <div class="d-flex justify-center align-center">
                   <v-icon icon="mdi-plus" />
-                  1
+                  S
                 </div>
               </v-btn>
             </v-col>
@@ -342,11 +389,11 @@ function isShowAddBagBtn(orderItemData) {
                 block
                 rounded="lg"
                 variant="flat"
-                color="blue"
+                color="warning"
               >
                 <div class="d-flex justify-center align-center">
                   <v-icon icon="mdi-plus" />
-                  2
+                  L
                 </div>
               </v-btn>
             </v-col>
@@ -426,21 +473,39 @@ function isShowAddBagBtn(orderItemData) {
   </v-dialog>
 
   <!-- 修改訂定確認 -->
-  <v-dialog v-model="confirmEditOrderDialog" width="auto">
+  <v-dialog v-model="confirmEditOrderDialog.status" width="auto">
     <v-card>
       <v-card-text>
         <div class="text-center text-primary mb-4 text-h6 font-weight-bold">
           {{ orderListProductEditForm.originProductItemContent.product.name }}
         </div>
-        確定修改訂單內容嗎?
+        確定
+        <span class="text-success font-weight-bold" v-show="confirmEditOrderDialog.type === 'add'">
+          增加提袋
+        </span>
+        <span class="text-error font-weight-bold" v-show="confirmEditOrderDialog.type === 'remove'">
+          移除提袋
+        </span>
+        <span></span>
+        嗎?
       </v-card-text>
-      <v-card-actions class="px-4">
-        <v-btn @click="addBagToOrderItem" variant="flat" color="success" block>是的，修改</v-btn>
+      <v-card-actions v-show="confirmEditOrderDialog.type === 'add'" class="px-4">
+        <v-btn @click="addBagToOrderItem" variant="flat" color="success" block>是的，新增</v-btn>
+      </v-card-actions>
+      <v-card-actions v-show="confirmEditOrderDialog.type === 'remove'" class="px-4">
+        <v-btn @click="removeProductItemBagS" variant="flat" color="success" block
+          >是的，移除</v-btn
+        >
       </v-card-actions>
       <v-card-actions class="px-4">
-        <v-btn variant="outlined" color="error" block @click="confirmEditOrderDialog = false"
-          >取消</v-btn
+        <v-btn
+          variant="outlined"
+          color="error"
+          block
+          @click="confirmEditOrderDialog.status = false"
         >
+          取消
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
