@@ -8,6 +8,7 @@ import {
   updateOrderItem,
 } from './orders'
 import { login, refreshToken, gerUserBaseInfo } from './auth'
+import { getDashboardBaseData } from './dashboard'
 
 export const getProductsAPI = getProducts
 
@@ -21,3 +22,5 @@ export const deleteOrderItemAPI = deleteOrderItem
 export const loginAPI = login
 export const refreshTokenAPI = refreshToken
 export const gerUserBaseInfoAPI = gerUserBaseInfo
+
+export const getDashboardBaseDataAPI = getDashboardBaseData
