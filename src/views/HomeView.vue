@@ -1,6 +1,5 @@
 <script setup>
 import { useSystemOrderList } from '../stores/orders'
-
 import { useDashboardStore } from '../stores/dashboard'
 import dayJs from 'dayjs'
 
@@ -8,10 +7,13 @@ import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 
 dayJs.extend(quarterOfYear)
 import { dateFormat } from '../utils/day'
-import { ref, onMounted, watchEffect, computed } from 'vue'
+import { ref, onMounted, watchEffect, computed, reactive } from 'vue'
 
-const SystemOrderListStore = useSystemOrderList()
 const dashboardStore = useDashboardStore()
+
+const datePicker = reactive({
+  dialog: false,
+})
 
 const completedTotalAmount = computed(() =>
   dashboardStore.dashboardData.total.completed.reduce((init, cur) => (init += cur.total), 0),
@@ -55,79 +57,49 @@ onMounted(() => {
   dashboardStore.getDashboardData(dashboardStore.formatSearchQueryString)
 })
 
-const date = ref()
-
-function datePickerUpdate(changeDate) {
-  console.log(`datePickerUpdate`)
-
-  SystemOrderListStore.activeListDate.from = dateFormat(dayJs(changeDate[0]))
-  SystemOrderListStore.activeListDate.to = dateFormat(dayJs(changeDate[1]))
-
-  dashboardStore.searchData.from = dateFormat(dayJs(changeDate[0]))
-  dashboardStore.searchData.to = dateFormat(dayJs(changeDate[1]))
-
-  SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
+function datePickerCancel() {
+  datePicker.dialog = false
 }
 
-watchEffect(() => {
-  date.value = [SystemOrderListStore.activeListDate.from, SystemOrderListStore.activeListDate.to]
-})
+const dateModel = ref(null)
 
-function changeSearchData(type) {
-  if (type === 'yesterday') {
-    const yesterday = dateFormat(dayJs().add(-1, 'day'))
-    SystemOrderListStore.activeListDate.from = yesterday
-    SystemOrderListStore.activeListDate.to = yesterday
-  } else {
-    SystemOrderListStore.activeListDate.from = dateFormat(
-      dayJs().subtract(type === 'day' ? 0 : 1, type),
-    )
-  }
+function updateDateModel() {
+  dateModel.value.forEach((item, index, array) => {
+    if (index === 0) dashboardStore.searchData.from = dateFormat(item)
+    if (index === 0 && array.length < 2) dashboardStore.searchData.to = dateFormat(item)
+    if (index === 1) dashboardStore.searchData.to = dateFormat(item)
 
-  SystemOrderListStore.getOrderListFromSystem(SystemOrderListStore.activeListDate)
+    dashboardStore.getDashboardData(dashboardStore.formatSearchQueryString)
+  })
 }
 </script>
 
 <template>
   <div class="h-screen overflow-x-hidden overflow-y-auto">
     <v-container fluid class="mt-2">
-      <v-row>
-        <v-col sm="12" md="6" class="d-flex align-center"> <h3>Dashboard</h3></v-col>
-        <v-col sm="12" md="6">
-          <div class="text-right">
-            <v-btn-toggle
-              divided
-              v-model="SystemOrderListStore.activeRange"
-              rounded
-              variant="outlined"
-              color="primary"
-              group
+      <v-row class="px-3 mt-3">
+        <!-- 日期選擇器 -->
+        <v-bottom-sheet v-model="datePicker.dialog">
+          <template v-slot:activator="{ props }">
+            <span class="mr-2">
+              {{ dashboardStore.searchData.from + ' / ' + dashboardStore.searchData.to }}</span
             >
-              <v-btn
-                v-for="(date, index) in SystemOrderListStore.selectDate"
-                :key="date + index"
-                :value="date.range"
-                @click="changeSearchData(date.range)"
-              >
-                {{ date.name }}</v-btn
-              >
-              <v-btn icon="mdi-calendar-range" value="customDate"></v-btn>
-            </v-btn-toggle>
-
-            <VueDatePicker
-              v-show="SystemOrderListStore.activeRange === 'customDate'"
-              class="mt-4"
-              v-model="date"
-              range
-              multi-calendars-solo
-              @update:model-value="datePickerUpdate"
+            <v-btn v-bind="props" variant="outlined" size="medium" icon="mdi-chevron-down"></v-btn>
+          </template>
+          <v-card>
+            <v-date-picker
+              v-model="dateModel"
+              @click:cancel="datePickerCancel"
+              @click:save="datePickerCancel"
+              @update:modelValue="updateDateModel"
+              color="primary"
+              width="100dvw"
+              multiple
             />
-          </div>
-        </v-col>
+          </v-card>
+        </v-bottom-sheet>
       </v-row>
-    </v-container>
 
-    <v-container fluid class="mt-2">
       <v-row>
         <!-- 營業額 -->
         <v-col cols="12" class="pb-1 font-weight-bold">
@@ -230,7 +202,7 @@ function changeSearchData(type) {
                 <v-col class="text-h3" cols="12">
                   <span class="text-caption text-white">NT$</span>
                   <span class="text-white">
-                    {{ completedTotalAmount / completedTotalOrder }}
+                    {{ Math.round(completedTotalAmount / completedTotalOrder) || 0 }}
                   </span>
                 </v-col>
               </v-row>
