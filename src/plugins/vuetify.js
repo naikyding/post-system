@@ -7,8 +7,19 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
+import { VDatePicker } from 'vuetify/labs/VDatePicker'
+import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
+import DayJsAdapter from '@date-io/dayjs'
+
 const vuetify = createVuetify({
-  components,
+  date: {
+    adapter: DayJsAdapter,
+  },
+  components: {
+    ...components,
+    VDatePicker,
+    VBottomSheet,
+  },
   directives,
   // ICON
   icons: {
