@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive } from 'vue'
 import { getDashboardBaseDataAPI } from '@/api'
 import { dateFormat } from '../utils/day'
 import dayjs from 'dayjs'
@@ -35,6 +35,11 @@ export const useDashboardStore = defineStore('Dashboard', () => {
 
   async function getDashboardData(searchString) {
     const res = await getDashboardBaseDataAPI(searchString)
+    dashboardData.total = {
+      completed: [],
+      pending: [],
+      cancelled: [],
+    }
     dashboardData.total = { ...res.data.total }
   }
 
