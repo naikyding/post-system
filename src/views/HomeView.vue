@@ -63,14 +63,13 @@ function datePickerCancel() {
 
 const dateModel = ref(null)
 
-function updateDateModel() {
-  dateModel.value.forEach((item, index, array) => {
+async function updateDateModel(date) {
+  await date.forEach((item, index, array) => {
     if (index === 0) dashboardStore.searchData.from = dateFormat(item)
     if (index === 0 && array.length < 2) dashboardStore.searchData.to = dateFormat(item)
     if (index === 1) dashboardStore.searchData.to = dateFormat(item)
-
-    dashboardStore.getDashboardData(dashboardStore.formatSearchQueryString)
   })
+  dashboardStore.getDashboardData(dashboardStore.formatSearchQueryString)
 }
 </script>
 
@@ -91,7 +90,7 @@ function updateDateModel() {
               v-model="dateModel"
               @click:cancel="datePickerCancel"
               @click:save="datePickerCancel"
-              @update:modelValue="updateDateModel"
+              @update:modelValue="updateDateModel(dateModel)"
               color="primary"
               width="100dvw"
               multiple
