@@ -9,12 +9,8 @@ import * as directives from 'vuetify/directives'
 
 import { VDatePicker } from 'vuetify/labs/VDatePicker'
 import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
-import DayJsAdapter from '@date-io/dayjs'
 
 const vuetify = createVuetify({
-  date: {
-    adapter: DayJsAdapter,
-  },
   components: {
     ...components,
     VDatePicker,
