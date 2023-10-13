@@ -63,7 +63,12 @@ function datePickerCancel() {
 
 const dateModel = ref(null)
 
+function watchDatePicker() {
+  console.log('watchDatePicker')
+}
+
 async function updateDateModel(date) {
+  console.log('updateDateModel')
   await date.forEach((item, index, array) => {
     if (index === 0) dashboardStore.searchData.from = dateFormat(item)
     if (index === 0 && array.length < 2) dashboardStore.searchData.to = dateFormat(item)
@@ -85,14 +90,14 @@ async function updateDateModel(date) {
             >
             <v-btn v-bind="props" variant="outlined" size="medium" icon="mdi-chevron-down"></v-btn>
           </template>
-          <v-card>
+
+          <v-card class="text-center">
             <v-date-picker
               v-model="dateModel"
+              min-width="100vw"
               @click:cancel="datePickerCancel"
               @click:save="datePickerCancel"
-              @update:modelValue="updateDateModel(dateModel)"
-              color="primary"
-              width="100dvw"
+              @update:modelValue="updateDateModel"
               multiple
             />
           </v-card>
@@ -161,7 +166,13 @@ async function updateDateModel(date) {
         <!-- 現金 -->
         <v-col cols="12">
           <v-card variant="tonal" rounded="lg" color="success" class="py-6">
-            <v-card-item title="現金" class="pt-0" />
+            <v-card-item
+              :title="`現金 (${
+                dashboardStore.dashboardData.total.completed.find((item) => item.type === 'cash')
+                  ?.orderQuantity || '--'
+              })`"
+              class="pt-0"
+            />
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
@@ -178,7 +189,14 @@ async function updateDateModel(date) {
         <!-- LinePay 支付 -->
         <v-col cols="12">
           <v-card variant="tonal" rounded="lg" color="success" class="py-6">
-            <v-card-item title="Line Pay" class="pt-0" />
+            <v-card-item
+              :title="`Line Pay (${
+                dashboardStore.dashboardData.total.completed.find(
+                  (item) => item.type === 'Line Pay',
+                )?.orderQuantity || '--'
+              })`"
+              class="pt-0"
+            />
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
