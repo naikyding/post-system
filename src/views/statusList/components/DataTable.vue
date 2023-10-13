@@ -268,7 +268,7 @@ async function removeProductItemBagS() {
               <!-- 備註 -->
               <div>
                 <v-chip class="my-1" color="warning">
-                  {{ items.note }}
+                  {{ items.note || '--' }}
                 </v-chip>
               </div>
 
