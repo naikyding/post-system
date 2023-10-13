@@ -195,7 +195,6 @@ async function removeProductItemBagS() {
       <thead>
         <tr class="text-caption">
           <th class="text-left min-width-128px">執行狀態</th>
-          <th class="text-left min-width-63px">項目</th>
           <th class="text-left">
             <span
               v-if="
@@ -209,9 +208,7 @@ async function removeProductItemBagS() {
             <span v-else> 建立時間 </span>
           </th>
           <th class="text-left">商品名稱</th>
-          <th class="text-left">加料</th>
           <th class="text-left">數量</th>
-          <th class="text-left min-width-90px">備註</th>
           <!-- <th class="text-left min-width-90px">付款狀態</th> -->
           <th class="text-left">未三碼</th>
           <th class="text-center">-</th>
@@ -235,9 +232,7 @@ async function removeProductItemBagS() {
                 </template>
               </v-switch>
             </td>
-            <td class="font-weight-bold">
-              {{ `${index + 1} / ${items.items.length}` }}
-            </td>
+
             <td class="text-caption">
               <div class="day">
                 <span
@@ -257,25 +252,38 @@ async function removeProductItemBagS() {
             <td class="font-weight-bold">
               <a
                 href="javascript:;"
-                class="text-primary font-weight-bold"
+                class="text-white text-h6 font-weight-bold"
                 @click="showOrderListDetails(items)"
               >
                 {{ product.product.name }}
               </a>
-            </td>
-            <td class="text-subtitle-2 font-weight-bold text-primary py-2">
-              <div v-for="extra in product.extras" :key="extra._id">
-                +<span class="bg-primary px-1 rounded mx-1 text-black">
-                  {{ extra.type }}
-                </span>
-                <span>{{ extra.name }}</span>
+
+              <!-- 加選配料 -->
+              <div>
+                <v-chip class="my-1" v-for="extra in product.extras" :key="extra._id" color="error">
+                  +{{ extra.name }}
+                </v-chip>
+              </div>
+
+              <!-- 備註 -->
+              <div>
+                <v-chip class="my-1" color="warning">
+                  {{ items.note || '--' }}
+                </v-chip>
+              </div>
+
+              <!-- 支付方式 -->
+              <div>
+                <v-chip class="my-1" color="success">
+                  {{ items.paymentType }}
+                </v-chip>
               </div>
             </td>
-            <td class="text-right text-h3">{{ product.quantity }}</td>
-            <td class="font-weight-bold">
-              <span class="text-primary">
-                {{ items.note }}
-              </span>
+            <td class="text-right">
+              <div class="text-h3">
+                {{ product.quantity }}
+              </div>
+              <span class="text-caption"> ({{ `${index + 1}/${items.items.length}` }}) </span>
             </td>
             <td>
               <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
