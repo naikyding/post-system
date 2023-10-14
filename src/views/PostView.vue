@@ -83,7 +83,16 @@ onMounted(async () => {
                   </div>
                   <!-- 加料 -->
                   <div class="special my-2">
-                    <div v-for="extraItem in item.extras" :key="extraItem._id" class="text-caption">
+                    <v-chip
+                      v-for="extraItem in item.extras"
+                      :key="extraItem._id"
+                      class="text-caption ma-1"
+                      color="error"
+                    >
+                      + {{ extraItem.name }}
+                    </v-chip>
+
+                    <!-- <div >
                       <v-icon icon="mdi-plus" color="grey"></v-icon>
                       <span class="px-1 bg-grey rounded mr-1 font-weight-bold text-black">
                         {{ extraItem.type }}
@@ -91,7 +100,7 @@ onMounted(async () => {
                       <span class="text-grey font-weight-bold">
                         {{ extraItem.name }}
                       </span>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
                 <div class="d-sm-flex align-center">
