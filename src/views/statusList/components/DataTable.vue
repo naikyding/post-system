@@ -252,7 +252,7 @@ async function removeProductItemBagS() {
             <td class="font-weight-bold">
               <a
                 href="javascript:;"
-                class="text-white text-h6 font-weight-bold"
+                class="text-white font-weight-bold"
                 @click="showOrderListDetails(items)"
               >
                 {{ product.product.name }}
@@ -260,22 +260,15 @@ async function removeProductItemBagS() {
 
               <!-- 加選配料 -->
               <div>
-                <v-chip class="my-1" v-for="extra in product.extras" :key="extra._id" color="error">
+                <v-chip class="ma-1" v-for="extra in product.extras" :key="extra._id" color="error">
                   +{{ extra.name }}
                 </v-chip>
               </div>
 
               <!-- 備註 -->
               <div v-if="items.note">
-                <v-chip class="my-1" color="warning">
+                <v-chip class="my-1">
                   {{ items.note }}
-                </v-chip>
-              </div>
-
-              <!-- 支付方式 -->
-              <div>
-                <v-chip class="my-1" color="success">
-                  {{ items.paymentType }}
                 </v-chip>
               </div>
             </td>
@@ -289,6 +282,11 @@ async function removeProductItemBagS() {
               <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
                 {{ items.mobileNoThreeDigits || '--' }}
               </span>
+
+              <!-- 支付方式 -->
+              <v-chip class="ma-2" :color="items.paymentType === 'cash' ? 'yellow' : 'success'">
+                {{ items.paymentType }}
+              </v-chip>
             </td>
 
             <td class="text-center">
