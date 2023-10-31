@@ -9,6 +9,8 @@ dayJs.extend(quarterOfYear)
 import { dateFormat } from '../utils/day'
 import { ref, onMounted, watchEffect, computed, reactive } from 'vue'
 
+console.log(import.meta.env.VITE_API_URL)
+
 const dashboardStore = useDashboardStore()
 
 const datePicker = reactive({
