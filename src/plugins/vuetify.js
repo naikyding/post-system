@@ -13,7 +13,7 @@ import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
 const vuetify = createVuetify({
   components: {
     ...components,
-    VDatePicker,
+    // VDatePicker,
     VBottomSheet,
   },
   directives,
