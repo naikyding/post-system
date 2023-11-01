@@ -6,11 +6,21 @@ import DatePicker from '@/components/DatePicker.vue'
 const systemOrderStore = useSystemOrderList()
 
 systemOrderStore.getOrderList('today')
+
+function datePickerEvent(searchDate) {
+  systemOrderStore.activeListDate.from = searchDate
+  systemOrderStore.activeListDate.to = searchDate
+
+  systemOrderStore.getOrderList()
+}
 </script>
 
 <template>
   <div class="ma-4">
-    <DatePicker />
+    <DatePicker
+      :active-date="systemOrderStore.activeListDate.from"
+      @search-list="datePickerEvent"
+    />
     <v-tabs
       fixed-tabs
       v-model="systemOrderStore.activeListTab"
