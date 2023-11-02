@@ -9,6 +9,8 @@ dayJs.extend(quarterOfYear)
 import { dateFormat } from '../utils/day'
 import { ref, onMounted, watchEffect, computed, reactive } from 'vue'
 
+import DatePicker from '../components/DatePicker.vue'
+
 const dashboardStore = useDashboardStore()
 
 const datePicker = reactive({
@@ -80,7 +82,13 @@ async function updateDateModel(date) {
 
 <template>
   <div class="h-screen overflow-x-hidden overflow-y-auto">
-    <v-container fluid class="mt-2">
+    <v-container fluid>
+      <v-row>
+        <v-col>
+          <!-- 日期選擇器 -->
+          <DatePicker :is-range="true" />
+        </v-col>
+      </v-row>
       <v-row class="px-3 mt-3">
         <!-- 日期選擇器 -->
         <v-bottom-sheet v-model="datePicker.dialog">

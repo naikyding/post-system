@@ -50,11 +50,7 @@ function cleanRangeDate(datePickerConfig) {
 
   <v-bottom-sheet v-model="bottomSheet">
     <v-card class="rounded-t-lg">
-      <div>
-        <span> {{ datePickerConfig.range?.start }} </span>
-        <span v-show="datePickerConfig.range?.end"> ~ </span>
-        <span> {{ datePickerConfig.range?.end }} </span>
-      </div>
+      <div class="text-center font-italic text-grey">{{ buttonDisplayContent }}</div>
       <VDatePicker
         v-model.range.string="datePickerConfig.range"
         mode="date"

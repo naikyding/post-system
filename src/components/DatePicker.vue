@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 import { dateFormat } from '@/utils/day'
 
-const props = defineProps(['activeDate'])
+const props = defineProps(['activeDate', 'isRange'])
 const emit = defineEmits(['searchList'])
 
 const bottomSheet = ref(false)
@@ -75,12 +75,14 @@ function searchData(searchDate) {
 
   <v-bottom-sheet v-model="bottomSheet">
     <v-card class="rounded-t-xl py-4">
+      {{ props.isRange }}
       <div class="text-center font-italic text-grey">{{ buttonDisplayContent }}</div>
       <VDatePicker
         v-model.string="datePickerConfig.date"
         :attributes="datePickerConfig.attributes"
         :masks="datePickerConfig.masks"
         :disabled-dates="datePickerConfig.disabledDates"
+        :is-range="props.isRange"
         ref="datePicker"
         mode="date"
         borderless
