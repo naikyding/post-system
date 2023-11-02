@@ -3,13 +3,20 @@ import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 import { dateFormat } from '@/utils/day'
 
-const props = defineProps(['activeDate'])
+const props = defineProps(['activeDate', 'isRange'])
 const emit = defineEmits(['searchList'])
+
+// 動態修飾符
+const modifiers = computed(() => ({
+  range: props.isRange || false,
+  string: true,
+}))
+
+console.log(props)
 
 const bottomSheet = ref(false)
 const datePicker = ref(null)
 const today = dateFormat(dayjs())
-
 const datePickerConfig = ref({
   // 組件內容設置
   attributes: [
@@ -26,7 +33,7 @@ const datePickerConfig = ref({
   ],
 
   // 日期選擇
-  date: today,
+  date: props.isRange ? { start: today, end: today } : today,
 
   // 日期選擇格式
   masks: {
@@ -38,18 +45,35 @@ const datePickerConfig = ref({
 })
 
 function buttonContentDisplay(today, currentDate) {
+  if (props.isRange) {
+    const { from, to } = currentDate
+    if (from === to && from === today) return 'Today'
+    return `${from} ~ ${to}`
+  }
   if (currentDate === today) return 'Today'
   else return currentDate
 }
 
 const buttonDisplayContent = computed(() => {
+  if (props.isRange) {
+    const { start, end } = datePickerConfig.value.date
+    if (datePickerConfig.value.date === today || (start === end && start === today)) return 'Today'
+    return `${start} ~ ${end}`
+  }
+
   if (datePickerConfig.value.date === today) return 'Today'
   else return datePickerConfig.value.date
 })
 
 // 日期設置今日
 function selectToday(datePickerConfig) {
-  datePickerConfig.date = today
+  if (props.isRange) {
+    datePickerConfig.date = {
+      start: today,
+      end: today,
+    }
+  } else datePickerConfig.date = today
+
   datePicker.value.move(today)
 }
 
@@ -77,7 +101,8 @@ function searchData(searchDate) {
     <v-card class="rounded-t-xl py-4">
       <div class="text-center font-italic text-grey">{{ buttonDisplayContent }}</div>
       <VDatePicker
-        v-model.string="datePickerConfig.date"
+        v-model="datePickerConfig.date"
+        :model-modifiers="modifiers"
         :attributes="datePickerConfig.attributes"
         :masks="datePickerConfig.masks"
         :disabled-dates="datePickerConfig.disabledDates"
