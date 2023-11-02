@@ -291,12 +291,12 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   function getOrderListFilter(activeTab) {
     let urlQueryString = '?limit=0&offset=0'
-
-    if (activeListDate.from && activeListDate.to)
-      urlQueryString += `&from=${activeListDate.from}&to=${activeListDate.to}`
-    if (!activeTab) return (urlQueryString += '&paid=false')
     if (localStorage.getItem('agentsId'))
       urlQueryString += `&agent=${localStorage.getItem('agentsId')}`
+    if (activeListDate.from && activeListDate.to)
+      urlQueryString += `&from=${activeListDate.from}&to=${activeListDate.to}`
+
+    if (!activeTab) return (urlQueryString += '&paid=false')
     if (activeTab === 'all') return urlQueryString
 
     return (urlQueryString += `&status=${activeTab}`)
