@@ -307,29 +307,30 @@ onMounted(async () => {
         {{ ordersStore.activeProductItem.product.description }}
       </v-card-subtitle>
       <v-divider class="mt-4" />
-      <v-card-text>
+      <v-card-text class="py-6">
         <!-- 加料 -->
         <div v-if="ordersStore.activeProductItem.product?.extras?.length > 0">
           <h4 class="mb-4">加料</h4>
 
-          <div
-            v-for="extras in ordersStore.activeProductItem.product.extras"
-            :key="extras"
-            class="bg-black rounded-lg py-2 px-4 mb-3"
-          >
-            <p class="font-weight-bold">
-              {{ extras.type }}
-            </p>
-            <v-divider class="my-1" />
-            <v-checkbox
-              v-for="extra in extras.items"
-              :key="extra"
-              v-model="ordersStore.activeProductItem.form.extras"
-              :value="extra"
-              density="compact"
-              hide-details
-              :label="extra.name + ' +' + extra.price"
-            />
+          <div v-for="extras in ordersStore.activeProductItem.product.extras" :key="extras">
+            <div
+              class="rounded-lg py-2 px-4 mb-3"
+              :class="[extras.type === '加購' ? 'bg-warning' : 'bg-black']"
+            >
+              <p class="font-weight-bold">
+                {{ extras.type }}
+              </p>
+              <v-divider class="my-1" />
+              <v-checkbox
+                v-for="extra in extras.items"
+                :key="extra"
+                v-model="ordersStore.activeProductItem.form.extras"
+                :value="extra"
+                density="compact"
+                hide-details
+                :label="extra.name + ' +' + extra.price"
+              />
+            </div>
           </div>
         </div>
 
@@ -348,6 +349,7 @@ onMounted(async () => {
 
         <div class="operate">
           <v-btn
+            size="large"
             block
             color="success"
             @click="
@@ -367,7 +369,13 @@ onMounted(async () => {
               >NT${{ ordersStore.activeProductItem.price }}</span
             >
           </v-btn>
-          <v-btn block color="error" class="mt-4" @click="dialog.activeProductItem = false">
+          <v-btn
+            size="large"
+            block
+            color="error"
+            class="mt-4"
+            @click="dialog.activeProductItem = false"
+          >
             取消
           </v-btn>
         </div>
