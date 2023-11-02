@@ -9,7 +9,7 @@ dayJs.extend(quarterOfYear)
 import { dateFormat } from '../utils/day'
 import { ref, onMounted, watchEffect, computed, reactive } from 'vue'
 
-import DatePicker from '../components/DatePicker.vue'
+import DatePicker from '@/components/DatePicker.vue'
 
 const dashboardStore = useDashboardStore()
 
@@ -78,6 +78,13 @@ async function updateDateModel(date) {
   })
   dashboardStore.getDashboardData(dashboardStore.formatSearchQueryString)
 }
+
+function searchDataByDatePicker(searchDate) {
+  dashboardStore.searchData.from = searchDate.start
+  dashboardStore.searchData.to = searchDate.end
+
+  dashboardStore.getDashboardData(dashboardStore.formatSearchQueryString)
+}
 </script>
 
 <template>
@@ -86,35 +93,17 @@ async function updateDateModel(date) {
       <v-row>
         <v-col>
           <!-- 日期選擇器 -->
-          <DatePicker :is-range="true" />
+          <DatePicker
+            :active-date="dashboardStore.searchData"
+            :is-range="true"
+            @search-list="searchDataByDatePicker"
+          />
         </v-col>
-      </v-row>
-      <v-row class="px-3 mt-3">
-        <!-- 日期選擇器 -->
-        <v-bottom-sheet v-model="datePicker.dialog">
-          <template v-slot:activator="{ props }">
-            <span class="mr-2">
-              {{ dashboardStore.searchData.from + ' / ' + dashboardStore.searchData.to }}</span
-            >
-            <v-btn v-bind="props" variant="outlined" size="medium" icon="mdi-chevron-down"></v-btn>
-          </template>
-
-          <v-card class="text-center">
-            <v-date-picker
-              v-model="dateModel"
-              min-width="100vw"
-              @click:cancel="datePickerCancel"
-              @click:save="datePickerCancel"
-              @update:modelValue="updateDateModel"
-              multiple
-            />
-          </v-card>
-        </v-bottom-sheet>
       </v-row>
 
       <v-row>
         <!-- 營業額 -->
-        <v-col cols="12" class="pb-1 font-weight-bold">
+        <v-col cols="12" class="py-2 font-weight-bold">
           NT$
           <span class="text-h3 font-weight-bold">
             {{ completedTotalAmount }}
