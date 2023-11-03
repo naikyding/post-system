@@ -134,7 +134,11 @@ async function addBagToOrderItem() {
 
 function isShowAddBagBtn(orderItemData) {
   const bagAry = ['64cf45d1ee6af4dc14dcb456', '64f009480b4da165c7eebddd']
-  const productExtrasAry = orderItemData.product.extras
+  let productExtrasAry = []
+
+  if (orderItemData.product) {
+    productExtrasAry = orderItemData.product.extras
+  }
 
   // 訂單項目是否存在袋子
   const bagInOrderItemExtras = orderItemData.extras.find((orderItemExtraItem) =>
@@ -216,7 +220,7 @@ async function removeProductItemBagS() {
       </thead>
       <tbody>
         <template v-for="items in systemOrderStore.orderList" :key="items._id">
-          <tr v-for="(product, index) in items.items" :key="product._id">
+          <tr v-for="(product, index) in items.items" :key="product?._id">
             <td>
               <template v-if="items.status === 'cancelled'">
                 <span class="px-2 py-1 rounded-lg text-caption bg-error"> 取消 </span>
@@ -227,7 +231,7 @@ async function removeProductItemBagS() {
               <v-switch v-else inset hide-details color="success" v-model="product.status">
                 <template #label>
                   <span class="text-caption">
-                    {{ `${product.status ? '完成' : '待處理'}` }}
+                    {{ `${product?.status ? '完成' : '待處理'}` }}
                   </span>
                 </template>
               </v-switch>
@@ -255,7 +259,7 @@ async function removeProductItemBagS() {
                 class="text-white font-weight-bold"
                 @click="showOrderListDetails(items)"
               >
-                {{ product.product.name }}
+                {{ product.product?.name }}
               </a>
 
               <!-- 加選配料 -->
@@ -321,7 +325,7 @@ async function removeProductItemBagS() {
         <div class="order-list-area">
           <div
             v-for="orderItem in systemOrderStore.activeOrderList.items"
-            :key="orderItem.product._id"
+            :key="orderItem.product?._id"
             class="order-item d-flex align-center"
           >
             <!-- 加購提袋 如果訂單項目不存在 || 產品有這個配料 -->
@@ -337,7 +341,7 @@ async function removeProductItemBagS() {
 
             <div class="order-item_name font-weight-bold">
               <span>
-                {{ orderItem.product.name }}
+                {{ orderItem.product?.name }}
               </span>
               <div
                 v-for="extraItem in orderItem.extras"
