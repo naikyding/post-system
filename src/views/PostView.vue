@@ -284,7 +284,7 @@ onMounted(async () => {
                           )
                         "
                       >
-                        <v-icon size="30" color="error" icon="mdi-sack" />
+                        <v-icon size="30" color="warning" icon="mdi-shopping" />
                       </button>
                     </v-card>
                   </v-col>
