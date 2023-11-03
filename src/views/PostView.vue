@@ -175,10 +175,13 @@ onMounted(async () => {
             <v-divider class="my-2" />
 
             <!-- 總價 -->
-            <div class="d-flex flex-column flex-sm-row my-1 text-h5">
-              <span class="">總價</span>
+            <div class="d-flex flex-sm-row my-1">
               <v-spacer />
-              <span>{{ ordersStore.ordersList.total.totalPrice }}</span>
+
+              <p class="text-h4 font-italic font-weight-bold">
+                <span class="text-h6">$</span>
+                {{ ordersStore.ordersList.total.totalPrice }}
+              </p>
             </div>
 
             <!-- 送出訂單 -->
@@ -186,7 +189,7 @@ onMounted(async () => {
               <v-btn
                 :disabled="ordersStore.ordersList.items.length < 1"
                 block
-                size="large"
+                size="x-large"
                 color="success"
                 variant="flat"
                 @click="dialog.confirmOrderList = true"
@@ -346,7 +349,7 @@ onMounted(async () => {
 
       <v-divider></v-divider>
 
-      <v-card-action class="px-6 py-4">
+      <div class="px-6 py-4">
         <v-text-field
           v-model="ordersStore.activeProductItem.quantity"
           @click:append="ordersStore.activeProductItemQuantity(true)"
@@ -395,14 +398,26 @@ onMounted(async () => {
             取消
           </v-btn>
         </div>
-      </v-card-action>
+      </div>
     </v-card>
   </v-dialog>
 
   <!-- confirm Dialog -->
-  <v-dialog transition="dialog-bottom-transition" v-model="dialog.confirmOrderList" width="400">
+  <v-dialog
+    transition="dialog-bottom-transition"
+    v-model="dialog.confirmOrderList"
+    width="400"
+    scrollable
+  >
     <v-card>
-      <v-card-item class="text-primary text-center pb-2" title="訂單明細"></v-card-item>
+      <v-card-item class="text-primary text-center pb-2 p-relative" title="訂單明細">
+        <v-btn class="close-btn" @click="dialog.confirmOrderList = !dialog.confirmOrderList" icon>
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-item>
+
+      <v-divider></v-divider>
+
       <v-card-text>
         <div class="order-list-area px-4">
           <div
@@ -466,74 +481,74 @@ onMounted(async () => {
               </v-btn>
             </div>
           </div>
-        </div></v-card-text
-      >
+        </div>
+      </v-card-text>
 
-      <template #actions>
-        <v-container class="pt-0">
-          <v-row class="px-6">
-            <!-- 已付款 -->
-            <v-col cols="12" class="px-1">
-              <v-btn
-                size="large"
-                @click="
-                  ordersStore.submitOrderList({
-                    list: ordersStore.ordersList,
-                    isPaid: true,
-                    paymentType: 'cash',
-                    dialog,
-                  })
-                "
-                block
-                variant="flat"
-                color="blue"
-              >
-                <span class="px-2 py-1 bg-white rounded mr-2">現金</span>
-                已付款，送出訂單</v-btn
-              >
-            </v-col>
+      <v-divider></v-divider>
 
-            <!-- LINE PAY 已付款 -->
-            <v-col cols="12" class="px-1">
-              <v-btn
-                size="large"
-                @click="
-                  ordersStore.submitOrderList({
-                    list: ordersStore.ordersList,
-                    isPaid: true,
-                    paymentType: 'Line Pay',
-                    dialog,
-                  })
-                "
-                block
-                variant="flat"
-                color="success"
-              >
-                <span class="px-2 py-1 bg-white rounded mr-2">LINE Pay</span>
-                已支付，送出訂單</v-btn
-              >
-            </v-col>
+      <v-container class="pt-2">
+        <v-row class="px-2">
+          <!-- 已付款 -->
+          <v-col cols="12" class="">
+            <v-btn
+              size="x-large"
+              block
+              variant="flat"
+              color="blue"
+              @click="
+                ordersStore.submitOrderList({
+                  list: ordersStore.ordersList,
+                  isPaid: true,
+                  paymentType: 'cash',
+                  dialog,
+                })
+              "
+            >
+              <span class="px-2 py-1 bg-white rounded mr-2">現金</span>
+              已支付
+            </v-btn>
+          </v-col>
 
-            <!-- 未付款 -->
-            <v-col cols="12" class="px-1">
-              <v-btn
-                color="error"
-                size="large"
-                @click="
-                  ordersStore.submitOrderList({
-                    list: ordersStore.ordersList,
-                    isPaid: false,
-                    dialog,
-                  })
-                "
-                block
-                variant="outlined"
-                >未付款，送出訂單</v-btn
-              >
-            </v-col>
-          </v-row>
-        </v-container>
-      </template>
+          <!-- LINE PAY 已付款 -->
+          <v-col class="py-1">
+            <v-btn
+              size="x-large"
+              block
+              variant="flat"
+              color="success"
+              @click="
+                ordersStore.submitOrderList({
+                  list: ordersStore.ordersList,
+                  isPaid: true,
+                  paymentType: 'Line Pay',
+                  dialog,
+                })
+              "
+            >
+              <span class="px-2 py-1 bg-white rounded mr-2">LINE Pay</span>
+              已支付
+            </v-btn>
+          </v-col>
+
+          <!-- 未付款 -->
+          <v-col cols="12" class="">
+            <v-btn
+              color="error"
+              size="x-large"
+              @click="
+                ordersStore.submitOrderList({
+                  list: ordersStore.ordersList,
+                  isPaid: false,
+                  dialog,
+                })
+              "
+              block
+              variant="outlined"
+              >未付款，送出訂單</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-container>
     </v-card>
   </v-dialog>
 
@@ -610,5 +625,14 @@ table {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+.p-relative {
+  position: relative;
+}
+.close-btn {
+  position: absolute;
+  top: 4px;
+  right: 1rem;
 }
 </style>
