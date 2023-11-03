@@ -298,15 +298,23 @@ onMounted(async () => {
   </v-container>
 
   <!-- 產品資訊 Dialog -->
-  <v-dialog transition="dialog-bottom-transition" v-model="dialog.activeProductItem" width="400">
+  <v-dialog
+    v-model="dialog.activeProductItem"
+    transition="dialog-bottom-transition"
+    width="400"
+    scrollable
+  >
     <v-card>
       <v-card-title class="pt-4 px-6 text-primary">
         {{ ordersStore.activeProductItem.product.name }}
       </v-card-title>
+
       <v-card-subtitle class="px-6">
         {{ ordersStore.activeProductItem.product.description }}
       </v-card-subtitle>
+
       <v-divider class="mt-4" />
+
       <v-card-text class="py-6">
         <!-- 加料 -->
         <div v-if="ordersStore.activeProductItem.product?.extras?.length > 0">
@@ -321,6 +329,7 @@ onMounted(async () => {
                 {{ extras.type }}
               </p>
               <v-divider class="my-1" />
+
               <v-checkbox
                 v-for="extra in extras.items"
                 :key="extra"
@@ -333,23 +342,28 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+      </v-card-text>
 
-        <h4 class="mb-4">數量</h4>
+      <v-divider></v-divider>
+
+      <v-card-action class="px-6 py-4">
         <v-text-field
           v-model="ordersStore.activeProductItem.quantity"
-          type="number"
-          min="1"
-          append-icon="mdi-plus"
-          prepend-icon="mdi-minus"
-          variant="outlined"
-          readonly
           @click:append="ordersStore.activeProductItemQuantity(true)"
           @click:prepend="ordersStore.activeProductItemQuantity()"
+          append-icon="mdi-plus"
+          prepend-icon="mdi-minus"
+          type="number"
+          min="1"
+          variant="outlined"
+          readonly
         />
 
+        <!-- 操作功能 -->
         <div class="operate">
+          <!-- 新增 n 到訂單 btn -->
           <v-btn
-            size="large"
+            size="x-large"
             block
             color="success"
             @click="
@@ -369,8 +383,10 @@ onMounted(async () => {
               >NT${{ ordersStore.activeProductItem.price }}</span
             >
           </v-btn>
+
+          <!-- 取消 btn -->
           <v-btn
-            size="large"
+            size="x-large"
             block
             color="error"
             class="mt-4"
@@ -379,7 +395,7 @@ onMounted(async () => {
             取消
           </v-btn>
         </div>
-      </v-card-text>
+      </v-card-action>
     </v-card>
   </v-dialog>
 
