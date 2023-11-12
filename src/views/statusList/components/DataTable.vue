@@ -194,6 +194,7 @@ async function removeProductItemBagS() {
     <EmptyBox class="h-screen-pt-48px" />
   </template>
 
+  <!-- 有資料 -->
   <template v-else>
     <v-table fixed-header height="calc(100dvh - 48px)">
       <thead>
@@ -264,8 +265,13 @@ async function removeProductItemBagS() {
 
               <!-- 加選配料 -->
               <div>
-                <v-chip class="ma-1" v-for="extra in product.extras" :key="extra._id" color="error">
-                  +{{ extra.name }}
+                <v-chip
+                  class="ma-1 text-subtitle-1"
+                  v-for="extra in product.extras"
+                  :key="extra._id"
+                  color="error"
+                >
+                  {{ extra.extraItem.name }}*{{ extra.quantity }}
                 </v-chip>
               </div>
 
@@ -343,16 +349,10 @@ async function removeProductItemBagS() {
               <span>
                 {{ orderItem.product?.name }}
               </span>
-              <div
-                v-for="extraItem in orderItem.extras"
-                :key="extraItem._id"
-                class="text-caption mt-2"
-              >
+              <div v-for="extraItem in orderItem.extras" :key="extraItem._id" class="text-caption">
                 <v-icon icon="mdi-plus"></v-icon>
-                <span class="px-1 bg-grey rounded mr-1">{{ extraItem.type }}</span>
-                <span>
-                  {{ extraItem.name }}
-                </span>
+                <span> {{ extraItem.extraItem.name }} *{{ extraItem.quantity }} </span>
+                <span> (${{ extraItem.price }})</span>
 
                 <!-- 移除加購的提袋 -->
                 <v-btn
@@ -449,7 +449,7 @@ async function removeProductItemBagS() {
                     systemOrderStore.updateOrderContent,
                   )
                 "
-                size="large"
+                size="x-large"
                 block
                 variant="flat"
                 color="success"
@@ -458,8 +458,9 @@ async function removeProductItemBagS() {
               </v-btn>
             </v-col>
 
-            <v-col cols="12" class="px-1">
+            <v-col cols="12" class="px-1 py-0">
               <v-btn
+                size="x-large"
                 @click="
                   deleteDialog(
                     systemOrderStore.activeOrderList._id,
@@ -469,7 +470,6 @@ async function removeProductItemBagS() {
                     systemOrderStore.updateOrderContent,
                   )
                 "
-                size="large"
                 color="error"
                 block
                 variant="outlined"
