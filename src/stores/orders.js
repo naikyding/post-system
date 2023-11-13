@@ -52,11 +52,6 @@ export const useOrdersStore = defineStore('orders', () => {
     ordersList.mobileNoThreeDigits = null
   }
 
-  // 刪除購物車指定項目
-  function dropOrdersListItemByIndex(list, index) {
-    list.items = list.items.filter((item, itemIndex) => itemIndex !== index)
-  }
-
   // 當前產品項目加入購物車
   function addActiveProductItemToOrdersList(productItem, ordersList, dialog) {
     const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
@@ -126,6 +121,7 @@ export const useOrdersStore = defineStore('orders', () => {
   // 點擊產品功能
   function selectedProduct(productItem, dialog, dialogStatus) {
     activeProductItem.product = productItem
+    activeProductItem.extrasTypeOpen = productItem.extras.map((item) => item.type) || []
     dialog.activeProductItem = dialogStatus
   }
 
@@ -134,6 +130,8 @@ export const useOrdersStore = defineStore('orders', () => {
     form: {
       extras: [],
     },
+
+    extrasTypeOpen: [],
 
     product: {},
     quantity: 1,
@@ -148,6 +146,29 @@ export const useOrdersStore = defineStore('orders', () => {
     }),
   })
 
+  function operationExtrasQuantity(type, form, extraItem) {
+    const matchExtraItem = form.extras.find((item) => item.extraItem._id === extraItem._id)
+    if (type === 'minus' && matchExtraItem.quantify === 1) {
+      return (form.extras = form.extras.filter((item) => item !== matchExtraItem))
+    }
+    if (!matchExtraItem && type === 'plus') {
+      form.extras = [
+        ...form.extras,
+        {
+          extraItem: extraItem,
+          quantify: 1,
+          price: extraItem.price,
+        },
+      ]
+      return
+    }
+
+    if (type === 'plus') matchExtraItem.quantify = matchExtraItem.quantify + 1
+    else matchExtraItem.quantify = matchExtraItem.quantify - 1
+
+    matchExtraItem.price = extraItem.price * matchExtraItem.quantify
+  }
+
   // (重置) 當前選擇產品項目
   function resetActiveProductItem() {
     activeProductItem.form.extras = []
@@ -156,16 +177,20 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 選單項目數量 增/減 功能
-  function orderItemQuantityPlusOrMinus(type, orderItem) {
+  function orderItemQuantityPlusOrMinus(type, orderList, orderItem) {
     const plus = type === 'plus'
 
-    const itemPrice = orderItem.total / orderItem.quantity
-    if (plus) {
-      orderItem.quantity++
-      orderItem.total = itemPrice * orderItem.quantity
+    // 移除項目
+    if (!plus && orderItem.quantity === 1) {
+      orderList.items = orderList.items.filter((item) => item !== orderItem)
+
       return
     }
-    orderItem.quantity--
+    const itemPrice = orderItem.total / orderItem.quantity
+
+    if (plus) orderItem.quantity++
+    else orderItem.quantity--
+
     orderItem.total = itemPrice * orderItem.quantity
   }
 
@@ -228,11 +253,11 @@ export const useOrdersStore = defineStore('orders', () => {
 
   return {
     ordersList,
-    dropOrdersListItemByIndex,
     addActiveProductItemToOrdersList,
 
     fashAddActiveProductItemToOrdersList,
     fashAddActiveProductItemAndBagToOrdersList,
+    operationExtrasQuantity,
 
     activeProductItemQuantity,
     resetActiveProductItem,
