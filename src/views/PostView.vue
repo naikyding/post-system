@@ -70,7 +70,7 @@ onMounted(async () => {
           <!-- 點單項目 -->
           <div class="flex-grow-1 h-0 overflow-y-auto">
             <!-- new -->
-            <v-container class="bg-black py-2">
+            <v-container v-show="ordersStore.ordersList.items.length > 0" class="bg-black py-2">
               <v-row
                 v-for="(item, index) in ordersStore.ordersList.items"
                 :key="item.product._id"
@@ -90,7 +90,7 @@ onMounted(async () => {
                       class="text-caption"
                       color="error"
                     >
-                      {{ extra.extraItem.name }}x{{ extra.quantify }}
+                      {{ extra.extraItem.name }}x{{ extra.quantity }}
                       <span v-if="index + 1 !== item.extras.length"> / </span>
                     </span>
                   </div>
@@ -362,7 +362,7 @@ onMounted(async () => {
                           :class="[
                             ordersStore.activeProductItem.form.extras.find(
                               (item) => item.extraItem._id === extra._id,
-                            )?.quantify > 0
+                            )?.quantity > 0
                               ? 'd-flex'
                               : 'd-none',
                           ]"
@@ -381,7 +381,7 @@ onMounted(async () => {
                             :icon="
                               ordersStore.activeProductItem.form.extras.find(
                                 (item) => item.extraItem._id === extra._id,
-                              )?.quantify > 1
+                              )?.quantity > 1
                                 ? 'mdi-minus'
                                 : 'mdi-delete-outline'
                             "
@@ -391,7 +391,7 @@ onMounted(async () => {
                             {{
                               ordersStore.activeProductItem.form.extras.find(
                                 (item) => item.extraItem._id === extra._id,
-                              )?.quantify
+                              )?.quantity
                             }}
                           </span>
                         </div>
@@ -418,13 +418,13 @@ onMounted(async () => {
                             'c-pointer':
                               (ordersStore.activeProductItem.form.extras.find(
                                 (item) => item.extraItem._id === extra._id,
-                              )?.quantify || 0) < 1,
+                              )?.quantity || 0) < 1,
                           },
                         ]"
                         @click="
                           ordersStore.activeProductItem.form.extras.find(
                             (item) => item.extraItem._id === extra._id,
-                          )?.quantify > 0
+                          )?.quantity > 0
                             ? null
                             : ordersStore.operationExtrasQuantity(
                                 'plus',
@@ -538,11 +538,16 @@ onMounted(async () => {
             <div class="order-item_name font-weight-bold">
               {{ orderItem.product.name }}
 
-              <div v-for="extraItem in orderItem.extras" :key="extraItem._id" class="text-caption">
-                <v-icon icon="mdi-plus"></v-icon>
-                <span class="px-1 bg-grey rounded mr-1">{{ extraItem.type }}</span>
-                <span>
-                  {{ extraItem.name }}
+              <!-- 加料 -->
+              <div class="special">
+                <span
+                  v-for="(extra, index) in orderItem.extras"
+                  :key="extra.extraItem._id"
+                  class="text-caption"
+                  color="error"
+                >
+                  {{ extra.extraItem.name }}x{{ extra.quantity }}
+                  <span v-if="index + 1 !== orderItem.extras.length"> / </span>
                 </span>
               </div>
             </div>

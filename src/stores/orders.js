@@ -148,7 +148,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
   function operationExtrasQuantity(type, form, extraItem) {
     const matchExtraItem = form.extras.find((item) => item.extraItem._id === extraItem._id)
-    if (type === 'minus' && matchExtraItem.quantify === 1) {
+    if (type === 'minus' && matchExtraItem.quantity === 1) {
       return (form.extras = form.extras.filter((item) => item !== matchExtraItem))
     }
     if (!matchExtraItem && type === 'plus') {
@@ -156,17 +156,17 @@ export const useOrdersStore = defineStore('orders', () => {
         ...form.extras,
         {
           extraItem: extraItem,
-          quantify: 1,
+          quantity: 1,
           price: extraItem.price,
         },
       ]
       return
     }
 
-    if (type === 'plus') matchExtraItem.quantify = matchExtraItem.quantify + 1
-    else matchExtraItem.quantify = matchExtraItem.quantify - 1
+    if (type === 'plus') matchExtraItem.quantity = matchExtraItem.quantity + 1
+    else matchExtraItem.quantity = matchExtraItem.quantity - 1
 
-    matchExtraItem.price = extraItem.price * matchExtraItem.quantify
+    matchExtraItem.price = extraItem.price * matchExtraItem.quantity
   }
 
   // (重置) 當前選擇產品項目
@@ -214,7 +214,14 @@ export const useOrdersStore = defineStore('orders', () => {
     const formatData = list.items.reduce(
       (init, cur) => {
         const curExtrasAry = cur.extras.reduce((initExtra, curExtra) => {
-          return (initExtra = [...initExtra, curExtra._id])
+          return (initExtra = [
+            ...initExtra,
+            {
+              extraItem: curExtra.extraItem._id,
+              quantity: curExtra.quantity,
+              price: curExtra.price,
+            },
+          ])
         }, [])
 
         init.items.push({
@@ -242,6 +249,7 @@ export const useOrdersStore = defineStore('orders', () => {
     formatData.agent = userStore.agents
 
     dialog.confirmOrderList = false
+
     const { status } = await createOrderAPI(formatData)
     appStore.resStatusDialog({ status: status, text: '新增訂單' })
     resFunc(status, () => {
