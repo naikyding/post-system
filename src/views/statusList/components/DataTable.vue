@@ -76,59 +76,67 @@ const saveOrderListProductEditForm = (orderItem, productItem) => {
 const orderListProductEditForm = reactive({
   orderId: null,
   orderItemId: null,
-  putExtrasContent: {
-    ids: [],
-    total: null,
-  },
+  putExtrasContent: [],
 
   originOrderItemContent: {},
   originProductItemContent: {},
 })
 
-async function addBagToOrderItem() {
-  const bagSizeSId = '64cf45d1ee6af4dc14dcb456'
-
+async function addBagToOrderItem(bagSizeSId) {
   const addExtrasItem = orderListProductEditForm.originProductItemContent.product.extras.find(
     (extrasId) => extrasId._id === bagSizeSId,
   )
 
   if (addExtrasItem) {
     if (orderListProductEditForm.originProductItemContent.extras.length < 1) {
-      orderListProductEditForm.putExtrasContent = {
-        ids: [addExtrasItem._id],
-        total: addExtrasItem.price,
-      }
+      orderListProductEditForm.putExtrasContent.push({
+        extraItem: addExtrasItem._id,
+        quantity: 1,
+        price: addExtrasItem.price * 1,
+      })
     } else {
       orderListProductEditForm.putExtrasContent =
-        orderListProductEditForm.originProductItemContent.extras.reduce(
-          (init, cur, index) => {
-            init = { ids: [...init.ids, cur._id], total: init.total + cur.price }
+        orderListProductEditForm.originProductItemContent.extras.reduce((init, cur, index) => {
+          init = [
+            ...init,
+            {
+              extraItem: cur.extraItem._id,
+              quantity: cur.quantity,
+              price: cur.extraItem.price * cur.quantity,
+            },
+          ]
 
-            if (index + 1 === orderListProductEditForm.originProductItemContent.extras.length) {
-              init = {
-                ids: [...init.ids, addExtrasItem._id],
-                total: init.total + addExtrasItem.price,
-              }
-              return init
-            }
-
+          if (index + 1 === orderListProductEditForm.originProductItemContent.extras.length) {
+            init = [
+              ...init,
+              {
+                extraItem: addExtrasItem._id,
+                quantity: 1,
+                price: addExtrasItem.price * 1,
+              },
+            ]
             return init
-          },
-          { ids: [], total: 0 },
-        )
+          }
+
+          return init
+        }, [])
     }
 
     const data = {
       orderId: orderListProductEditForm.orderId,
       itemId: orderListProductEditForm.orderItemId,
-      extras: [...orderListProductEditForm.putExtrasContent.ids],
-      extrasTotal: orderListProductEditForm.putExtrasContent.total,
+      extras: [...orderListProductEditForm.putExtrasContent],
     }
 
     confirmEditOrderDialog.status = false
     confirmEditOrderDialog.type = null
     dialog.confirmOrderList = false
-    await systemOrderStore.updateOrderProductItem(data)
+    console.log(data)
+    const res = await systemOrderStore.updateOrderProductItem(data)
+    // 成功執行
+    if (res) {
+      orderListProductEditForm.putExtrasContent.length = 0
+    }
   }
 }
 
@@ -142,7 +150,7 @@ function isShowAddBagBtn(orderItemData) {
 
   // 訂單項目是否存在袋子
   const bagInOrderItemExtras = orderItemData.extras.find((orderItemExtraItem) =>
-    bagAry.includes(orderItemExtraItem._id),
+    bagAry.includes(orderItemExtraItem.extraItem._id),
   )
 
   // 產品本身沒有配料
@@ -351,7 +359,7 @@ async function removeProductItemBagS() {
               </span>
               <div v-for="extraItem in orderItem.extras" :key="extraItem._id" class="text-caption">
                 <v-icon icon="mdi-plus"></v-icon>
-                <span> {{ extraItem.extraItem.name }} *{{ extraItem.quantity }} </span>
+                <span> {{ extraItem.extraItem.name }} x{{ extraItem.quantity }} </span>
                 <span> (${{ extraItem.price }})</span>
 
                 <!-- 移除加購的提袋 -->
@@ -500,7 +508,13 @@ async function removeProductItemBagS() {
         嗎?
       </v-card-text>
       <v-card-actions v-show="confirmEditOrderDialog.type === 'add'" class="px-4">
-        <v-btn @click="addBagToOrderItem" variant="flat" color="success" block>是的，新增</v-btn>
+        <v-btn
+          @click="addBagToOrderItem('64cf45d1ee6af4dc14dcb456')"
+          variant="flat"
+          color="success"
+          block
+          >是的，新增</v-btn
+        >
       </v-card-actions>
       <v-card-actions v-show="confirmEditOrderDialog.type === 'remove'" class="px-4">
         <v-btn @click="removeProductItemBagS" variant="flat" color="success" block

@@ -78,8 +78,9 @@ onMounted(async () => {
               >
                 <v-col cols="12" sm="7" class="py-2">
                   <!-- 產品名稱 -->
-                  <div class="product-name text-subtitle-2 font-weight-bold">
+                  <div class="product-name font-weight-bold">
                     {{ item.product.name }}
+                    <span class="text-caption"> ${{ item.product.price }} </span>
                   </div>
 
                   <!-- 加料 -->
@@ -90,7 +91,7 @@ onMounted(async () => {
                       class="text-caption"
                       color="error"
                     >
-                      {{ extra.extraItem.name }}x{{ extra.quantity }}
+                      {{ extra.extraItem.name }}x{{ extra.quantity }} (${{ extra.price }})
                       <span v-if="index + 1 !== item.extras.length"> / </span>
                     </span>
                   </div>
@@ -113,11 +114,10 @@ onMounted(async () => {
                       density="compact"
                       color="error"
                       :icon="item.quantity > 1 ? 'mdi-minus' : 'mdi-delete-outline'"
-                      size="medium"
-                      class="pa-1"
-                    ></v-btn>
+                    >
+                    </v-btn>
 
-                    <span class="mx-2 text-subtitle-1 font-weight-bold text-white">
+                    <span class="mx-2 text-h6 font-weight-bold text-white">
                       {{ item.quantity }}
                     </span>
 
@@ -133,8 +133,6 @@ onMounted(async () => {
                       density="compact"
                       color="success"
                       icon="mdi-plus"
-                      size="medium"
-                      class="pa-1"
                     ></v-btn>
                   </div>
 
@@ -290,10 +288,11 @@ onMounted(async () => {
                         v-show="productItem.type !== '塑膠提袋'"
                         class="fast-add-item-and-sack-btn"
                         @click.stop="
-                          ordersStore.fashAddActiveProductItemAndBagToOrdersList(
+                          ordersStore.fashAddActiveProductItemToOrdersList(
                             ordersStore.ordersList,
                             productItem,
                             dialog,
+                            '64cf45d1ee6af4dc14dcb456',
                           )
                         "
                       >
@@ -516,7 +515,7 @@ onMounted(async () => {
   <v-dialog
     transition="dialog-bottom-transition"
     v-model="dialog.confirmOrderList"
-    width="400"
+    width="600"
     scrollable
   >
     <v-card>
@@ -536,7 +535,10 @@ onMounted(async () => {
             class="order-item d-flex align-center"
           >
             <div class="order-item_name font-weight-bold">
-              {{ orderItem.product.name }}
+              <span>
+                {{ orderItem.product.name }}
+              </span>
+              <span class="text-caption"> ${{ orderItem.product.price }} </span>
 
               <!-- 加料 -->
               <div class="special">
@@ -546,7 +548,7 @@ onMounted(async () => {
                   class="text-caption"
                   color="error"
                 >
-                  {{ extra.extraItem.name }}x{{ extra.quantity }}
+                  {{ extra.extraItem.name }}x{{ extra.quantity }} (${{ extra.price }})
                   <span v-if="index + 1 !== orderItem.extras.length"> / </span>
                 </span>
               </div>

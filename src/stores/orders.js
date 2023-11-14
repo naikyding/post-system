@@ -71,21 +71,24 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 快速將 當前選擇產品項目 加入 購物車
-  async function fashAddActiveProductItemToOrdersList(ordersList, productItem, dialog) {
-    await selectedProduct(productItem, dialog, false)
-    await addActiveProductItemToOrdersList(activeProductItem, ordersList, dialog)
-  }
-
-  // 快速將 當前選擇產品項目與「提袋」 加入 購物車
-  async function fashAddActiveProductItemAndBagToOrdersList(ordersList, productItem, dialog) {
+  async function fashAddActiveProductItemToOrdersList(ordersList, productItem, dialog, bagId) {
     await selectedProduct(productItem, dialog, false)
 
-    // 將袋子加入
-    activeProductItem.form.extras.push(
-      productItem.extras
-        .find((item) => item.type === '加購')
-        .items.find((item) => item._id === '64cf45d1ee6af4dc14dcb456'),
-    )
+    if (bagId) {
+      // 產品是否有袋子
+      const bagExtrasIncludes = productItem.extras
+        .find((extrasItem) => extrasItem.type === '加購')
+        .items.find((item) => item._id === bagId)
+
+      if (bagExtrasIncludes)
+        activeProductItem.form.extras = [
+          {
+            extraItem: bagExtrasIncludes,
+            quantity: 1,
+            price: bagExtrasIncludes.price * 1,
+          },
+        ]
+    }
 
     await addActiveProductItemToOrdersList(activeProductItem, ordersList, dialog)
   }
@@ -264,7 +267,6 @@ export const useOrdersStore = defineStore('orders', () => {
     addActiveProductItemToOrdersList,
 
     fashAddActiveProductItemToOrdersList,
-    fashAddActiveProductItemAndBagToOrdersList,
     operationExtrasQuantity,
 
     activeProductItemQuantity,
@@ -446,6 +448,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
       const appStore = useAppStore()
       appStore.resStatusDialog({ status: status, text: '更新成功' })
       getOrderList()
+      return true
     })
 
     return status
