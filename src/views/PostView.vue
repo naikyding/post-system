@@ -528,7 +528,7 @@ onMounted(async () => {
       <v-divider></v-divider>
 
       <v-card-text>
-        <div class="order-list-area px-4">
+        <div class="order-list-area">
           <div
             v-for="orderItem in ordersStore.ordersList.items"
             :key="orderItem.product._id"
@@ -542,15 +542,15 @@ onMounted(async () => {
 
               <!-- 加料 -->
               <div class="special">
-                <span
-                  v-for="(extra, index) in orderItem.extras"
+                <div
+                  v-for="extra in orderItem.extras"
                   :key="extra.extraItem._id"
                   class="text-caption"
                   color="error"
                 >
+                  <v-icon> mdi-plus-circle </v-icon>
                   {{ extra.extraItem.name }}x{{ extra.quantity }} (${{ extra.price }})
-                  <span v-if="index + 1 !== orderItem.extras.length"> / </span>
-                </span>
+                </div>
               </div>
             </div>
             <v-spacer></v-spacer>

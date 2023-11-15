@@ -131,7 +131,7 @@ async function addBagToOrderItem(bagSizeSId) {
     confirmEditOrderDialog.status = false
     confirmEditOrderDialog.type = null
     dialog.confirmOrderList = false
-    console.log(data)
+
     const res = await systemOrderStore.updateOrderProductItem(data)
     // 成功執行
     if (res) {
@@ -169,30 +169,36 @@ function showRemoveBagDialog(activeOrderItem, productItem) {
   saveOrderListProductEditForm(activeOrderItem, productItem)
 }
 
-async function removeProductItemBagS() {
-  const bagSizeSId = '64cf45d1ee6af4dc14dcb456'
-
+async function removeProductItemBagS(bagSizeId) {
   orderListProductEditForm.putExtrasContent =
-    orderListProductEditForm.originProductItemContent.extras.reduce(
-      (init, cur) => {
-        if (cur._id !== bagSizeSId) {
-          return (init = { ids: [...init.ids, cur._id], total: init.total + cur.price })
-        } else return init
-      },
-      { ids: [], total: 0 },
-    )
+    orderListProductEditForm.originProductItemContent.extras.reduce((init, cur) => {
+      if (cur.extraItem._id !== bagSizeId) {
+        return (init = [
+          ...init,
+          {
+            extraItem: cur.extraItem._id,
+            quantity: cur.quantity,
+            price: cur.extraItem.price * cur.quantity,
+          },
+        ])
+      } else return init
+    }, [])
 
   const data = {
     orderId: orderListProductEditForm.orderId,
     itemId: orderListProductEditForm.orderItemId,
-    extras: [...orderListProductEditForm.putExtrasContent.ids],
-    extrasTotal: orderListProductEditForm.putExtrasContent.total,
+    extras: [...orderListProductEditForm.putExtrasContent],
   }
 
   confirmEditOrderDialog.status = false
   confirmEditOrderDialog.type = null
   dialog.confirmOrderList = false
-  await systemOrderStore.updateOrderProductItem(data)
+
+  const res = await systemOrderStore.updateOrderProductItem(data)
+  // 成功執行
+  if (res) {
+    orderListProductEditForm.putExtrasContent.length = 0
+  }
 }
 </script>
 
@@ -279,7 +285,7 @@ async function removeProductItemBagS() {
                   :key="extra._id"
                   color="error"
                 >
-                  {{ extra.extraItem.name }}*{{ extra.quantity }}
+                  {{ extra.extraItem.name }} x{{ extra.quantity }}
                 </v-chip>
               </div>
 
@@ -357,19 +363,24 @@ async function removeProductItemBagS() {
               <span>
                 {{ orderItem.product?.name }}
               </span>
-              <div v-for="extraItem in orderItem.extras" :key="extraItem._id" class="text-caption">
-                <v-icon icon="mdi-plus"></v-icon>
+              <span class="text-caption"> ${{ orderItem.product?.price }} </span>
+              <div
+                v-for="extraItem in orderItem.extras"
+                :key="extraItem._id"
+                class="text-caption d-flex align-center"
+              >
+                <v-icon icon="mdi-plus-circle" class="mr-1" />
                 <span> {{ extraItem.extraItem.name }} x{{ extraItem.quantity }} </span>
                 <span> (${{ extraItem.price }})</span>
 
                 <!-- 移除加購的提袋 -->
                 <v-btn
                   @click="showRemoveBagDialog(systemOrderStore.activeOrderList, orderItem)"
-                  v-show="extraItem._id === '64cf45d1ee6af4dc14dcb456'"
-                  icon="mdi-delete"
+                  v-show="extraItem.extraItem._id === '64cf45d1ee6af4dc14dcb456'"
+                  icon="mdi-delete-outline"
+                  density="compact"
                   color="error"
-                  size="x-small"
-                  class="ml-2"
+                  class="ml-1"
                 ></v-btn>
               </div>
             </div>
@@ -517,7 +528,11 @@ async function removeProductItemBagS() {
         >
       </v-card-actions>
       <v-card-actions v-show="confirmEditOrderDialog.type === 'remove'" class="px-4">
-        <v-btn @click="removeProductItemBagS" variant="flat" color="success" block
+        <v-btn
+          @click="removeProductItemBagS('64cf45d1ee6af4dc14dcb456')"
+          variant="flat"
+          color="success"
+          block
           >是的，移除</v-btn
         >
       </v-card-actions>
