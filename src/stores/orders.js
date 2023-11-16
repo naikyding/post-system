@@ -229,7 +229,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
         init.items.push({
           product: cur.product._id,
-          extras: curExtrasAry,
+          extrasData: curExtrasAry,
           quantity: cur.quantity,
           price: cur.total,
         })
