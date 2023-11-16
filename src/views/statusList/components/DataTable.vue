@@ -285,7 +285,7 @@ async function removeProductItemBagS(bagSizeId) {
                   :key="extra._id"
                   color="error"
                 >
-                  {{ extra.extraItem.name }} x{{ extra.quantity }}
+                  {{ extra.extraItem?.name || '--' }} x{{ extra.quantity }}
                 </v-chip>
               </div>
 
