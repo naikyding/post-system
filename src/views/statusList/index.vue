@@ -16,7 +16,7 @@ function datePickerEvent(searchDate) {
 </script>
 
 <template>
-  <div class="ma-4">
+  <div class="ma-4 mb-0">
     <DatePicker
       :active-date="systemOrderStore.activeListDate.from"
       @search-list="datePickerEvent"

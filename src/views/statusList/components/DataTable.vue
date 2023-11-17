@@ -210,7 +210,7 @@ async function removeProductItemBagS(bagSizeId) {
 
   <!-- 有資料 -->
   <template v-else>
-    <v-table fixed-header height="calc(100dvh - 48px)">
+    <v-table fixed-header height="calc(100dvh - 108px)">
       <thead>
         <tr class="text-caption">
           <th class="text-left min-width-128px">執行狀態</th>
