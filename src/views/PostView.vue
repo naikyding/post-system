@@ -273,7 +273,7 @@ onMounted(async () => {
                         </div>
                       </template>
                       <!-- 快捷新增按鈕 -->
-                      <button
+                      <v-btn
                         class="fast-add-item-btn"
                         @click.stop="
                           ordersStore.fashAddActiveProductItemToOrdersList(
@@ -282,11 +282,14 @@ onMounted(async () => {
                             dialog,
                           )
                         "
+                        icon="mdi-plus"
+                        variant="tonal"
+                        color="success"
                       >
-                        <v-icon size="30" color="blue" icon="mdi-lightning-bolt-circle" />
-                      </button>
+                      </v-btn>
                       <!-- 快捷新增按鈕 (含提袋) -->
-                      <button
+
+                      <v-btn
                         v-show="productItem.type !== '塑膠提袋'"
                         class="fast-add-item-and-sack-btn"
                         @click.stop="
@@ -297,9 +300,11 @@ onMounted(async () => {
                             '64cf45d1ee6af4dc14dcb456',
                           )
                         "
+                        icon="mdi-shopping"
+                        variant="tonal"
+                        color="warning"
                       >
-                        <v-icon size="30" color="warning" icon="mdi-shopping" />
-                      </button>
+                      </v-btn>
                     </v-card>
                   </v-col>
                 </v-row>
