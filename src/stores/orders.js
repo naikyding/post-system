@@ -52,11 +52,6 @@ export const useOrdersStore = defineStore('orders', () => {
     ordersList.mobileNoThreeDigits = null
   }
 
-  // 刪除購物車指定項目
-  function dropOrdersListItemByIndex(list, index) {
-    list.items = list.items.filter((item, itemIndex) => itemIndex !== index)
-  }
-
   // 當前產品項目加入購物車
   function addActiveProductItemToOrdersList(productItem, ordersList, dialog) {
     const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
@@ -76,21 +71,24 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 快速將 當前選擇產品項目 加入 購物車
-  async function fashAddActiveProductItemToOrdersList(ordersList, productItem, dialog) {
-    await selectedProduct(productItem, dialog, false)
-    await addActiveProductItemToOrdersList(activeProductItem, ordersList, dialog)
-  }
-
-  // 快速將 當前選擇產品項目與「提袋」 加入 購物車
-  async function fashAddActiveProductItemAndBagToOrdersList(ordersList, productItem, dialog) {
+  async function fashAddActiveProductItemToOrdersList(ordersList, productItem, dialog, bagId) {
     await selectedProduct(productItem, dialog, false)
 
-    // 將袋子加入
-    activeProductItem.form.extras.push(
-      productItem.extras
-        .find((item) => item.type === '加購')
-        .items.find((item) => item._id === '64cf45d1ee6af4dc14dcb456'),
-    )
+    if (bagId) {
+      // 產品是否有袋子
+      const bagExtrasIncludes = productItem.extras
+        .find((extrasItem) => extrasItem.type === '加購')
+        .items.find((item) => item._id === bagId)
+
+      if (bagExtrasIncludes)
+        activeProductItem.form.extras = [
+          {
+            extraItem: bagExtrasIncludes,
+            quantity: 1,
+            price: bagExtrasIncludes.price * 1,
+          },
+        ]
+    }
 
     await addActiveProductItemToOrdersList(activeProductItem, ordersList, dialog)
   }
@@ -126,6 +124,7 @@ export const useOrdersStore = defineStore('orders', () => {
   // 點擊產品功能
   function selectedProduct(productItem, dialog, dialogStatus) {
     activeProductItem.product = productItem
+    activeProductItem.extrasTypeOpen = productItem.extras.map((item) => item.type) || []
     dialog.activeProductItem = dialogStatus
   }
 
@@ -134,6 +133,8 @@ export const useOrdersStore = defineStore('orders', () => {
     form: {
       extras: [],
     },
+
+    extrasTypeOpen: [],
 
     product: {},
     quantity: 1,
@@ -148,6 +149,29 @@ export const useOrdersStore = defineStore('orders', () => {
     }),
   })
 
+  function operationExtrasQuantity(type, form, extraItem) {
+    const matchExtraItem = form.extras.find((item) => item.extraItem._id === extraItem._id)
+    if (type === 'minus' && matchExtraItem.quantity === 1) {
+      return (form.extras = form.extras.filter((item) => item !== matchExtraItem))
+    }
+    if (!matchExtraItem && type === 'plus') {
+      form.extras = [
+        ...form.extras,
+        {
+          extraItem: extraItem,
+          quantity: 1,
+          price: extraItem.price,
+        },
+      ]
+      return
+    }
+
+    if (type === 'plus') matchExtraItem.quantity = matchExtraItem.quantity + 1
+    else matchExtraItem.quantity = matchExtraItem.quantity - 1
+
+    matchExtraItem.price = extraItem.price * matchExtraItem.quantity
+  }
+
   // (重置) 當前選擇產品項目
   function resetActiveProductItem() {
     activeProductItem.form.extras = []
@@ -156,16 +180,20 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 選單項目數量 增/減 功能
-  function orderItemQuantityPlusOrMinus(type, orderItem) {
+  function orderItemQuantityPlusOrMinus(type, orderList, orderItem) {
     const plus = type === 'plus'
 
-    const itemPrice = orderItem.total / orderItem.quantity
-    if (plus) {
-      orderItem.quantity++
-      orderItem.total = itemPrice * orderItem.quantity
+    // 移除項目
+    if (!plus && orderItem.quantity === 1) {
+      orderList.items = orderList.items.filter((item) => item !== orderItem)
+
       return
     }
-    orderItem.quantity--
+    const itemPrice = orderItem.total / orderItem.quantity
+
+    if (plus) orderItem.quantity++
+    else orderItem.quantity--
+
     orderItem.total = itemPrice * orderItem.quantity
   }
 
@@ -189,12 +217,19 @@ export const useOrdersStore = defineStore('orders', () => {
     const formatData = list.items.reduce(
       (init, cur) => {
         const curExtrasAry = cur.extras.reduce((initExtra, curExtra) => {
-          return (initExtra = [...initExtra, curExtra._id])
+          return (initExtra = [
+            ...initExtra,
+            {
+              extraItem: curExtra.extraItem._id,
+              quantity: curExtra.quantity,
+              price: curExtra.price,
+            },
+          ])
         }, [])
 
         init.items.push({
           product: cur.product._id,
-          extras: curExtrasAry,
+          extrasData: curExtrasAry,
           quantity: cur.quantity,
           price: cur.total,
         })
@@ -217,6 +252,7 @@ export const useOrdersStore = defineStore('orders', () => {
     formatData.agent = userStore.agents
 
     dialog.confirmOrderList = false
+
     const { status } = await createOrderAPI(formatData)
     appStore.resStatusDialog({ status: status, text: '新增訂單' })
     resFunc(status, () => {
@@ -228,11 +264,10 @@ export const useOrdersStore = defineStore('orders', () => {
 
   return {
     ordersList,
-    dropOrdersListItemByIndex,
     addActiveProductItemToOrdersList,
 
     fashAddActiveProductItemToOrdersList,
-    fashAddActiveProductItemAndBagToOrdersList,
+    operationExtrasQuantity,
 
     activeProductItemQuantity,
     resetActiveProductItem,
@@ -413,6 +448,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
       const appStore = useAppStore()
       appStore.resStatusDialog({ status: status, text: '更新成功' })
       getOrderList()
+      return true
     })
 
     return status

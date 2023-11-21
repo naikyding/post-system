@@ -70,75 +70,83 @@ onMounted(async () => {
           <!-- 點單項目 -->
           <div class="flex-grow-1 h-0 overflow-y-auto">
             <!-- new -->
-            <div class="order-list">
-              <div
-                class="order-item d-sm-flex align-sm-center justify-sm-space-between"
+            <v-container v-show="ordersStore.ordersList.items.length > 0" class="bg-black py-2">
+              <v-row
                 v-for="(item, index) in ordersStore.ordersList.items"
                 :key="item.product._id"
+                no-gutters
               >
-                <div>
+                <v-col cols="12" sm="7" class="py-2">
                   <!-- 產品名稱 -->
-                  <div class="product-name text-subtitle-2">
+                  <div class="product-name font-weight-bold">
                     {{ item.product.name }}
+                    <span class="text-caption"> ${{ item.product.price }} </span>
                   </div>
+
                   <!-- 加料 -->
-                  <div class="special my-2">
-                    <v-chip
-                      v-for="extraItem in item.extras"
-                      :key="extraItem._id"
-                      class="text-caption ma-1"
+                  <div class="special">
+                    <span
+                      v-for="(extra, index) in item.extras"
+                      :key="extra.extraItem._id"
+                      class="text-caption"
                       color="error"
                     >
-                      + {{ extraItem.name }}
-                    </v-chip>
-
-                    <!-- <div >
-                      <v-icon icon="mdi-plus" color="grey"></v-icon>
-                      <span class="px-1 bg-grey rounded mr-1 font-weight-bold text-black">
-                        {{ extraItem.type }}
-                      </span>
-                      <span class="text-grey font-weight-bold">
-                        {{ extraItem.name }}
-                      </span>
-                    </div> -->
+                      {{ extra.extraItem.name }}x{{ extra.quantity }} (${{ extra.price }})
+                      <span v-if="index + 1 !== item.extras.length"> / </span>
+                    </span>
                   </div>
-                </div>
-                <div class="d-sm-flex align-center">
-                  <!-- 數量 -->
-                  <div class="product-quantity mr-sm-2">
-                    <div class="d-flex align-center justify-center">
-                      <v-icon
-                        v-show="item.quantity > 1"
-                        icon="mdi-minus-circle"
-                        color="error"
-                        @click="ordersStore.orderItemQuantityPlusOrMinus('minus', item)"
-                      ></v-icon>
+                </v-col>
+                <v-col
+                  cols="12"
+                  sm="5"
+                  class="d-flex flex-column flex-lg-row align-center justify-center justify-lg-space-between py-2"
+                >
+                  <div class="d-flex align-center justify-center">
+                    <!-- 減少 -->
+                    <v-btn
+                      @click="
+                        ordersStore.orderItemQuantityPlusOrMinus(
+                          'minus',
+                          ordersStore.ordersList,
+                          item,
+                        )
+                      "
+                      density="compact"
+                      color="error"
+                      :icon="item.quantity > 1 ? 'mdi-minus' : 'mdi-delete-outline'"
+                    >
+                    </v-btn>
 
-                      <v-icon
-                        v-show="item.quantity < 2"
-                        icon="mdi-trash-can-outline"
-                        color="error"
-                        @click="
-                          ordersStore.dropOrdersListItemByIndex(ordersStore.ordersList, index)
-                        "
-                      ></v-icon>
-                      <span class="mx-2 text-h6 text-md-h4 text-white">
-                        {{ item.quantity }}
-                      </span>
-                      <v-icon
-                        icon="mdi-plus-circle"
-                        color="success"
-                        @click="ordersStore.orderItemQuantityPlusOrMinus('plus', item)"
-                      ></v-icon>
-                    </div>
+                    <span class="mx-2 text-h6 font-weight-bold text-white">
+                      {{ item.quantity }}
+                    </span>
+
+                    <!-- 增加 -->
+                    <v-btn
+                      @click="
+                        ordersStore.orderItemQuantityPlusOrMinus(
+                          'plus',
+                          ordersStore.ordersList.items,
+                          item,
+                        )
+                      "
+                      density="compact"
+                      color="success"
+                      icon="mdi-plus"
+                    ></v-btn>
                   </div>
+
                   <!-- 小計 -->
                   <div class="product-total text-center font-weight-bold text-h6">
                     $ {{ item.total }}
                   </div>
-                </div>
-              </div>
-            </div>
+                </v-col>
+                <v-divider
+                  v-show="index + 1 !== ordersStore.ordersList.items.length"
+                  class="my-2"
+                />
+              </v-row>
+            </v-container>
           </div>
 
           <v-divider />
@@ -280,10 +288,11 @@ onMounted(async () => {
                         v-show="productItem.type !== '塑膠提袋'"
                         class="fast-add-item-and-sack-btn"
                         @click.stop="
-                          ordersStore.fashAddActiveProductItemAndBagToOrdersList(
+                          ordersStore.fashAddActiveProductItemToOrdersList(
                             ordersStore.ordersList,
                             productItem,
                             dialog,
+                            '64cf45d1ee6af4dc14dcb456',
                           )
                         "
                       >
@@ -304,7 +313,7 @@ onMounted(async () => {
   <v-dialog
     v-model="dialog.activeProductItem"
     transition="dialog-bottom-transition"
-    width="400"
+    width="640"
     scrollable
   >
     <v-card>
@@ -321,28 +330,128 @@ onMounted(async () => {
       <v-card-text class="py-6">
         <!-- 加料 -->
         <div v-if="ordersStore.activeProductItem.product?.extras?.length > 0">
-          <h4 class="mb-4">加料</h4>
+          <h4 class="mb-4">特製</h4>
 
-          <div v-for="extras in ordersStore.activeProductItem.product.extras" :key="extras">
-            <div
-              class="rounded-lg py-2 px-4 mb-3"
-              :class="[extras.type === '加購' ? 'bg-warning' : 'bg-black']"
+          <div>
+            <v-expansion-panels
+              v-for="extras in ordersStore.activeProductItem.product.extras"
+              :key="extras"
+              :model-value="ordersStore.activeProductItem.extrasTypeOpen"
+              variant="accordion"
+              multiple
             >
-              <p class="font-weight-bold">
-                {{ extras.type }}
-              </p>
-              <v-divider class="my-1" />
+              <v-expansion-panel
+                rounded
+                :bg-color="extras.type === '加購' ? 'warning' : '#2e2e2e'"
+                class="my-2"
+                :value="extras.type"
+              >
+                <v-expansion-panel-title expand-icon="mdi-menu-down">
+                  <span class="text-subtitle-1">
+                    {{ extras.type }}
+                  </span>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <div v-for="(extra, index) in extras.items" :key="extra">
+                    <div class="d-flex py-4 align-center">
+                      <!-- 數量 -->
+                      <div class="quantity mr-2 d-flex align-center">
+                        <div
+                          class="align-center"
+                          :class="[
+                            ordersStore.activeProductItem.form.extras.find(
+                              (item) => item.extraItem._id === extra._id,
+                            )?.quantity > 0
+                              ? 'd-flex'
+                              : 'd-none',
+                          ]"
+                        >
+                          <!-- 減少 -->
+                          <v-btn
+                            @click="
+                              ordersStore.operationExtrasQuantity(
+                                'minus',
+                                ordersStore.activeProductItem.form,
+                                extra,
+                              )
+                            "
+                            density="compact"
+                            color="error"
+                            :icon="
+                              ordersStore.activeProductItem.form.extras.find(
+                                (item) => item.extraItem._id === extra._id,
+                              )?.quantity > 1
+                                ? 'mdi-minus'
+                                : 'mdi-delete-outline'
+                            "
+                          ></v-btn>
 
-              <v-checkbox
-                v-for="extra in extras.items"
-                :key="extra"
-                v-model="ordersStore.activeProductItem.form.extras"
-                :value="extra"
-                density="compact"
-                hide-details
-                :label="extra.name + ' +' + extra.price"
-              />
-            </div>
+                          <span class="text-h6 mx-2">
+                            {{
+                              ordersStore.activeProductItem.form.extras.find(
+                                (item) => item.extraItem._id === extra._id,
+                              )?.quantity
+                            }}
+                          </span>
+                        </div>
+
+                        <!-- 增加 -->
+                        <v-btn
+                          @click="
+                            ordersStore.operationExtrasQuantity(
+                              'plus',
+                              ordersStore.activeProductItem.form,
+                              extra,
+                            )
+                          "
+                          density="compact"
+                          color="success"
+                          icon="mdi-plus"
+                        ></v-btn>
+                      </div>
+                      <!-- 名稱 -->
+                      <div
+                        class="extra-name"
+                        :class="[
+                          {
+                            'c-pointer':
+                              (ordersStore.activeProductItem.form.extras.find(
+                                (item) => item.extraItem._id === extra._id,
+                              )?.quantity || 0) < 1,
+                          },
+                        ]"
+                        @click="
+                          ordersStore.activeProductItem.form.extras.find(
+                            (item) => item.extraItem._id === extra._id,
+                          )?.quantity > 0
+                            ? null
+                            : ordersStore.operationExtrasQuantity(
+                                'plus',
+                                ordersStore.activeProductItem.form,
+                                extra,
+                              )
+                        "
+                      >
+                        <span class="font-weight-bold">
+                          {{ extra.name }}
+                        </span>
+                        <span class="text-caption ml-1">(NT${{ extra.price }})</span>
+                      </div>
+                      <v-spacer></v-spacer>
+                      <!-- 價錢 -->
+                      <div class="extras-total text-subtitle-1 font-weight-bold">
+                        +{{
+                          ordersStore.activeProductItem.form.extras.find(
+                            (item) => item.extraItem._id === extra._id,
+                          )?.price || 0
+                        }}
+                      </div>
+                    </div>
+                    <v-divider v-show="index + 1 !== extras.items.length"></v-divider>
+                  </div>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </div>
         </div>
       </v-card-text>
@@ -406,7 +515,7 @@ onMounted(async () => {
   <v-dialog
     transition="dialog-bottom-transition"
     v-model="dialog.confirmOrderList"
-    width="400"
+    width="600"
     scrollable
   >
     <v-card>
@@ -419,21 +528,29 @@ onMounted(async () => {
       <v-divider></v-divider>
 
       <v-card-text>
-        <div class="order-list-area px-4">
+        <div class="order-list-area">
           <div
             v-for="orderItem in ordersStore.ordersList.items"
             :key="orderItem.product._id"
             class="order-item d-flex align-center"
           >
             <div class="order-item_name font-weight-bold">
-              {{ orderItem.product.name }}
+              <span>
+                {{ orderItem.product.name }}
+              </span>
+              <span class="text-caption"> ${{ orderItem.product.price }} </span>
 
-              <div v-for="extraItem in orderItem.extras" :key="extraItem._id" class="text-caption">
-                <v-icon icon="mdi-plus"></v-icon>
-                <span class="px-1 bg-grey rounded mr-1">{{ extraItem.type }}</span>
-                <span>
-                  {{ extraItem.name }}
-                </span>
+              <!-- 加料 -->
+              <div class="special">
+                <div
+                  v-for="extra in orderItem.extras"
+                  :key="extra.extraItem._id"
+                  class="text-caption"
+                  color="error"
+                >
+                  <v-icon> mdi-plus-circle </v-icon>
+                  {{ extra.extraItem.name }}x{{ extra.quantity }} (${{ extra.price }})
+                </div>
               </div>
             </div>
             <v-spacer></v-spacer>
@@ -634,5 +751,8 @@ table {
   position: absolute;
   top: 4px;
   right: 1rem;
+}
+.c-pointer {
+  cursor: pointer;
 }
 </style>
