@@ -57,7 +57,7 @@ export const useOrdersStore = defineStore('orders', () => {
     const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
 
     if (matchProductItem) {
-      orderItemQuantityPlusOrMinus('plus', matchProductItem)
+      orderItemQuantityPlusOrMinus('plus', ordersList, matchProductItem)
     } else {
       ordersList.items.push({
         product: productItem.product,
