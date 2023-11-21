@@ -57,7 +57,7 @@ export const useOrdersStore = defineStore('orders', () => {
     const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
 
     if (matchProductItem) {
-      orderItemQuantityPlusOrMinus('plus', matchProductItem)
+      orderItemQuantityPlusOrMinus('plus', ordersList, matchProductItem)
     } else {
       ordersList.items.push({
         product: productItem.product,
@@ -107,7 +107,9 @@ export const useOrdersStore = defineStore('orders', () => {
         let matchExtrasNum = 0
         productItem.form.extras.forEach((productItemExtraItem) => {
           orderItem.extras.forEach((orderItemExtraItem) => {
-            if (orderItemExtraItem._id === productItemExtraItem._id) matchExtrasNum++
+            console.log(orderItemExtraItem, productItemExtraItem)
+            if (orderItemExtraItem.extraItem._id === productItemExtraItem.extraItem._id)
+              matchExtrasNum++
           })
         })
 

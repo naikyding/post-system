@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted, reactive, watch, computed } from 'vue'
+import { useDisplay } from 'vuetify'
 
 import { useProductsStore } from '../stores/products'
 import { useOrdersStore } from '../stores/orders'
 
 const productsStore = useProductsStore()
 const ordersStore = useOrdersStore()
+const display = useDisplay()
 
 const tabActiveId = ref(0)
 
@@ -313,15 +315,24 @@ onMounted(async () => {
   <v-dialog
     v-model="dialog.activeProductItem"
     transition="dialog-bottom-transition"
-    width="640"
+    :width="display.xs.value ? null : 640"
+    :fullscreen="display.xs.value"
     scrollable
   >
     <v-card>
-      <v-card-title class="pt-4 px-6 text-primary">
-        {{ ordersStore.activeProductItem.product.name }}
-      </v-card-title>
+      <v-toolbar dark prominent>
+        <v-toolbar-title>
+          {{ ordersStore.activeProductItem.product.name }}
+        </v-toolbar-title>
 
-      <v-card-subtitle class="px-6">
+        <v-spacer></v-spacer>
+
+        <v-btn icon @click="dialog.activeProductItem = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-toolbar>
+
+      <v-card-subtitle class="px-6 mt-4">
         {{ ordersStore.activeProductItem.product.description }}
       </v-card-subtitle>
 
@@ -472,7 +483,7 @@ onMounted(async () => {
         />
 
         <!-- 操作功能 -->
-        <div class="operate">
+        <div class="operate mb-2">
           <!-- 新增 n 到訂單 btn -->
           <v-btn
             size="x-large"
@@ -495,17 +506,6 @@ onMounted(async () => {
               >NT${{ ordersStore.activeProductItem.price }}</span
             >
           </v-btn>
-
-          <!-- 取消 btn -->
-          <v-btn
-            size="x-large"
-            block
-            color="error"
-            class="mt-4"
-            @click="dialog.activeProductItem = false"
-          >
-            取消
-          </v-btn>
         </div>
       </div>
     </v-card>
@@ -515,7 +515,8 @@ onMounted(async () => {
   <v-dialog
     transition="dialog-bottom-transition"
     v-model="dialog.confirmOrderList"
-    width="600"
+    :width="display.xs.value ? null : 640"
+    :fullscreen="display.xs.value"
     scrollable
   >
     <v-card>

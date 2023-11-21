@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
+import { useDisplay } from 'vuetify'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
@@ -11,6 +12,8 @@ const systemOrderStore = useSystemOrderList()
 const dialog = reactive({
   confirmOrderList: false,
 })
+
+const display = useDisplay()
 
 const confirmEditOrderDialog = reactive({
   type: null,
@@ -329,19 +332,30 @@ async function removeProductItemBagS(bagSizeId) {
   </template>
 
   <!-- confirm Dialog -->
-  <v-dialog transition="dialog-bottom-transition" v-model="dialog.confirmOrderList" width="400">
-    <v-card>
-      <v-card-item class="text-primary text-center pb-2" title="訂單明細"></v-card-item>
-      <v-card-text>
-        <div class="px-4">
-          <v-btn rounded="xl" variant="tonal" block>
+  <v-dialog
+    transition="dialog-bottom-transition"
+    v-model="dialog.confirmOrderList"
+    :width="display.xs.value ? null : 640"
+    :fullscreen="display.xs.value"
+    scrollable
+  >
+    <v-card class="">
+      <v-card-item class="text-primary text-center pb-2" title="訂單明細">
+        <v-btn class="close-btn" @click="dialog.confirmOrderList = !dialog.confirmOrderList" icon>
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+
+        <div class="px-4 mt-2">
+          <v-btn color="grey" class="text-white" rounded="xl" variant="tonal" block>
             未三碼
-            <span class="text-h6 ml-2 font-italic">
+            <span class="text-h6 ml-2 font-italic text-white">
               {{ systemOrderStore.activeOrderList.mobileNoThreeDigits || '--' }}
             </span>
           </v-btn>
         </div>
+      </v-card-item>
 
+      <v-card-text>
         <div class="order-list-area">
           <div
             v-for="orderItem in systemOrderStore.activeOrderList.items"
@@ -502,7 +516,7 @@ async function removeProductItemBagS(bagSizeId) {
   </v-dialog>
 
   <!-- 修改訂定確認 -->
-  <v-dialog v-model="confirmEditOrderDialog.status" width="auto">
+  <v-dialog v-model="confirmEditOrderDialog.status" width="300">
     <v-card>
       <v-card-text>
         <div class="text-center text-primary mb-4 text-h6 font-weight-bold">
@@ -570,5 +584,10 @@ async function removeProductItemBagS(bagSizeId) {
 
 .table-height {
   height: calc(100dvh - 108px);
+}
+.close-btn {
+  position: absolute;
+  top: 4px;
+  right: 1rem;
 }
 </style>
