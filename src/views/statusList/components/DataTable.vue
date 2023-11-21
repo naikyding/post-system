@@ -303,7 +303,14 @@ async function removeProductItemBagS(bagSizeId) {
               <div class="text-h3">
                 {{ product.quantity }}
               </div>
-              <span class="text-caption"> ({{ `${index + 1}/${items.items.length}` }}) </span>
+              <span class="text-caption">
+                ({{
+                  `${product.quantity}/${items.items.reduce(
+                    (acc, cur) => (acc += cur.quantity),
+                    0,
+                  )}`
+                }})
+              </span>
             </td>
             <td>
               <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
