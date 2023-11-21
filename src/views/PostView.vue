@@ -222,7 +222,7 @@ onMounted(async () => {
           v-model="tabActiveId"
           color="primary"
           bg-color="grey-darken-3"
-          class="px-6 product-tabs"
+          class="product-tabs"
           center-active
           show-arrows
         >
@@ -238,7 +238,7 @@ onMounted(async () => {
 
         <!-- 產品列表 -->
         <v-card-text>
-          <v-window v-model="tabActiveId">
+          <v-window continuous v-model="tabActiveId">
             <v-window-item
               v-for="(productItems, index) in productsStore.products"
               :key="productItems + index"
