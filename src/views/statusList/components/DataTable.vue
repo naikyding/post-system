@@ -292,9 +292,20 @@ async function removeProductItemBagS(bagSizeId) {
                 </v-chip>
               </div>
 
+              <div class="notes">
+                <v-chip v-show="product.notes" color="warning" prepend-icon="mdi-alert-circle">
+                  {{ product.notes }}
+                </v-chip>
+              </div>
+
               <!-- 備註 -->
-              <div v-if="items.note">
-                <v-chip class="my-1">
+              <div class="note">
+                <v-chip
+                  v-show="items.note"
+                  class="my-1"
+                  prepend-icon="mdi-home-circle"
+                  color="teal"
+                >
                   {{ items.note }}
                 </v-chip>
               </div>

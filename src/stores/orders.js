@@ -63,6 +63,7 @@ export const useOrdersStore = defineStore('orders', () => {
         product: productItem.product,
         extras: productItem.form.extras,
         quantity: productItem.quantity,
+        notes: productItem.notes,
         total: productItem.price,
       })
     }
@@ -138,6 +139,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
     extrasTypeOpen: [],
 
+    notes: '',
     product: {},
     quantity: 1,
     price: computed(() => {
@@ -179,6 +181,7 @@ export const useOrdersStore = defineStore('orders', () => {
     activeProductItem.form.extras = []
     activeProductItem.quantity = 1
     activeProductItem.product = {}
+    activeProductItem.notes = ''
   }
 
   // 選單項目數量 增/減 功能
@@ -234,6 +237,7 @@ export const useOrdersStore = defineStore('orders', () => {
           extrasData: curExtrasAry,
           quantity: cur.quantity,
           price: cur.total,
+          notes: cur.notes,
         })
 
         if (!init.note) init.note = list.note
