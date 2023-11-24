@@ -97,6 +97,12 @@ onMounted(async () => {
                       <span v-if="index + 1 !== item.extras.length"> / </span>
                     </span>
                   </div>
+
+                  <div class="notes">
+                    <v-chip v-show="item.notes" color="teal" prepend-icon="mdi-alert-circle">
+                      {{ item.notes }}
+                    </v-chip>
+                  </div>
                 </v-col>
                 <v-col
                   cols="12"
@@ -468,6 +474,14 @@ onMounted(async () => {
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
+          </div>
+
+          <div class="notes mt-4">
+            <v-textarea
+              v-model="ordersStore.activeProductItem.notes"
+              label="備註"
+              variant="outlined"
+            ></v-textarea>
           </div>
         </div>
       </v-card-text>
