@@ -3,6 +3,7 @@ import { computed, reactive } from 'vue'
 import { getDashboardBaseDataAPI } from '@/api'
 import { dateFormat } from '../utils/day'
 import dayjs from 'dayjs'
+import catchAsync from '../utils/catchAsync'
 
 export const useDashboardStore = defineStore('Dashboard', () => {
   const searchData = reactive({
@@ -33,7 +34,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
     return searchString
   })
 
-  async function getDashboardData(searchString) {
+  const getDashboardData = catchAsync(async (searchString) => {
     const res = await getDashboardBaseDataAPI(searchString)
     dashboardData.total = {
       completed: [],
@@ -41,7 +42,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
       cancelled: [],
     }
     dashboardData.total = { ...res.data.total }
-  }
+  })
 
   return {
     searchData,
