@@ -60,10 +60,10 @@ export const useOrdersStore = defineStore('orders', () => {
       )
     }
 
-    const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
+    const { matchProductItem, quantity } = sameProductItemIncludeOrdersList(ordersList, productItem)
 
     if (matchProductItem) {
-      orderItemQuantityPlusOrMinus('plus', ordersList, matchProductItem)
+      orderItemQuantityPlusOrMinus('plus', ordersList, matchProductItem, quantity)
     } else {
       ordersList.items.push({
         product: productItem.product,
@@ -102,7 +102,9 @@ export const useOrdersStore = defineStore('orders', () => {
 
   // 點單項目是否存在清單中 (for 當前產品項目加入購物車)
   function sameProductItemIncludeOrdersList(ordersList, productItem) {
-    return ordersList.items.find((orderItem) => {
+    const quantity = productItem.quantity || 1
+
+    const matchProductItem = ordersList.items.find((orderItem) => {
       // 無 extras
       const orderExtrasLength = orderItem.extras.length
       const productExtrasLength = productItem.form.extras.length
@@ -127,6 +129,11 @@ export const useOrdersStore = defineStore('orders', () => {
           return true
       }
     })
+
+    return {
+      matchProductItem,
+      quantity,
+    }
   }
 
   // 點擊產品功能
@@ -208,7 +215,7 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // 選單項目數量 增/減 功能
-  function orderItemQuantityPlusOrMinus(type, orderList, orderItem) {
+  function orderItemQuantityPlusOrMinus(type, orderList, orderItem, num) {
     const plus = type === 'plus'
 
     // 移除項目
@@ -219,7 +226,7 @@ export const useOrdersStore = defineStore('orders', () => {
     }
     const itemPrice = orderItem.total / orderItem.quantity
 
-    if (plus) orderItem.quantity++
+    if (plus) num ? (orderItem.quantity += num) : orderItem.quantity++
     else orderItem.quantity--
 
     orderItem.total = itemPrice * orderItem.quantity
