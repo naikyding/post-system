@@ -114,7 +114,6 @@ export const useOrdersStore = defineStore('orders', () => {
         let matchExtrasNum = 0
         productItem.form.extras.forEach((productItemExtraItem) => {
           orderItem.extras.forEach((orderItemExtraItem) => {
-            console.log(orderItemExtraItem, productItemExtraItem)
             if (orderItemExtraItem.extraItem._id === productItemExtraItem.extraItem._id)
               matchExtrasNum++
           })

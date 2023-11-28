@@ -75,7 +75,7 @@ onMounted(async () => {
             <v-container v-show="ordersStore.ordersList.items.length > 0" class="bg-black py-2">
               <v-row
                 v-for="(item, index) in ordersStore.ordersList.items"
-                :key="item.product._id"
+                :key="index"
                 no-gutters
                 class="c-pointer"
                 @click="ordersStore.editOrderItem(ordersStore.ordersList, item, dialog, true)"
