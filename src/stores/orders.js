@@ -54,6 +54,12 @@ export const useOrdersStore = defineStore('orders', () => {
 
   // 當前產品項目加入購物車
   function addActiveProductItemToOrdersList(productItem, ordersList, dialog) {
+    if (productItem.editMode.status) {
+      ordersList.items = ordersList.items.filter(
+        (orderItem) => orderItem !== productItem.editMode.orderItem,
+      )
+    }
+
     const matchProductItem = sameProductItemIncludeOrdersList(ordersList, productItem)
 
     if (matchProductItem) {
@@ -131,6 +137,17 @@ export const useOrdersStore = defineStore('orders', () => {
     dialog.activeProductItem = dialogStatus
   }
 
+  // 編輯訂單項目
+  function editOrderItem(orderList, orderItem, dialog, dialogStatus) {
+    activeProductItem.editMode.status = true
+    activeProductItem.editMode.orderItem = orderItem
+
+    activeProductItem.form.extras = orderItem.extras
+    activeProductItem.notes = orderItem.notes
+    activeProductItem.quantity = orderItem.quantity
+    selectedProduct(orderItem.product, dialog, dialogStatus)
+  }
+
   // 當前選擇產品項目
   const activeProductItem = reactive({
     form: {
@@ -138,6 +155,10 @@ export const useOrdersStore = defineStore('orders', () => {
     },
 
     extrasTypeOpen: [],
+    editMode: {
+      status: false,
+      orderItem: null,
+    },
 
     notes: '',
     product: {},
@@ -182,6 +203,9 @@ export const useOrdersStore = defineStore('orders', () => {
     activeProductItem.quantity = 1
     activeProductItem.product = {}
     activeProductItem.notes = ''
+
+    activeProductItem.editMode.status = false
+    activeProductItem.editMode.orderItem = null
   }
 
   // 選單項目數量 增/減 功能
@@ -279,6 +303,7 @@ export const useOrdersStore = defineStore('orders', () => {
     resetActiveProductItem,
     activeProductItem,
     selectedProduct,
+    editOrderItem,
     selectorDialog,
     submitOrderList,
 

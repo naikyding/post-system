@@ -77,6 +77,8 @@ onMounted(async () => {
                 v-for="(item, index) in ordersStore.ordersList.items"
                 :key="item.product._id"
                 no-gutters
+                class="c-pointer"
+                @click="ordersStore.editOrderItem(ordersStore.ordersList, item, dialog, true)"
               >
                 <v-col cols="12" sm="7" class="py-2">
                   <!-- 產品名稱 -->
@@ -112,7 +114,7 @@ onMounted(async () => {
                   <div class="d-flex align-center justify-center">
                     <!-- 減少 -->
                     <v-btn
-                      @click="
+                      @click.stop="
                         ordersStore.orderItemQuantityPlusOrMinus(
                           'minus',
                           ordersStore.ordersList,
@@ -131,7 +133,7 @@ onMounted(async () => {
 
                     <!-- 增加 -->
                     <v-btn
-                      @click="
+                      @click.stop="
                         ordersStore.orderItemQuantityPlusOrMinus(
                           'plus',
                           ordersStore.ordersList.items,
