@@ -23,7 +23,10 @@ request.interceptors.request.use(
       config.headers.Authorization = `${type} ${accessToken}`
     }
 
-    if (localStorage.getItem('agentsId')) config.headers['Mc-Agents-Id'] = userStore.agents
+    if (localStorage.getItem('agentsId')) {
+      config.headers['Mc-Agents-Id'] = userStore.agents
+      config.headers['mc-agent-id'] = userStore.agents
+    }
 
     return config
   },
