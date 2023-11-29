@@ -2,11 +2,12 @@
 import { ref, onMounted, reactive, watch, computed } from 'vue'
 import { useDisplay } from 'vuetify'
 
-import { useProductsStore } from '../stores/products'
+import { useProductsStore, useMarkersStore } from '../stores/products'
 import { useOrdersStore } from '../stores/orders'
 
 const productsStore = useProductsStore()
 const ordersStore = useOrdersStore()
+const markerStore = useMarkersStore()
 const display = useDisplay()
 
 const tabActiveId = ref(0)
@@ -46,6 +47,7 @@ watch(
 onMounted(async () => {
   // 取得產品最表
   await productsStore.getProducts()
+  await markerStore.getMarkers()
 })
 </script>
 
