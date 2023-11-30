@@ -2,11 +2,12 @@
 import { ref, onMounted, reactive, watch, computed } from 'vue'
 import { useDisplay } from 'vuetify'
 
-import { useProductsStore } from '../stores/products'
+import { useProductsStore, useMarkersStore } from '../stores/products'
 import { useOrdersStore } from '../stores/orders'
 
 const productsStore = useProductsStore()
 const ordersStore = useOrdersStore()
+const markerStore = useMarkersStore()
 const display = useDisplay()
 
 const tabActiveId = ref(0)
@@ -46,6 +47,7 @@ watch(
 onMounted(async () => {
   // 取得產品最表
   await productsStore.getProducts()
+  await markerStore.getMarkers()
 })
 </script>
 
@@ -100,8 +102,14 @@ onMounted(async () => {
                     </span>
                   </div>
 
+                  <div class="mark">
+                    <v-chip v-for="marker in item.markers" class="ma-1" :key="marker._id">
+                      {{ marker.name }}
+                    </v-chip>
+                  </div>
+
                   <div class="notes">
-                    <v-chip v-show="item.notes" color="teal" prepend-icon="mdi-alert-circle">
+                    <v-chip v-show="item.notes" color="warning" prepend-icon="mdi-lead-pencil">
                       {{ item.notes }}
                     </v-chip>
                   </div>
@@ -478,7 +486,31 @@ onMounted(async () => {
             </v-expansion-panels>
           </div>
 
-          <div class="notes mt-4">
+          <div class="markers mt-4 mb-1">
+            <v-autocomplete
+              v-model="ordersStore.activeProductItem.markers"
+              :items="markerStore.markerList"
+              chips
+              label="特製"
+              multiple
+              variant="outlined"
+              closable-chips
+              clearable
+            >
+              <template v-slot:chip="{ props, item }">
+                <v-chip
+                  v-bind="props"
+                  :prepend-avatar="item.raw.avatar"
+                  :text="item.raw.name"
+                ></v-chip>
+              </template>
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
+              </template>
+            </v-autocomplete>
+          </div>
+
+          <div class="notes">
             <v-textarea
               v-model="ordersStore.activeProductItem.notes"
               label="備註"
