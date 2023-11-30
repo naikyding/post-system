@@ -487,7 +487,7 @@ onMounted(async () => {
           </div>
 
           <div class="markers mt-4 mb-1">
-            <v-autocomplete
+            <v-select
               v-model="ordersStore.activeProductItem.markers"
               :items="markerStore.markerList"
               chips
@@ -507,7 +507,7 @@ onMounted(async () => {
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
               </template>
-            </v-autocomplete>
+            </v-select>
           </div>
 
           <div class="notes">
