@@ -70,6 +70,7 @@ export const useOrdersStore = defineStore('orders', () => {
         extras: productItem.form.extras,
         quantity: productItem.quantity,
         notes: productItem.notes,
+        markers: productItem.markers,
         total: productItem.price,
       })
     }
@@ -150,6 +151,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
     activeProductItem.form.extras = orderItem.extras
     activeProductItem.notes = orderItem.notes
+    activeProductItem.markers = orderItem.markers
     activeProductItem.quantity = orderItem.quantity
     selectedProduct(orderItem.product, dialog, dialogStatus)
   }
@@ -167,6 +169,7 @@ export const useOrdersStore = defineStore('orders', () => {
     },
 
     notes: '',
+    markers: [],
     product: {},
     quantity: 1,
     price: computed(() => {
@@ -209,6 +212,7 @@ export const useOrdersStore = defineStore('orders', () => {
     activeProductItem.quantity = 1
     activeProductItem.product = {}
     activeProductItem.notes = ''
+    activeProductItem.markers = []
 
     activeProductItem.editMode.status = false
     activeProductItem.editMode.orderItem = null
@@ -251,6 +255,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
     const formatData = list.items.reduce(
       (init, cur) => {
+        const curMarkers = cur.markers.map((item) => item._id)
         const curExtrasAry = cur.extras.reduce((initExtra, curExtra) => {
           return (initExtra = [
             ...initExtra,
@@ -268,6 +273,7 @@ export const useOrdersStore = defineStore('orders', () => {
           quantity: cur.quantity,
           price: cur.total,
           notes: cur.notes,
+          markers: curMarkers,
         })
 
         if (!init.note) init.note = list.note

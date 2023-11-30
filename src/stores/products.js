@@ -28,6 +28,8 @@ export const useMarkersStore = defineStore('Markers', () => {
   })
 
   return {
+    markerList,
+
     getMarkers,
   }
 })

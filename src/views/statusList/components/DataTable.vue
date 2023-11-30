@@ -292,8 +292,14 @@ async function removeProductItemBagS(bagSizeId) {
                 </v-chip>
               </div>
 
+              <div class="mark">
+                <v-chip v-for="marker in product.markers" class="ma-1" :key="marker._id">
+                  {{ marker.name }}
+                </v-chip>
+              </div>
+
               <div class="notes">
-                <v-chip v-show="product.notes" color="warning" prepend-icon="mdi-alert-circle">
+                <v-chip v-show="product.notes" color="warning" prepend-icon="mdi-lead-pencil">
                   {{ product.notes }}
                 </v-chip>
               </div>
