@@ -109,22 +109,47 @@ export const useOrdersStore = defineStore('orders', () => {
       // 無 extras
       const orderExtrasLength = orderItem.extras.length
       const productExtrasLength = productItem.form.extras.length
+      const orderMarkersLength = orderItem.markers.length
+      const productMarkersLength = productItem.markers.length
       const sameProductId = orderItem.product._id === productItem.product._id
 
-      if (orderExtrasLength < 1 && productExtrasLength < 1 && sameProductId) return true
+      if (
+        orderExtrasLength < 1 &&
+        productExtrasLength < 1 &&
+        orderMarkersLength < 1 &&
+        productMarkersLength < 1 &&
+        sameProductId
+      )
+        return true
 
-      if (sameProductId && productExtrasLength !== 0) {
+      if (sameProductId) {
         let matchExtrasNum = 0
-        productItem.form.extras.forEach((productItemExtraItem) => {
-          orderItem.extras.forEach((orderItemExtraItem) => {
-            if (orderItemExtraItem.extraItem._id === productItemExtraItem.extraItem._id)
-              matchExtrasNum++
+        let matchMarkersNum = 0
+
+        if (productExtrasLength !== 0) {
+          productItem.form.extras.forEach((productItemExtraItem) => {
+            orderItem.extras.forEach((orderItemExtraItem) => {
+              if (orderItemExtraItem.extraItem._id === productItemExtraItem.extraItem._id)
+                matchExtrasNum++
+            })
           })
-        })
+        }
+
+        if (productMarkersLength !== 0) {
+          productItem.markers.forEach((markerItem) => {
+            orderItem.markers.forEach((orderItemMarkerItem) => {
+              if (orderItemMarkerItem._id === markerItem._id) {
+                matchMarkersNum++
+              }
+            })
+          })
+        }
 
         if (
           productExtrasLength === matchExtrasNum &&
           orderExtrasLength === matchExtrasNum &&
+          orderMarkersLength === matchMarkersNum &&
+          productMarkersLength === matchMarkersNum &&
           productExtrasLength === orderExtrasLength
         )
           return true
