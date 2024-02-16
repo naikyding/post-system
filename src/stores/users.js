@@ -116,7 +116,7 @@ export const useUserStore = defineStore('user', () => {
       showConfirmButton: false,
     })
 
-    router.push('/')
+    router.push('/post')
   }
 
   const logoutFunc = async (path) => {
