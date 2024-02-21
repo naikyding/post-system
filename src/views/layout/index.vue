@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import monsterLogo from '@/assets/images/ci/monster-crepes-ci.jpeg'
 import { useUserStore } from '../../stores/users'
 import { useSystemOrderList } from '@/stores/orders'
+import { watch } from 'vue'
+import router from '../../router'
 
 const systemOrderStore = useSystemOrderList()
 systemOrderStore.getOrderList('getPendingQuantity')
@@ -11,16 +13,57 @@ const userStore = useUserStore()
 const state = ref({
   drawer: true,
   items: [
-    { title: 'Home', icon: 'mdi-home-city' },
-    { title: 'My Account', icon: 'mdi-account' },
-    { title: 'Users', icon: 'mdi-account-group-outline' },
+    // { title: 'Home', icon: 'mdi-home-city' },
+    // { title: 'My Account', icon: 'mdi-account' },
+    // { title: 'Users', icon: 'mdi-account-group-outline' },
   ],
   rail: true,
 })
 
+const passwordForm = ref(null)
+const dialog = ref(false)
+const passwordInput = ref('')
+const rules = ref({
+  password: [(password) => !!password || '密碼必填'],
+})
+
+watch(dialog, (status) => {
+  if (!status) resetForm()
+})
+
+function goDashboard() {
+  dialog.value = true
+  // to="/dashboard"
+}
+
 function sidebarClose() {
   if (state.value.rail) return false
   state.value.rail = true
+}
+
+async function dialogSubmit() {
+  const check = await validateForm()
+  if (!check) return false
+  dialog.value = false
+  const res = await userStore.checkPassword({
+    email: userStore.baseInfo.email,
+    password: passwordInput.value,
+  })
+  if (res) router.push('/dashboard')
+}
+
+function dialogCancel() {
+  dialog.value = false
+}
+
+async function validateForm() {
+  const { valid } = await passwordForm.value.validate()
+  if (!valid) return false
+  return true
+}
+
+function resetForm() {
+  passwordForm.value.reset()
 }
 </script>
 
@@ -56,7 +99,7 @@ function sidebarClose() {
         <v-list density="compact" nav>
           <!-- 首頁 -->
           <v-list-item
-            to="/dashboard"
+            @click="goDashboard"
             prepend-icon="mdi-chart-box-outline"
             title="Home"
             value="home"
@@ -97,6 +140,39 @@ function sidebarClose() {
           </div>
         </template>
       </v-navigation-drawer>
+
+      <!-- 請輸入密碼 -->
+      <template>
+        <div class="text-center">
+          <v-btn color="primary" @click="dialog = true"> Open Dialog </v-btn>
+
+          <v-dialog v-model="dialog" width="360">
+            <v-card class="py-2 rounded-lg">
+              <v-card-title class="px-6">登錄密碼</v-card-title>
+              <v-card-text>
+                <v-form ref="passwordForm" @submit.prevent>
+                  <v-text-field
+                    @keyup.enter="dialogSubmit"
+                    v-model="passwordInput"
+                    label="請輸入密碼"
+                    variant="outlined"
+                    :rules="rules.password"
+                  ></v-text-field>
+                </v-form>
+
+                <div class="d-flex flex-column">
+                  <v-btn size="large" color="success" class="mt-2" block @click="dialogSubmit"
+                    >送出</v-btn
+                  >
+                  <v-btn size="large" color="error" class="mt-4" block @click="dialogCancel">
+                    取消
+                  </v-btn>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+        </div>
+      </template>
 
       <!-- 內容 (右) -->
       <v-main @click="sidebarClose">
