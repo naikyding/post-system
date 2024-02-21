@@ -152,6 +152,7 @@ function resetForm() {
               <v-card-text>
                 <v-form ref="passwordForm" @submit.prevent>
                   <v-text-field
+                    type="password"
                     @keyup.enter="dialogSubmit"
                     v-model="passwordInput"
                     label="請輸入密碼"
