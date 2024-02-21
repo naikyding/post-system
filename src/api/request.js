@@ -72,6 +72,7 @@ request.interceptors.response.use(
       ) {
         return userStore.logoutFunc('/login')
       }
+      if (originalRequest.url === '/auth/login') return Promise.reject(error)
 
       // 刷新 token
       await userStore.refreshToken({
@@ -87,8 +88,7 @@ request.interceptors.response.use(
 
         return response
       }
-    }
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    } // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     return Promise.reject(error)
   },

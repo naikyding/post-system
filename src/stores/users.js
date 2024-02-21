@@ -91,6 +91,13 @@ export const useUserStore = defineStore('user', () => {
     return true
   })
 
+  const checkPassword = catchAsync(async (emailNPassword) => {
+    const { data } = await loginAPI(emailNPassword)
+
+    if (data) return true
+    return false
+  })
+
   const getUserBaseInfo = catchAsync(
     async () => {
       const { data } = await gerUserBaseInfoAPI()
@@ -175,6 +182,7 @@ export const useUserStore = defineStore('user', () => {
     baseInfo,
 
     login,
+    checkPassword,
     logoutFunc,
     refreshToken,
     getUserBaseInfo,
