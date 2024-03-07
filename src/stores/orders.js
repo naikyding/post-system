@@ -430,6 +430,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
           }, 0))
         }, 0)
       }
+      return data
     },
     () => {
       console.log('getOrderList Error')
@@ -452,6 +453,18 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     const { data } = await getOrderListAPI(requestParamsString)
     orderList.value = data.items
   })
+
+  const pureGetOrderList = catchAsync(
+    async ({ from, to, status, agent }) => {
+      const requestParamsString = `?from=${from}&to=${to}&status=${status}&agent=${agent}`
+      console.log(requestParamsString)
+      const { data } = await getOrderListAPI(requestParamsString)
+      return data
+    },
+    () => {
+      console.log('pureGetOrderList Error')
+    },
+  )
 
   async function updateOrderList() {}
 
@@ -525,6 +538,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   return {
     getOrderList,
     orderList,
+    pureGetOrderList,
 
     updateOrderList,
     updateOrderContent,
