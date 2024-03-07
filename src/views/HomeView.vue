@@ -2,7 +2,7 @@
 import { useSystemOrderList } from '../stores/orders'
 import { useDashboardStore } from '../stores/dashboard'
 import dayJs from 'dayjs'
-
+import MainChart from '../components/chart/MainChart.vue'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 
 dayJs.extend(quarterOfYear)
@@ -100,6 +100,8 @@ function searchDataByDatePicker(searchDate) {
           />
         </v-col>
       </v-row>
+
+      <MainChart />
 
       <v-row>
         <!-- 營業額 -->
