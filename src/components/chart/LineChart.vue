@@ -9,16 +9,49 @@ const dataChart = ref(null)
 const props = defineProps(['data'])
 let chartConstructor
 
-const timeRange = computed(() => {
+const timeRange = () => {
   let timeAry = []
   for (let i = 14; i <= 23; i++) {
-    timeAry = [...timeAry, `${i}:00`, `${i}:30`]
+    timeAry = [
+      ...timeAry,
+      {
+        createdAt: i,
+        list: 0,
+        items: 0,
+      },
+    ]
   }
   return timeAry
-})
+}
 
 const formatData = computed(() => {
-  return props.data
+  let timeObj = [...timeRange()]
+  let cloneData = [...props.data]
+
+  timeObj.forEach(
+    (item) =>
+      (item.createdAt = cloneData[0]
+        ? dayjs(cloneData[0]['createdAt']).hour(item.createdAt).minute(0)
+        : dayjs().hour(item.createdAt).minute(0)),
+  )
+  const sortDataByCreatedAt = cloneData.sort((a, b) =>
+    dayjs(a.createdAt).isBefore(b.createdAt) ? -1 : 1,
+  )
+
+  sortDataByCreatedAt.forEach((item) => {
+    item.createdAt = dayjs(item.createdAt)
+    let status = true
+    timeObj.forEach((itemItem, index) => {
+      if (item.createdAt.isBefore(itemItem.createdAt) && status) {
+        status = false
+        timeObj[index - 1]['list'] += 1
+        return false
+      }
+    })
+  })
+
+  timeObj.forEach((item) => (item.createdAt = dayjs(item.createdAt).format('HH:mm')))
+  return timeObj
 })
 
 onMounted(() => {
@@ -28,19 +61,10 @@ onMounted(() => {
 watch(
   () => props.data,
   () => {
-    console.log('line watch')
-    console.log(chartConstructor)
-    console.log('formatData', formatData)
-
-    chartConstructor.data.labels = formatData.value
-      .map((item) => {
-        console.log(typeof dayjs(item.createdAt).format('HH:mm'))
-        return dayjs(item.createdAt).format('HH:mm')
-      })
-      .reverse()
+    chartConstructor.data.labels = formatData.value.map((item) => item.createdAt)
 
     chartConstructor.data.datasets.forEach(
-      (dataset) => (dataset.data = formatData.value.map((item) => item.items.length).reverse()),
+      (dataset) => (dataset.data = formatData.value.map((item) => item.list)),
     )
 
     chartConstructor.update()
@@ -52,7 +76,7 @@ function initChart() {
     type: 'line',
     options: {
       scales: {
-        y: { min: 0, max: 5 },
+        y: { min: 0, max: 30 },
       },
     },
     data: {
