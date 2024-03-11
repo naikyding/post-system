@@ -83,7 +83,7 @@ function initChart() {
       labels: [],
       datasets: [
         {
-          label: '數量',
+          label: '訂單',
           data: [],
         },
       ],
@@ -93,7 +93,11 @@ function initChart() {
 </script>
 
 <template>
-  <canvas ref="dataChart" id="myChart"></canvas>
+  <div class="my-4">
+    <span>訂單趨勢</span>
+    <v-divider class="my-2" />
+    <canvas ref="dataChart" id="myChart" class="px-2"></canvas>
+  </div>
 </template>
 
 <style lang="scss" scoped></style>

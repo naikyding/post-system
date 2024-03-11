@@ -1,37 +1,75 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
 import Chart from '@/utils/chart'
-const dataChart = ref(null)
+const doughnutChart = ref(null)
+const props = defineProps(['data'])
+let chartConstructor
 
-onMounted(() => {
-  const data = [
-    { year: 2010, count: 10 },
-    { year: 2011, count: 20 },
-    { year: 2012, count: 15 },
-    { year: 2013, count: 25 },
-    { year: 2014, count: 22 },
-    { year: 2015, count: 30 },
-    { year: 2016, count: 28 },
-  ]
+const formatData = computed(() => {
+  return props.data
+    .reduce((acc, cur) => {
+      cur.items.forEach((item) => {
+        if (item.product.type === '塑膠提袋') return acc
+        const matchProductItemByAcc = acc.find((accItem) => accItem.product === item.product.name)
 
-  new Chart(dataChart.value, {
+        if (matchProductItemByAcc) {
+          matchProductItemByAcc.quantity += item.quantity
+          return acc
+        } else {
+          return (acc = [
+            ...acc,
+            {
+              product: item.product.name,
+              quantity: item.quantity,
+            },
+          ])
+        }
+      })
+      return acc
+    }, [])
+    .sort((a, b) => b.quantity - a.quantity)
+})
+
+watch(
+  () => props.data,
+  () => {
+    chartConstructor.data.labels = formatData.value
+      .map((item) => item.product)
+      // 取十位
+      .filter((item, index) => index < 10)
+
+    chartConstructor.data.datasets = [
+      {
+        label: '數量',
+        data: formatData.value.map((item) => item.quantity).filter((item, index) => index < 10),
+      },
+    ]
+
+    chartConstructor.update()
+  },
+)
+
+function initChart() {
+  return new Chart(doughnutChart.value, {
     type: 'doughnut',
 
     data: {
-      labels: data.map((row) => row.year),
-      datasets: [
-        {
-          label: '數量',
-          data: data.map((row) => row.count),
-        },
-      ],
+      labels: [],
+      datasets: [],
     },
   })
+}
+
+onMounted(() => {
+  chartConstructor = initChart()
+  console.log(chartConstructor)
 })
 </script>
 
 <template>
-  <canvas ref="dataChart" id="myChart"></canvas>
+  <span>品項分佈 (TOP 10)</span>
+  <v-divider class="my-2" />
+  <canvas ref="doughnutChart" id="myChart"></canvas>
 </template>
 
 <style lang="scss" scoped></style>
