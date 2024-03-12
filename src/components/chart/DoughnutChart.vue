@@ -67,9 +67,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <span>品項分佈 (TOP 10)</span>
-  <v-divider class="my-2" />
-  <canvas ref="doughnutChart" id="myChart"></canvas>
+  <div style="position: relative">
+    <span>品項分佈 (TOP 10)</span>
+    <v-divider class="my-2" />
+    <canvas v-show="formatData.length > 0" ref="doughnutChart" id="myChart"></canvas>
+    <p v-show="formatData.length === 0" class="text-center my-6 text-grey text-caption">
+      Nothing to display
+    </p>
+  </div>
 </template>
 
 <style lang="scss" scoped></style>
