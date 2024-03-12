@@ -44,7 +44,38 @@ const formatData = computed(() => {
     timeObj.forEach((itemItem, index) => {
       if (item.createdAt.isBefore(itemItem.createdAt) && status) {
         status = false
-        timeObj[index - 1]['list'] += 1
+
+        let allBagItems = 0
+
+        let computed = item.items.reduce(
+          (acc, cur, curIndex) => {
+            // 營業額
+            acc.total += cur.totalPrice
+
+            if (cur.product.type === '塑膠提袋') {
+              allBagItems += 1
+              return acc
+            }
+
+            if (item.items.length === curIndex + 1 && allBagItems !== curIndex + 1) {
+              acc.list += 1
+              allBagItems = 0
+            }
+
+            acc.items += cur.quantity
+            return acc
+          },
+          {
+            list: 0, // 訂單
+            items: 0, // 片數
+            total: 0, // 營業額
+          },
+        )
+
+        timeObj[index - 1]['list'] += computed.list
+        timeObj[index - 1]['items'] += computed.items
+        timeObj[index - 1]['total'] += computed.total
+
         return false
       }
     })
@@ -67,6 +98,17 @@ watch(
       (dataset) => (dataset.data = formatData.value.map((item) => item.list)),
     )
 
+    chartConstructor.data.datasets = [
+      {
+        label: '訂單',
+        data: formatData.value.map((item) => item.list),
+      },
+      {
+        label: '片數',
+        data: formatData.value.map((item) => item.items),
+      },
+    ]
+
     chartConstructor.update()
   },
 )
@@ -76,17 +118,12 @@ function initChart() {
     type: 'line',
     options: {
       scales: {
-        y: { min: 0, max: 30 },
+        y: { min: 0, max: 40 },
       },
     },
     data: {
       labels: [],
-      datasets: [
-        {
-          label: '訂單',
-          data: [],
-        },
-      ],
+      datasets: [],
     },
   })
 }
