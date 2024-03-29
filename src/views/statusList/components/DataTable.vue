@@ -9,6 +9,16 @@ import dayJS from 'dayjs'
 
 const systemOrderStore = useSystemOrderList()
 
+const closeOrderItem = ref([])
+function toggleOrderItem(id) {
+  const itemIncludes = closeOrderItem.value.includes(id)
+
+  if (itemIncludes) closeOrderItem.value = closeOrderItem.value.filter((item) => item !== id)
+  else closeOrderItem.value = [...closeOrderItem.value, id]
+
+  dialog.confirmOrderList = false
+}
+
 const dialog = reactive({
   confirmOrderList: false,
 })
@@ -238,7 +248,193 @@ async function removeProductItemBagS(bagSizeId) {
       </thead>
       <tbody>
         <template v-for="items in systemOrderStore.orderList" :key="items._id">
-          <tr v-for="(product, index) in items.items" :key="product?._id">
+          <template v-if="closeOrderItem.includes(items._id)">
+            <tr>
+              <td>
+                <v-btn
+                  @click="toggleOrderItem(items._id)"
+                  size="small"
+                  block
+                  variant="flat"
+                  color="info"
+                >
+                  展開顯示
+                </v-btn>
+              </td>
+              <td class="text-caption">
+                <div class="day">
+                  <span
+                    v-if="
+                      systemOrderStore.activeListTab === 'completed' ||
+                      systemOrderStore.activeListTab === 'cancelled'
+                    "
+                  >
+                    {{ dayJS(items.updatedAt).format('HH:mm') }}
+                  </span>
+
+                  <span v-else>
+                    {{ dayJS(items.createdAt).format('HH:mm') }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="notes">
+                  <v-chip v-show="items.note" color="warning" prepend-icon="mdi-lead-pencil">
+                    {{ items.note }}
+                  </v-chip>
+                </div>
+              </td>
+              <td class="text-h3">
+                {{
+                  items.items.reduce(
+                    (acc, cur) => (acc += cur.product.type !== '塑膠提袋' ? 1 : 0),
+                    0,
+                  )
+                }}
+              </td>
+              <td>
+                <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
+                  {{ items.mobileNoThreeDigits || '--' }}
+                </span>
+
+                <!-- 支付方式 -->
+                <v-chip class="ma-2" :color="items.paymentType === 'cash' ? 'yellow' : 'success'">
+                  {{ items.paymentType }}
+                </v-chip>
+              </td>
+              <!-- 操作鈕 -->
+              <td class="text-center">
+                <v-btn
+                  @click="showOrderListDetails(items)"
+                  size="x-small"
+                  icon="mdi-dots-vertical"
+                  variant="text"
+                >
+                </v-btn>
+              </td>
+            </tr>
+          </template>
+
+          <template v-else>
+            <tr v-for="(product, index) in items.items" :key="product?._id">
+              <!-- 狀態 -->
+              <td>
+                <template v-if="items.status === 'cancelled'">
+                  <span class="px-2 py-1 rounded-lg text-caption bg-error"> 取消 </span>
+                </template>
+                <template v-else-if="items.status === 'completed'">
+                  <span class="px-2 py-1 rounded-lg text-caption bg-success"> 完成 </span>
+                </template>
+                <v-switch v-else inset hide-details color="success" v-model="product.status">
+                  <template #label>
+                    <span class="text-caption">
+                      {{ `${product?.status ? '完成' : '待處理'}` }}
+                    </span>
+                  </template>
+                </v-switch>
+              </td>
+              <!-- 時間 -->
+              <td class="text-caption">
+                <div class="day">
+                  <span
+                    v-if="
+                      systemOrderStore.activeListTab === 'completed' ||
+                      systemOrderStore.activeListTab === 'cancelled'
+                    "
+                  >
+                    {{ dayJS(items.updatedAt).format('HH:mm') }}
+                  </span>
+
+                  <span v-else>
+                    {{ dayJS(items.createdAt).format('HH:mm') }}
+                  </span>
+                </div>
+              </td>
+              <!-- 名稱與備註 -->
+              <td class="font-weight-bold">
+                <a
+                  href="javascript:;"
+                  class="text-white font-weight-bold"
+                  @click="showOrderListDetails(items)"
+                >
+                  {{ product.product?.name }}
+                </a>
+
+                <!-- 加選配料 -->
+                <div>
+                  <v-chip
+                    class="ma-1 text-subtitle-1"
+                    v-for="extra in product.extras"
+                    :key="extra._id"
+                    color="error"
+                  >
+                    {{ extra.extraItem?.name || '--' }} x{{ extra.quantity }}
+                  </v-chip>
+                </div>
+
+                <div class="mark">
+                  <v-chip v-for="marker in product.markers" class="ma-1" :key="marker._id">
+                    {{ marker.name }}
+                  </v-chip>
+                </div>
+
+                <div class="notes">
+                  <v-chip v-show="product.notes" color="warning" prepend-icon="mdi-lead-pencil">
+                    {{ product.notes }}
+                  </v-chip>
+                </div>
+
+                <!-- 備註 -->
+                <div class="note">
+                  <v-chip
+                    v-show="items.note"
+                    class="my-1"
+                    prepend-icon="mdi-home-circle"
+                    color="teal"
+                  >
+                    {{ items.note }}
+                  </v-chip>
+                </div>
+              </td>
+              <!-- 數量 -->
+              <td class="text-right">
+                <div class="text-h3">
+                  {{ product.quantity }}
+                </div>
+                <span class="text-caption">
+                  ({{
+                    `${product.quantity}/${items.items.reduce(
+                      (acc, cur) => (acc += cur.quantity),
+                      0,
+                    )}`
+                  }})
+                </span>
+              </td>
+              <!-- 未三碼 -->
+              <td>
+                <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
+                  {{ items.mobileNoThreeDigits || '--' }}
+                </span>
+
+                <!-- 支付方式 -->
+                <v-chip class="ma-2" :color="items.paymentType === 'cash' ? 'yellow' : 'success'">
+                  {{ items.paymentType }}
+                </v-chip>
+              </td>
+              <!-- 操作鈕 -->
+              <td class="text-center">
+                <v-btn
+                  @click="showOrderListDetails(items)"
+                  size="x-small"
+                  icon="mdi-dots-vertical"
+                  variant="text"
+                >
+                </v-btn>
+              </td>
+            </tr>
+          </template>
+          <!-- 原始 -->
+          <tr v-show="false" v-for="(product, index) in items.items" :key="product?._id">
             <td>
               <template v-if="items.status === 'cancelled'">
                 <span class="px-2 py-1 rounded-lg text-caption bg-error"> 取消 </span>
@@ -495,6 +691,17 @@ async function removeProductItemBagS(bagSizeId) {
         <v-container class="pt-0">
           <v-row>
             <v-col cols="12" class="px-1">
+              <v-btn
+                @click="toggleOrderItem(systemOrderStore.activeOrderList._id)"
+                size="x-large"
+                block
+                variant="flat"
+                color="info"
+              >
+                收合顯示
+              </v-btn>
+            </v-col>
+            <v-col cols="12" class="pt-0 px-1">
               <v-btn
                 @click="
                   updateDialog(
