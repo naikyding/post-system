@@ -8,15 +8,22 @@ import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
 import dayJS from 'dayjs'
 
-onMounted(() => {
-  const closeOrderItemList = decrypt(sessionStorage.getItem('closeOrderItem')).split(',')
-
-  closeOrderItem.value = closeOrderItemList
-})
-
 const systemOrderStore = useSystemOrderList()
 
 const closeOrderItem = ref([])
+
+function initCloseItemData() {
+  const closeOrderItemFromSession = sessionStorage.getItem('closeOrderItem')
+
+  if (closeOrderItemFromSession) {
+    const sessionStorageData = decrypt(closeOrderItemFromSession).split(',')
+    closeOrderItem.value = sessionStorageData
+  }
+}
+
+onMounted(() => {
+  initCloseItemData()
+})
 
 // 記錄收折訂單
 function toggleOrderItem(id) {
@@ -25,7 +32,10 @@ function toggleOrderItem(id) {
   if (itemIncludes) closeOrderItem.value = closeOrderItem.value.filter((item) => item !== id)
   else closeOrderItem.value = [...closeOrderItem.value, id]
 
-  sessionStorage.setItem('closeOrderItem', encrypt(closeOrderItem.value.toString()))
+  closeOrderItem.value.length > 0
+    ? sessionStorage.setItem('closeOrderItem', encrypt(closeOrderItem.value.toString()))
+    : sessionStorage.removeItem('closeOrderItem')
+
   dialog.confirmOrderList = false
 }
 
