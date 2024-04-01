@@ -1,21 +1,31 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
 import { useDisplay } from 'vuetify'
+import { encrypt, decrypt } from '@/utils/secret'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
 import dayJS from 'dayjs'
 
+onMounted(() => {
+  const closeOrderItemList = decrypt(sessionStorage.getItem('closeOrderItem')).split(',')
+
+  closeOrderItem.value = closeOrderItemList
+})
+
 const systemOrderStore = useSystemOrderList()
 
 const closeOrderItem = ref([])
+
+// 記錄收折訂單
 function toggleOrderItem(id) {
   const itemIncludes = closeOrderItem.value.includes(id)
 
   if (itemIncludes) closeOrderItem.value = closeOrderItem.value.filter((item) => item !== id)
   else closeOrderItem.value = [...closeOrderItem.value, id]
 
+  sessionStorage.setItem('closeOrderItem', encrypt(closeOrderItem.value.toString()))
   dialog.confirmOrderList = false
 }
 
@@ -253,12 +263,10 @@ async function removeProductItemBagS(bagSizeId) {
               <td>
                 <v-btn
                   @click="toggleOrderItem(items._id)"
-                  size="small"
-                  block
-                  variant="flat"
-                  color="info"
+                  icon="mdi-arrow-split-horizontal"
+                  density="comfortable"
+                  variant="outlined"
                 >
-                  展開顯示
                 </v-btn>
               </td>
               <td class="text-caption">
@@ -278,6 +286,7 @@ async function removeProductItemBagS(bagSizeId) {
                 </div>
               </td>
               <td>
+                <v-btn @click="toggleOrderItem(items._id)" variant="outlined">展開查看</v-btn>
                 <div class="notes">
                   <v-chip v-show="items.note" color="warning" prepend-icon="mdi-lead-pencil">
                     {{ items.note }}
@@ -690,15 +699,16 @@ async function removeProductItemBagS(bagSizeId) {
       <template #actions>
         <v-container class="pt-0">
           <v-row>
-            <v-col cols="12" class="px-1">
+            <v-col cols="6" class="px-1">
               <v-btn
                 @click="toggleOrderItem(systemOrderStore.activeOrderList._id)"
+                variant="outlined"
                 size="x-large"
+                rounded="xl"
                 block
-                variant="flat"
-                color="info"
+                density="comfortable"
               >
-                收合顯示
+                <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
               </v-btn>
             </v-col>
             <v-col cols="12" class="pt-0 px-1">
