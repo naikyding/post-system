@@ -1,21 +1,31 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
 import { useDisplay } from 'vuetify'
+import { encrypt, decrypt } from '@/utils/secret'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
 import dayJS from 'dayjs'
 
+onMounted(() => {
+  const closeOrderItemList = decrypt(sessionStorage.getItem('closeOrderItem')).split(',')
+
+  closeOrderItem.value = closeOrderItemList
+})
+
 const systemOrderStore = useSystemOrderList()
 
 const closeOrderItem = ref([])
+
+// 記錄收折訂單
 function toggleOrderItem(id) {
   const itemIncludes = closeOrderItem.value.includes(id)
 
   if (itemIncludes) closeOrderItem.value = closeOrderItem.value.filter((item) => item !== id)
   else closeOrderItem.value = [...closeOrderItem.value, id]
 
+  sessionStorage.setItem('closeOrderItem', encrypt(closeOrderItem.value.toString()))
   dialog.confirmOrderList = false
 }
 
