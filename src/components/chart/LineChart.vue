@@ -133,7 +133,7 @@ function initChart() {
 </script>
 
 <template>
-  <div class="my-4">
+  <div>
     <span>訂單趨勢</span>
     <v-divider class="my-2" />
     <canvas ref="dataChart" id="myChart" class="px-2"></canvas>
