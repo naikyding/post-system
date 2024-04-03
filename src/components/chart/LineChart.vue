@@ -4,13 +4,24 @@ import Chart from '@/utils/chart'
 import { computed } from 'vue'
 import { watch } from 'vue'
 import dayjs from 'dayjs'
+import weekday from 'dayjs/plugin/weekday'
+dayjs.extend(weekday)
+
+import { useDashboardStore } from '../../stores/dashboard'
 
 const dataChart = ref(null)
 const props = defineProps(['data'])
 let chartConstructor
 
+const dashboardStore = useDashboardStore()
+
+// 搜尋間距 (日) 0 => 同天
+const searchDayRange = computed(() =>
+  dayjs(dashboardStore.searchData.from).diff(dayjs(dashboardStore.searchData.to), 'day'),
+)
+
 // 格式化資料 (選擇單日)
-const originDataToFormatData = (data) => {
+const dataFormat = (data) => {
   let cloneData = [...data]
   return (
     cloneData
@@ -20,21 +31,23 @@ const originDataToFormatData = (data) => {
           return (itemAcc += itemCur.quantity)
         }, 0)
 
-        // CUR createdAt 調整為整點
-        const formatCurCreateAtMinToZero = dayjs(cur.createdAt)
-          .hour(dayjs(cur.createdAt).hour())
-          .minute(0)
-          .format('HH:mm')
+        const createdAtFormatByDay =
+          searchDayRange.value === 0
+            ? // CUR createdAt 調整為整點
+              dayjs(cur.createdAt).hour(dayjs(cur.createdAt).hour()).minute(0).format('HH:mm')
+            : // 日期
+              dayjs(cur.createdAt).format('MM-DD')
 
         // --------- 如果訂單只是「塑膠提袋」
         if (computedItemsQuantity === 0) return acc
 
         // --------- 如果有相同的 acc.createdAt
-        const sameCreateAtItem = acc.find((item) => item.createdAt === formatCurCreateAtMinToZero)
+        const sameCreateAtItem = acc.find((item) => item.createdAt === createdAtFormatByDay)
 
         if (sameCreateAtItem) {
           sameCreateAtItem.list += 1
           sameCreateAtItem.items += computedItemsQuantity
+          sameCreateAtItem.total += cur.totalPrice
           return acc
         }
         // --------- 如果有相同的 acc.createdAt
@@ -42,23 +55,30 @@ const originDataToFormatData = (data) => {
         return (acc = [
           ...acc,
           {
-            createdAt: dayjs(cur.createdAt)
-              .hour(dayjs(cur.createdAt).hour())
-              .minute(0)
-              .format('HH:mm'),
+            createdAt: createdAtFormatByDay,
             list: 1,
             items: computedItemsQuantity,
+            total: cur.totalPrice,
           },
         ])
       }, [])
       // 重新排序 createdAt 舊到新
-      .sort((a, b) => (dayjs(a.createdAt).isBefore(b.createdAt) ? 1 : -1))
+      .sort((a, b) => {
+        return dayjs(a.createdAt).isBefore(b.createdAt)
+          ? searchDayRange.value === 0
+            ? 1
+            : -1
+          : searchDayRange.value === 0
+          ? -1
+          : 1
+      })
   )
 }
 
 const formatData = computed(() => {
   let cloneData = [...props.data]
-  return originDataToFormatData(cloneData)
+  console.log('dataFormat(cloneData)', dataFormat(cloneData))
+  return dataFormat(cloneData)
 })
 
 onMounted(() => {
@@ -68,11 +88,12 @@ onMounted(() => {
 watch(
   () => props.data,
   () => {
+    const chartType = searchDayRange.value === 0 ? 'line' : 'bar'
+
     chartConstructor.data.labels = formatData.value.map((item) => item.createdAt)
 
-    chartConstructor.data.datasets.forEach(
-      (dataset) => (dataset.data = formatData.value.map((item) => item.list)),
-    )
+    chartConstructor.options.scales.y.max =
+      Math.max(...formatData.value.map((item) => item.items)) + 5
 
     chartConstructor.data.datasets = [
       {
@@ -85,16 +106,22 @@ watch(
       },
     ]
 
+    chartConstructor.config.type = chartType
+
     chartConstructor.update()
   },
 )
 
 function initChart() {
   return new Chart(dataChart.value, {
-    type: 'line',
+    type: 'bar',
     options: {
       scales: {
-        y: { min: 0, max: 40 },
+        x: { stacked: true },
+        y: {
+          min: 0,
+          max: 40,
+        },
       },
     },
     data: {
