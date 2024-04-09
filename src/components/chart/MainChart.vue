@@ -40,8 +40,10 @@ async function searchOrderList(filterSearch) {
 
 <template>
   <div>
-    <LineChart :data="data" />
-    <DoughnutChart :data="data" />
+    <v-row>
+      <v-col sm="6"> <LineChart :data="data" /></v-col>
+      <v-col sm="6"> <DoughnutChart :data="data" /></v-col>
+    </v-row>
   </div>
 </template>
 

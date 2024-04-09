@@ -7,7 +7,7 @@ import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 
 dayJs.extend(quarterOfYear)
 import { dateFormat } from '../utils/day'
-import { ref, onMounted, watchEffect, computed, reactive } from 'vue'
+import { ref, onMounted, watchEffect, computed, reactive, watch } from 'vue'
 
 import DatePicker from '@/components/DatePicker.vue'
 
@@ -16,6 +16,33 @@ const dashboardStore = useDashboardStore()
 const datePicker = reactive({
   dialog: false,
 })
+
+const showPaymentList = ref({
+  type: null,
+  sheet: false,
+  list: computed(() => {
+    // 由新到舊排序
+    return (
+      dashboardStore.dashboardData.total.completed
+        .find((item) => item.type === showPaymentList.value.type)
+        ?.data.sort((a, b) => dayJs(b.createdAt) - dayJs(a.createdAt)) || []
+    )
+  }),
+})
+
+function checkPaymentList(type) {
+  showPaymentList.value.type = type
+  showPaymentList.value.sheet = true
+}
+
+watch(
+  () => showPaymentList.value.sheet,
+  (status) => {
+    if (status) return false
+
+    showPaymentList.value.type = null
+  },
+)
 
 const completedTotalAmount = computed(() =>
   dashboardStore.dashboardData.total.completed.reduce((init, cur) => (init += cur.total), 0),
@@ -165,13 +192,23 @@ function searchDataByDatePicker(searchDate) {
         <!-- 現金 -->
         <v-col cols="12">
           <v-card variant="tonal" rounded="lg" color="success" class="py-6">
-            <v-card-item
-              :title="`現金 (${
-                dashboardStore.dashboardData.total.completed.find((item) => item.type === 'cash')
-                  ?.orderQuantity || '--'
-              })`"
-              class="pt-0"
-            />
+            <v-card-title class="pt-0">
+              <span class="mr-2">
+                {{ `現金` }}
+              </span>
+              <v-btn
+                @click="checkPaymentList('cash')"
+                variant="outlined"
+                rounded="xl"
+                density="compact"
+              >
+                {{
+                  dashboardStore.dashboardData.total.completed.find((item) => item.type === 'cash')
+                    ?.orderQuantity || '--'
+                }}
+              </v-btn>
+            </v-card-title>
+
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
@@ -188,14 +225,23 @@ function searchDataByDatePicker(searchDate) {
         <!-- LinePay 支付 -->
         <v-col cols="12">
           <v-card variant="tonal" rounded="lg" color="success" class="py-6">
-            <v-card-item
-              :title="`Line Pay (${
-                dashboardStore.dashboardData.total.completed.find(
-                  (item) => item.type === 'Line Pay',
-                )?.orderQuantity || '--'
-              })`"
-              class="pt-0"
-            />
+            <v-card-title class="pt-0">
+              <span class="mr-2">
+                {{ `Line Pay` }}
+              </span>
+              <v-btn
+                @click="checkPaymentList('Line Pay')"
+                variant="outlined"
+                rounded="xl"
+                density="compact"
+              >
+                {{
+                  dashboardStore.dashboardData.total.completed.find(
+                    (item) => item.type === 'Line Pay',
+                  )?.orderQuantity || '--'
+                }}
+              </v-btn>
+            </v-card-title>
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
@@ -207,6 +253,41 @@ function searchDataByDatePicker(searchDate) {
               </v-row>
             </v-card-text>
           </v-card>
+
+          <!-- Line Pay List -->
+          <v-bottom-sheet v-model="showPaymentList.sheet">
+            <v-card :title="`${showPaymentList.type} 支付清單`">
+              <v-list lines="two" select-strategy="classic">
+                <v-list-item
+                  v-for="item in showPaymentList.list"
+                  :key="item.createdAt"
+                  :value="item.createdAt"
+                >
+                  <!-- 勾選 -->
+                  <template v-slot:prepend="{ isActive }">
+                    <v-list-item-action start>
+                      <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
+                    </v-list-item-action>
+                  </template>
+
+                  <!-- 未三碼 -->
+                  <v-list-item-title>
+                    <h3>{{ item.mobile }}</h3>
+                  </v-list-item-title>
+
+                  <!-- 時間 -->
+                  <v-list-item-subtitle>
+                    {{ dayJs(item.createdAt).format('YYYY-MM-DD HH:mm') }}
+                  </v-list-item-subtitle>
+
+                  <!-- 金額 -->
+                  <template v-slot:append>
+                    <h3>NT$ {{ item.total }}</h3>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-card>
+          </v-bottom-sheet>
         </v-col>
 
         <!-- 客單價 -->
