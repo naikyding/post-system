@@ -82,7 +82,8 @@ async function deleteDialog(orderListID, updateData, callback) {
 }
 
 async function updateDialog(orderListID, updateData, callback) {
-  if (!paymentType.value) {
+  // 未付款 且 未選擇支付方式
+  if (!paymentType.value && !systemOrderStore.activeOrderList.isPaid) {
     paymentAlertSnackbar.value = true
     return false
   }
