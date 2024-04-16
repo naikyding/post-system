@@ -254,7 +254,7 @@ function searchDataByDatePicker(searchDate) {
             </v-card-text>
           </v-card>
 
-          <!-- Line Pay List -->
+          <!-- 支付清單 -->
           <v-bottom-sheet v-model="showPaymentList.sheet">
             <v-card :title="`${showPaymentList.type} 支付清單`">
               <v-list lines="two" select-strategy="classic">
