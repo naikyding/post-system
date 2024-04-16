@@ -7,10 +7,13 @@ import { encrypt, decrypt } from '@/utils/secret'
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
 import dayJS from 'dayjs'
+import { watch } from 'vue'
 
 const systemOrderStore = useSystemOrderList()
 
 const closeOrderItem = ref([])
+const paymentType = ref(null)
+const paymentAlertSnackbar = ref(false)
 
 function initCloseItemData() {
   const closeOrderItemFromSession = sessionStorage.getItem('closeOrderItem')
@@ -43,6 +46,13 @@ const dialog = reactive({
   confirmOrderList: false,
 })
 
+watch(
+  () => dialog.confirmOrderList,
+  (status) => {
+    if (!status) paymentType.value = null
+  },
+)
+
 const display = useDisplay()
 
 const confirmEditOrderDialog = reactive({
@@ -72,6 +82,11 @@ async function deleteDialog(orderListID, updateData, callback) {
 }
 
 async function updateDialog(orderListID, updateData, callback) {
+  if (!paymentType.value) {
+    paymentAlertSnackbar.value = true
+    return false
+  }
+
   dialog.confirmOrderList = false
 
   const { isConfirmed } = await Swal.fire({
@@ -436,7 +451,11 @@ async function removeProductItemBagS(bagSizeId) {
                 </span>
 
                 <!-- 支付方式 -->
-                <v-chip class="ma-2" :color="items.paymentType === 'cash' ? 'yellow' : 'success'">
+                <v-chip
+                  v-show="items.paymentType"
+                  class="ma-2"
+                  :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
+                >
                   {{ items.paymentType }}
                 </v-chip>
               </td>
@@ -702,7 +721,36 @@ async function removeProductItemBagS(bagSizeId) {
             type="warning"
             title="未付款"
             text="此訂單，目前尚未付款完成，請確認付款後再更新訂單狀態。"
-          ></v-alert>
+          >
+            <v-row class="mt-1">
+              <v-col>
+                <v-btn
+                  @click="paymentType = 'cash'"
+                  :active="paymentType === 'cash'"
+                  :prepend-icon="paymentType === 'cash' ? 'mdi-check-circle' : null"
+                  block
+                  size="x-large"
+                  color="yellow"
+                  variant="flat"
+                >
+                  Cash
+                </v-btn>
+              </v-col>
+              <v-col>
+                <v-btn
+                  @click="paymentType = 'Line Pay'"
+                  :active="paymentType === 'Line Pay'"
+                  :prepend-icon="paymentType === 'Line Pay' ? 'mdi-check-circle' : null"
+                  block
+                  size="x-large"
+                  color="success"
+                  variant="flat"
+                >
+                  Line Pay
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-alert>
         </div>
       </v-card-text>
 
@@ -721,6 +769,8 @@ async function removeProductItemBagS(bagSizeId) {
                 <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
               </v-btn>
             </v-col>
+
+            <!-- 完成訂單 -->
             <v-col cols="12" class="pt-0 px-1">
               <v-btn
                 @click="
@@ -729,6 +779,7 @@ async function removeProductItemBagS(bagSizeId) {
                     {
                       status: 'completed',
                       isPaid: true,
+                      paymentType,
                     },
                     systemOrderStore.updateOrderContent,
                   )
@@ -742,6 +793,7 @@ async function removeProductItemBagS(bagSizeId) {
               </v-btn>
             </v-col>
 
+            <!-- 取消訂單 -->
             <v-col cols="12" class="px-1 py-0">
               <v-btn
                 size="x-large"
@@ -813,6 +865,10 @@ async function removeProductItemBagS(bagSizeId) {
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <v-snackbar color="warning" vertical v-model="paymentAlertSnackbar" :timeout="2000">
+    <v-icon icon="mdi-alert-circle"></v-icon> 請選擇「支付方式」
+  </v-snackbar>
 </template>
 
 <style lang="scss" scoped>
