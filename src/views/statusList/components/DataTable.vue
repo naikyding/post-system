@@ -82,10 +82,14 @@ async function deleteDialog(orderListID, updateData, callback) {
 }
 
 async function updateDialog(orderListID, updateData, callback) {
-  // 未付款 且 未選擇支付方式
-  if (!paymentType.value && !systemOrderStore.activeOrderList.isPaid) {
-    paymentAlertSnackbar.value = true
-    return false
+  // 未付款
+  if (!systemOrderStore.activeOrderList.isPaid) {
+    // 未選擇支付方式
+    if (!paymentType.value) {
+      paymentAlertSnackbar.value = true
+      return false
+    }
+    updateData['paymentType'] = paymentType.value
   }
 
   dialog.confirmOrderList = false
@@ -780,7 +784,6 @@ async function removeProductItemBagS(bagSizeId) {
                     {
                       status: 'completed',
                       isPaid: true,
-                      paymentType,
                     },
                     systemOrderStore.updateOrderContent,
                   )
