@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
+import { useMarkersStore } from '@/stores/products'
 import { useDisplay } from 'vuetify'
 import { encrypt, decrypt } from '@/utils/secret'
 
@@ -8,12 +9,121 @@ import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
 import dayJS from 'dayjs'
 import { watch } from 'vue'
+import { computed } from 'vue'
+import { toRaw } from 'vue'
 
 const systemOrderStore = useSystemOrderList()
+const markerStore = useMarkersStore()
 
 const closeOrderItem = ref([])
 const paymentType = ref(null)
 const paymentAlertSnackbar = ref(false)
+const editSheetStatus = ref(false)
+const editOrderForm = ref({})
+
+function formatOrderForm(form) {
+  const cloneForm = JSON.parse(JSON.stringify(form))
+
+  cloneForm.items = cloneForm.items.map((item) => {
+    item.product = item.product._id
+    item.markers = item.markers.reduce((acc, cur) => {
+      return (acc = [...acc, cur._id])
+    }, [])
+    delete item.extras
+    item.extrasData = item.extrasData.reduce((acc, cur) => {
+      return (acc = [
+        ...acc,
+        {
+          extraItem: cur.extraItem._id,
+          quantity: cur.quantity,
+          price: cur.price,
+        },
+      ])
+    }, [])
+    return item
+  })
+
+  return cloneForm
+}
+
+async function submitEditForm(form) {
+  const status = await systemOrderStore.updateOrderContent(form._id, formatOrderForm(form))
+
+  editSheetStatus.value = false
+  preSaveEditOrderDialog.value = false
+  dialog.confirmOrderList = false
+}
+
+function initEditForm(editForm, activeOrderContent) {
+  const index = [
+    '_id',
+    'status',
+    'note',
+    'mobileNoThreeDigits',
+    'isPaid',
+    'paymentType',
+    'totalPrice',
+    'items',
+  ]
+  index.forEach((key) => {
+    // 深度拷貝 (代理物件要成原物件)
+    editForm.value[key] = structuredClone(toRaw(activeOrderContent[key]))
+  })
+}
+
+const preSaveEditOrderDialog = ref(false)
+
+function editOrderList() {
+  initEditForm(editOrderForm, systemOrderStore.activeOrderList)
+  editSheetStatus.value = true
+}
+
+function editOrderListItemQuantityFun(editOrderForm, editOrderFormItem, payload) {
+  // 單價
+  const itemPrice = editOrderFormItem.price / editOrderFormItem.quantity
+
+  editOrderFormItem.quantity = editOrderFormItem.quantity + payload
+  if (editOrderFormItem.quantity < 1) {
+    editOrderForm.items = editOrderForm.items.filter((item) => item._id !== editOrderFormItem._id)
+  }
+  editOrderFormItem.price = itemPrice * editOrderFormItem.quantity
+
+  editOrderForm.totalPrice = computedOrderListPrice(editOrderForm)
+}
+
+function computedOrderItemPrice(orderList, itemId) {
+  const item = orderList.items.find((item) => item._id === itemId)
+
+  const computedExtraTotal = item.extrasData.reduce((acc, cur) => {
+    return (acc += cur.price)
+  }, 0)
+
+  return (computedExtraTotal + item.product.price) * item.quantity
+}
+
+function computedOrderListPrice(orderList) {
+  return orderList.items.reduce((acc, cur) => {
+    return (acc += cur.price)
+  }, 0)
+}
+
+function editOrderListItemExtraQuantityFun(editOrderForm, orderItemId, extraItemId, payload) {
+  const orderItem = editOrderForm.items.find((item) => item._id === orderItemId)
+  const extraItem = orderItem.extrasData.find((item) => item._id === extraItemId)
+
+  // 單價
+  const extraItemPrice = extraItem.extraItem.price
+
+  extraItem.quantity = extraItem.quantity + payload
+
+  if (extraItem.quantity < 1) {
+    orderItem.extrasData = orderItem.extrasData.filter((item) => item._id !== extraItemId)
+  }
+
+  extraItem.price = extraItem.quantity * extraItemPrice
+  orderItem.price = computedOrderItemPrice(editOrderForm, orderItemId)
+  editOrderForm.totalPrice = computedOrderListPrice(editOrderForm)
+}
 
 function initCloseItemData() {
   const closeOrderItemFromSession = sessionStorage.getItem('closeOrderItem')
@@ -26,7 +136,16 @@ function initCloseItemData() {
 
 onMounted(() => {
   initCloseItemData()
+  markerStore.getMarkers()
 })
+
+const divider = { type: 'divider' }
+
+const computedOrderItems = computed(() =>
+  editOrderForm.value.items.reduce((acc, cur) => {
+    return (acc = [...acc, cur, divider])
+  }, []),
+)
 
 // 記錄收折訂單
 function toggleOrderItem(id) {
@@ -49,7 +168,11 @@ const dialog = reactive({
 watch(
   () => dialog.confirmOrderList,
   (status) => {
-    if (!status) paymentType.value = null
+    if (!status) {
+      // 詳細商品視窗關閉
+      paymentType.value = null
+      systemOrderStore.addActiveOrderList({})
+    }
   },
 )
 
@@ -602,7 +725,7 @@ async function removeProductItemBagS(bagSizeId) {
     :fullscreen="display.xs.value"
     scrollable
   >
-    <v-card class="">
+    <v-card v-if="Object.keys(systemOrderStore.activeOrderList).length > 0" class="">
       <v-card-item class="text-primary text-center pb-2" title="訂單明細">
         <v-btn class="close-btn" @click="dialog.confirmOrderList = !dialog.confirmOrderList" icon>
           <v-icon>mdi-close</v-icon>
@@ -763,12 +886,26 @@ async function removeProductItemBagS(bagSizeId) {
         <v-container class="pt-0">
           <v-row>
             <v-col cols="6" class="px-1">
+              <!-- 修改 -->
+              <v-btn
+                @click="editOrderList"
+                variant="outlined"
+                block
+                size="x-large"
+                rounded="xl"
+                density="comfortable"
+              >
+                <v-icon icon="mdi-pencil"></v-icon>
+              </v-btn>
+            </v-col>
+            <v-col cols="6" class="px-1">
+              <!-- 縮小 -->
               <v-btn
                 @click="toggleOrderItem(systemOrderStore.activeOrderList._id)"
+                block
                 variant="outlined"
                 size="x-large"
                 rounded="xl"
-                block
                 density="comfortable"
               >
                 <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
@@ -873,6 +1010,272 @@ async function removeProductItemBagS(bagSizeId) {
   <v-snackbar color="warning" vertical v-model="paymentAlertSnackbar" :timeout="2000">
     <v-icon icon="mdi-alert-circle"></v-icon> 請選擇「支付方式」
   </v-snackbar>
+
+  <!-- 修改訂單內容 -->
+  <v-bottom-sheet v-model="editSheetStatus" fullscreen>
+    <v-card>
+      <v-card-text>
+        <v-btn block variant="tonal" color="error" @click="editSheetStatus = !editSheetStatus">
+          close
+        </v-btn>
+
+        <v-container>
+          <v-row :align="computedOrderItems.length < 1 ? 'center' : 'start'">
+            <v-col :class="{ 'text-center': computedOrderItems.length < 1 }">
+              <v-icon v-show="computedOrderItems.length < 1" size="x-large">mdi-dropbox</v-icon>
+
+              <div>
+                <v-list density="compact" :items="computedOrderItems" lines item-props>
+                  <template v-slot:title="{ item: { product } }">
+                    {{ product.name }} $<span class="font-weight-bold"> {{ product.price }} </span>
+                  </template>
+
+                  <template v-slot:subtitle="{ item, item: { extrasData } }">
+                    <div
+                      class="text-caption d-flex align-center my-1"
+                      v-for="extra in extrasData"
+                      :key="extra._id"
+                    >
+                      <div class="mr-2">
+                        {{ extra.extraItem.name }}
+                        +<span class="font-weight-bold">{{ extra.extraItem.price }}</span>
+                      </div>
+
+                      <div class="d-flex align-center bg-surface-variant rounded-pill px-1 mr-2">
+                        <v-btn
+                          flat
+                          @click="
+                            editOrderListItemExtraQuantityFun(
+                              editOrderForm,
+                              item._id,
+                              extra._id,
+                              -1,
+                            )
+                          "
+                          :icon="extra.quantity > 1 ? 'mdi-minus' : 'mdi-trash-can-outline'"
+                          color="error"
+                          density="compact"
+                          size="small"
+                        />
+                        <span class="text-h6 mx-2">
+                          {{ extra.quantity }}
+                        </span>
+                        <v-btn
+                          flat
+                          @click="
+                            editOrderListItemExtraQuantityFun(editOrderForm, item._id, extra._id, 1)
+                          "
+                          icon="mdi-plus"
+                          color="success"
+                          density="compact"
+                          size="small"
+                        />
+                      </div>
+                      <div>
+                        $<span class="font-weight-bold text-h6">
+                          {{ extra.price }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- 註記 -->
+                    <v-select
+                      hide-details
+                      class="my-3"
+                      density="compact"
+                      v-model="item.markers"
+                      :items="markerStore.markerList"
+                      chips
+                      label="特製"
+                      multiple
+                      variant="outlined"
+                      closable-chips
+                      clearable
+                    >
+                      <template v-slot:chip="{ props, item }">
+                        <v-chip
+                          v-bind="props"
+                          :prepend-avatar="item.raw.avatar"
+                          :text="item.raw.name"
+                        ></v-chip>
+                      </template>
+                      <template v-slot:item="{ props, item }">
+                        <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
+                      </template>
+                    </v-select>
+
+                    <!-- 備註 -->
+                    <v-textarea
+                      v-model="item.notes"
+                      label="備註"
+                      row-height="25"
+                      rows="2"
+                      variant="outlined"
+                      auto-grow
+                      shaped
+                      clearable
+                    ></v-textarea>
+                  </template>
+
+                  <template v-slot:append="{ item }">
+                    <div class="text-center mx-10">
+                      <div class="d-flex align-center bg-surface-variant rounded-pill px-1">
+                        <v-btn
+                          flat
+                          @click="editOrderListItemQuantityFun(editOrderForm, item, -1)"
+                          :icon="item.quantity > 1 ? 'mdi-minus' : 'mdi-trash-can-outline'"
+                          color="error"
+                          density="compact"
+                          size="medium"
+                        />
+                        <span class="text-h6 mx-2">
+                          {{ item.quantity }}
+                        </span>
+                        <v-btn
+                          flat
+                          @click="editOrderListItemQuantityFun(editOrderForm, item, 1)"
+                          icon="mdi-plus"
+                          color="success"
+                          density="compact"
+                          size="medium"
+                        />
+                      </div>
+                      <div>
+                        $
+                        <span class="font-weight-bold text-h6">
+                          {{ item.price }}
+                        </span>
+                      </div>
+                    </div>
+                  </template>
+                </v-list>
+              </div>
+            </v-col>
+
+            <v-col class="sticky-t-10">
+              <div>
+                <!-- 手機末三碼 -->
+                <v-text-field
+                  v-model="editOrderForm.mobileNoThreeDigits"
+                  label="手機末三碼"
+                  variant="outlined"
+                  clearable
+                ></v-text-field>
+              </div>
+
+              <div class="mb-4">
+                <!-- 支付方式 -->
+                <span>支付方式</span>
+                <div class="mt-1">
+                  <v-btn-toggle v-model="editOrderForm.paymentType" variant="outlined" divided>
+                    <v-btn size="large" selected-class="bg-warning" value="cash"> Cash</v-btn>
+                    <v-btn size="large" selected-class="bg-success" value="Line Pay"
+                      >Line Pay</v-btn
+                    >
+                  </v-btn-toggle>
+                </div>
+              </div>
+
+              <div class="my-4">
+                <!-- 支付狀態 -->
+                <span>支付狀態</span>
+                <div class="mt-1">
+                  <v-btn-toggle v-model="editOrderForm.isPaid" variant="outlined" divided>
+                    <v-btn size="large" selected-class="bg-error" :value="false"> 未付款 </v-btn>
+                    <v-btn size="large" selected-class="bg-success" :value="true"> 已付款 </v-btn>
+                  </v-btn-toggle>
+                </div>
+              </div>
+
+              <div class="my-4">
+                <!-- 訂單狀態 -->
+                <span>訂單狀態</span>
+                <div class="mt-1">
+                  <v-btn-toggle v-model="editOrderForm.status" variant="outlined" divided>
+                    <v-btn size="large" selected-class="bg-error" value="cancelled"> 取消 </v-btn>
+                    <v-btn size="large" selected-class="bg-warning" value="pending"> 待處理 </v-btn>
+                    <v-btn size="large" selected-class="bg-success" value="completed"> 完成 </v-btn>
+                  </v-btn-toggle>
+                </div>
+              </div>
+
+              <div>
+                訂單金額 NT$
+                <span class="text-h4 font-weight-bold">
+                  {{ editOrderForm.totalPrice }}
+                </span>
+              </div>
+
+              <div class="mt-8">
+                <!-- 備註 -->
+                <v-textarea
+                  v-model="editOrderForm.note"
+                  label="備註"
+                  row-height="25"
+                  rows="3"
+                  variant="outlined"
+                  auto-grow
+                  shaped
+                  clearable
+                ></v-textarea>
+              </div>
+
+              <v-btn
+                @click="initEditForm(ref(editOrderForm), systemOrderStore.activeOrderList)"
+                class="my-4"
+                size="large"
+                text="還原"
+                color="warning"
+                block
+              ></v-btn>
+              <v-btn
+                @click="preSaveEditOrderDialog = true"
+                size="large"
+                color="success"
+                text="保存"
+                block
+              ></v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card-text>
+    </v-card>
+  </v-bottom-sheet>
+
+  <!-- 修改前確認 -->
+  <v-dialog v-model="preSaveEditOrderDialog" max-width="500">
+    <v-card
+      prepend-icon="mdi-alert-circle"
+      text="修改後會影響到訂單所有內容，請確認所有資料正確!"
+      title="保存修改內容"
+      class="pa-3"
+    >
+      <template v-slot:actions>
+        <v-row>
+          <v-col cols="6">
+            <v-btn
+              @click="preSaveEditOrderDialog = false"
+              size="x-large"
+              variant="outlined"
+              block
+              color="error"
+              text="取消保存"
+            ></v-btn>
+          </v-col>
+          <v-col cols="6">
+            <v-btn
+              @click="submitEditForm(editOrderForm)"
+              size="x-large"
+              variant="tonal"
+              block
+              color="success"
+              text="確認保存"
+            ></v-btn>
+          </v-col>
+        </v-row>
+      </template>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style lang="scss" scoped>
@@ -900,5 +1303,9 @@ async function removeProductItemBagS(bagSizeId) {
   position: absolute;
   top: 4px;
   right: 1rem;
+}
+.sticky-t-10 {
+  position: sticky;
+  top: 10px;
 }
 </style>
