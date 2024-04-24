@@ -13,6 +13,7 @@ import { useUserStore } from '../stores/users'
 import { useAppStore } from '../stores/app'
 import { resFunc } from '../utils/resFunc'
 import dayJS from 'dayjs'
+import { errorFunction } from '../utils/catchAsync'
 
 export const useOrdersStore = defineStore('orders', () => {
   // 產品彈窗 dialog
@@ -386,7 +387,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   const activeRange = ref('day')
 
   const orderList = ref([])
-  const activeOrderList = ref([])
+  const activeOrderList = ref({})
 
   function addActiveOrderList(order) {
     activeOrderList.value = order
@@ -474,7 +475,14 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
       const appStore = useAppStore()
       const { status } = await updateOrderAPI(orderId, updateData)
       appStore.resStatusDialog({ status: status, text: '已更新訂單內容' })
-      if (status) getOrderList()
+
+      if (status) {
+        getOrderList()
+        return true
+      } else return false
+    },
+    (error) => {
+      errorFunction(error)
     },
   )
 
@@ -483,6 +491,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     const { status } = await deleteOrderAPI(id)
     appStore.resStatusDialog({ status: status, text: '已刪除訂單所有項目' })
     if (status) getOrderList()
+
+    return false
   })
 
   const deleteOrderItemById = catchAsync(async (id) => {
