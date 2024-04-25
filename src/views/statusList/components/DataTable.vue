@@ -24,16 +24,55 @@ const editOrderForm = ref({})
 const optionExtras = ref({
   dialog: false,
   list: [],
+  activeItem: null,
 })
 
-function extrasMinus(extras) {
-  if (extras.quantity < 1) return false
-  extras.quantity--
+function extrasMinusAndPlus(type, extras) {
+  if (type === 'plus') {
+    extras.quantity++
+  } else {
+    if (extras.quantity < 1) return false
+    extras.quantity--
+  }
+  computedOptionExtras(extras)
+}
+
+watch(
+  () => optionExtras.value.dialog,
+  (status) => {
+    if (!status) {
+      optionExtras.value.list = []
+      optionExtras.value.activeItem = null
+    }
+  },
+)
+
+function optionExtraSave(optionExtra) {
+  optionExtras.value.dialog = false
+
+  const matchItem = editOrderForm.value.items.find(
+    (item) => item._id === optionExtras.value.activeItem,
+  )
+
+  matchItem.extrasData = [
+    ...optionExtra.reduce((acc, cur) => {
+      if (cur.quantity > 0) return (acc = [...acc, cur])
+      else return acc
+    }, []),
+  ]
+  matchItem.price = computedOrderItemPrice(editOrderForm.value, matchItem._id)
+  editOrderForm.value.totalPrice = computedOrderListPrice(editOrderForm.value)
+}
+
+function computedOptionExtras(extraItem) {
+  extraItem.price = extraItem.quantity * extraItem.extraItem.price
 }
 
 function showCurrentProductSExtrasData(list, item) {
   optionExtras.value.list = []
+  optionExtras.value.activeItem = null
 
+  optionExtras.value.activeItem = item._id
   optionExtras.value.dialog = true
   optionExtras.value.list = item.product.extras.reduce((acc, cur) => {
     const matchItem = item.extrasData.find((item) => item.extraItem._id === cur._id)
@@ -41,6 +80,7 @@ function showCurrentProductSExtrasData(list, item) {
     return (acc = [
       ...acc,
       {
+        _id: cur._id,
         extraItem: cur,
         price: matchItem ? matchItem.price : 0,
         quantity: matchItem ? matchItem.quantity : 0,
@@ -75,7 +115,7 @@ function formatOrderForm(form) {
 }
 
 async function submitEditForm(form) {
-  const status = await systemOrderStore.updateOrderContent(form._id, formatOrderForm(form))
+  await systemOrderStore.updateOrderContent(form._id, formatOrderForm(form))
 
   editSheetStatus.value = false
   preSaveEditOrderDialog.value = false
@@ -1141,7 +1181,7 @@ async function removeProductItemBagS(bagSizeId) {
                                     <div class="d-flex justify-center align-center">
                                       <!-- 減數量 -->
                                       <v-btn
-                                        @click="extrasMinus(extra)"
+                                        @click="extrasMinusAndPlus('minus', extra)"
                                         flat
                                         icon="mdi-minus"
                                         color="error"
@@ -1154,13 +1194,14 @@ async function removeProductItemBagS(bagSizeId) {
 
                                       <!-- 加數量 -->
                                       <v-btn
-                                        @click="extra.quantity++"
+                                        @click="extrasMinusAndPlus('plus', extra)"
                                         flat
                                         icon="mdi-plus"
                                         color="success"
                                         density="compact"
                                       />
                                     </div>
+                                    <div>${{ extra.price }}</div>
                                   </div>
                                 </v-btn>
                               </v-col>
@@ -1185,10 +1226,10 @@ async function removeProductItemBagS(bagSizeId) {
                             <v-col>
                               <v-btn
                                 variant="flat"
-                                @click="preSaveEditOrderDialog = true"
+                                @click="optionExtraSave(optionExtras.list)"
                                 size="large"
                                 color="success"
-                                text="保存"
+                                text="修改"
                                 block
                               ></v-btn>
                             </v-col>
