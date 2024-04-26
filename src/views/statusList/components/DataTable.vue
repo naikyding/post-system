@@ -1089,227 +1089,250 @@ async function removeProductItemBagS(bagSizeId) {
 
         <v-container>
           <v-row :align="computedOrderItems.length < 1 ? 'center' : 'start'">
-            <v-col :class="{ 'text-center': computedOrderItems.length < 1 }">
-              <v-icon v-show="computedOrderItems.length < 1" size="x-large">mdi-dropbox</v-icon>
-
-              <div>
-                <v-list density="compact" :items="computedOrderItems" lines item-props>
-                  <template v-slot:title="{ item: { product } }">
-                    {{ product.name }} $<span class="font-weight-bold"> {{ product.price }} </span>
-                  </template>
-
-                  <template v-slot:subtitle="{ item, item: { extrasData } }">
-                    <div
-                      class="text-caption d-flex align-center my-1"
-                      v-for="extra in extrasData"
-                      :key="extra._id"
-                    >
-                      <div class="mr-2">
-                        {{ extra.extraItem.name }}
-                        +<span class="font-weight-bold">{{ extra.extraItem.price }}</span>
-                      </div>
-
-                      <div class="d-flex align-center bg-surface-variant rounded-pill px-1 mr-2">
-                        <v-btn
-                          flat
-                          @click="
-                            editOrderListItemExtraQuantityFun(
-                              editOrderForm,
-                              item._id,
-                              extra._id,
-                              -1,
-                            )
-                          "
-                          :icon="extra.quantity > 1 ? 'mdi-minus' : 'mdi-trash-can-outline'"
-                          color="error"
-                          density="compact"
-                          size="small"
-                        />
-                        <span class="text-h6 mx-2">
-                          {{ extra.quantity }}
-                        </span>
-                        <v-btn
-                          flat
-                          @click="
-                            editOrderListItemExtraQuantityFun(editOrderForm, item._id, extra._id, 1)
-                          "
-                          icon="mdi-plus"
-                          color="success"
-                          density="compact"
-                          size="small"
-                        />
-                      </div>
-                      <div>
-                        $<span class="font-weight-bold text-h6">
-                          {{ extra.price }}
-                        </span>
-                      </div>
+            <v-col :class="[{ 'text-center': computedOrderItems.length < 1 }, 'py-0']">
+              <!-- NEW -->
+              <v-card
+                class="my-4 pa-4"
+                variant="tonal"
+                v-for="orderItem in editOrderForm.items"
+                :key="orderItem._id"
+              >
+                <v-row>
+                  <v-col cols="12" sm="8">
+                    <!-- 商品名稱 -->
+                    <div>
+                      <span class="font-weight-bold mr-1">{{ orderItem.product.name }}</span>
+                      <span class="text-caption">${{ orderItem.product.price }}</span>
                     </div>
+                    <!-- 配料區 -->
+                    <div class="extras">
+                      <!-- 已選配料 -->
+                      <div
+                        class="text-caption d-flex align-center my-2"
+                        v-for="extra in orderItem.extrasData"
+                        :key="extra._id"
+                      >
+                        <div class="mr-2">
+                          <span>
+                            {{ extra.extraItem.name }}
+                          </span>
+                          $<span class="font-weight-bold">{{ extra.extraItem.price }}</span>
+                        </div>
 
-                    <!-- 加選配料 -->
-                    <v-btn
-                      @click="showCurrentProductSExtrasData(editOrderForm, item)"
-                      class="my-2"
-                      color="success"
-                      density="compact"
-                      block
-                    >
-                      <v-icon>mdi-plus</v-icon>
-                      配料
-                    </v-btn>
+                        <div class="d-flex align-center bg-surface-variant rounded-pill px-1 mr-2">
+                          <v-btn
+                            flat
+                            @click="
+                              editOrderListItemExtraQuantityFun(
+                                editOrderForm,
+                                orderItem._id,
+                                extra._id,
+                                -1,
+                              )
+                            "
+                            :icon="extra.quantity > 1 ? 'mdi-minus' : 'mdi-trash-can-outline'"
+                            color="error"
+                            density="compact"
+                            size="small"
+                          />
+                          <span class="text-h6 mx-2">
+                            {{ extra.quantity }}
+                          </span>
+                          <v-btn
+                            flat
+                            @click="
+                              editOrderListItemExtraQuantityFun(
+                                editOrderForm,
+                                orderItem._id,
+                                extra._id,
+                                1,
+                              )
+                            "
+                            icon="mdi-plus"
+                            color="success"
+                            density="compact"
+                            size="small"
+                          />
+                        </div>
+                        <div>
+                          +<span class="font-weight-bold text-h6">
+                            {{ extra.price }}
+                          </span>
+                        </div>
+                      </div>
 
-                    <!-- 加選配料表 -->
-                    <v-dialog v-model="optionExtras.dialog" width="600" scrollable>
-                      <v-card title="更新配料">
-                        <v-card-text style="height: 600px">
-                          <v-container fluid>
-                            <v-row dense>
+                      <!-- 加選配料 -->
+                      <v-btn
+                        @click="showCurrentProductSExtrasData(editOrderForm, orderItem)"
+                        class="my-3"
+                        color="success"
+                        density="compact"
+                        block
+                      >
+                        <v-icon>mdi-plus</v-icon>
+                        配料
+                      </v-btn>
+                      <!-- 加選配料表 -->
+                      <v-dialog v-model="optionExtras.dialog" width="600" scrollable>
+                        <v-card title="更新配料">
+                          <v-card-text style="height: 600px">
+                            <v-container fluid>
+                              <v-row dense>
+                                <v-col
+                                  :cols="6"
+                                  sm="4"
+                                  v-for="extra in optionExtras.list"
+                                  :key="extra._id"
+                                >
+                                  <v-btn block variant="flat" color="primary" height="150">
+                                    <div>
+                                      <div class="mb-2">
+                                        <span class="">
+                                          {{ extra.extraItem.name }}
+                                        </span>
+                                        <span class="text-caption"
+                                          >${{ extra.extraItem.price }}</span
+                                        >
+                                      </div>
+                                      <div class="d-flex justify-center align-center">
+                                        <!-- 減數量 -->
+                                        <v-btn
+                                          @click="extrasMinusAndPlus('minus', extra)"
+                                          flat
+                                          icon="mdi-minus"
+                                          color="error"
+                                          density="compact"
+                                        />
+
+                                        <span class="text-h6 mx-2 font-weight-bold">{{
+                                          extra.quantity
+                                        }}</span>
+
+                                        <!-- 加數量 -->
+                                        <v-btn
+                                          @click="extrasMinusAndPlus('plus', extra)"
+                                          flat
+                                          icon="mdi-plus"
+                                          color="success"
+                                          density="compact"
+                                        />
+                                      </div>
+                                      <div>${{ extra.price }}</div>
+                                    </div>
+                                  </v-btn>
+                                </v-col>
+                              </v-row>
+                            </v-container>
+                          </v-card-text>
+
+                          <v-card-actions>
+                            <v-row class="px-4 py-2">
                               <v-col
-                                :cols="6"
-                                sm="4"
-                                v-for="extra in optionExtras.list"
-                                :key="extra._id"
-                              >
-                                <v-btn block variant="flat" color="primary" height="150">
-                                  <div>
-                                    <div class="mb-2">
-                                      <span class="">
-                                        {{ extra.extraItem.name }}
-                                      </span>
-                                      <span class="text-caption">${{ extra.extraItem.price }}</span>
-                                    </div>
-                                    <div class="d-flex justify-center align-center">
-                                      <!-- 減數量 -->
-                                      <v-btn
-                                        @click="extrasMinusAndPlus('minus', extra)"
-                                        flat
-                                        icon="mdi-minus"
-                                        color="error"
-                                        density="compact"
-                                      />
-
-                                      <span class="text-h6 mx-2 font-weight-bold">{{
-                                        extra.quantity
-                                      }}</span>
-
-                                      <!-- 加數量 -->
-                                      <v-btn
-                                        @click="extrasMinusAndPlus('plus', extra)"
-                                        flat
-                                        icon="mdi-plus"
-                                        color="success"
-                                        density="compact"
-                                      />
-                                    </div>
-                                    <div>${{ extra.price }}</div>
-                                  </div>
-                                </v-btn>
+                                ><v-btn
+                                  @click="
+                                    initEditForm(
+                                      ref(editOrderForm),
+                                      systemOrderStore.activeOrderList,
+                                    )
+                                  "
+                                  variant="flat"
+                                  size="large"
+                                  text="還原"
+                                  color="warning"
+                                  block
+                                ></v-btn
+                              ></v-col>
+                              <v-col>
+                                <v-btn
+                                  variant="flat"
+                                  @click="optionExtraSave(optionExtras.list)"
+                                  size="large"
+                                  color="success"
+                                  text="修改"
+                                  block
+                                ></v-btn>
                               </v-col>
                             </v-row>
-                          </v-container>
-                        </v-card-text>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
 
-                        <v-card-actions>
-                          <v-row class="px-4 py-2">
-                            <v-col
-                              ><v-btn
-                                @click="
-                                  initEditForm(ref(editOrderForm), systemOrderStore.activeOrderList)
-                                "
-                                variant="flat"
-                                size="large"
-                                text="還原"
-                                color="warning"
-                                block
-                              ></v-btn
-                            ></v-col>
-                            <v-col>
-                              <v-btn
-                                variant="flat"
-                                @click="optionExtraSave(optionExtras.list)"
-                                size="large"
-                                color="success"
-                                text="修改"
-                                block
-                              ></v-btn>
-                            </v-col>
-                          </v-row>
-                        </v-card-actions>
-                      </v-card>
-                    </v-dialog>
+                      <!-- 註記 -->
+                      <v-select
+                        hide-details
+                        class="mt-6 mb-4"
+                        density="compact"
+                        v-model="orderItem.markers"
+                        :items="markerStore.markerList"
+                        chips
+                        label="特製"
+                        multiple
+                        variant="outlined"
+                        closable-chips
+                        clearable
+                      >
+                        <template v-slot:chip="{ props, item }">
+                          <v-chip
+                            v-bind="props"
+                            :prepend-avatar="item.raw.avatar"
+                            :text="item.raw.name"
+                          ></v-chip>
+                        </template>
+                        <template v-slot:item="{ props, item }">
+                          <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
+                        </template>
+                      </v-select>
 
-                    <!-- 註記 -->
-                    <v-select
-                      hide-details
-                      class="my-3"
-                      density="compact"
-                      v-model="item.markers"
-                      :items="markerStore.markerList"
-                      chips
-                      label="特製"
-                      multiple
-                      variant="outlined"
-                      closable-chips
-                      clearable
-                    >
-                      <template v-slot:chip="{ props, item }">
-                        <v-chip
-                          v-bind="props"
-                          :prepend-avatar="item.raw.avatar"
-                          :text="item.raw.name"
-                        ></v-chip>
-                      </template>
-                      <template v-slot:item="{ props, item }">
-                        <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
-                      </template>
-                    </v-select>
+                      <!-- 備註 -->
+                      <v-textarea
+                        v-model="orderItem.notes"
+                        label="備註"
+                        row-height="25"
+                        rows="2"
+                        variant="outlined"
+                        auto-grow
+                        shaped
+                        clearable
+                        hide-details
+                      ></v-textarea>
+                    </div>
+                  </v-col>
 
-                    <!-- 備註 -->
-                    <v-textarea
-                      v-model="item.notes"
-                      label="備註"
-                      row-height="25"
-                      rows="2"
-                      variant="outlined"
-                      auto-grow
-                      shaped
-                      clearable
-                    ></v-textarea>
-                  </template>
-
-                  <template v-slot:append="{ item }">
-                    <div class="text-center mx-10">
-                      <div class="d-flex align-center bg-surface-variant rounded-pill px-1">
+                  <v-col cols="12" sm="4" class="d-flex align-center justify-center">
+                    <div class="text-center justify-center">
+                      <div class="d-flex align-center bg-surface-variant rounded-pill pa-1">
                         <v-btn
                           flat
-                          @click="editOrderListItemQuantityFun(editOrderForm, item, -1)"
-                          :icon="item.quantity > 1 ? 'mdi-minus' : 'mdi-trash-can-outline'"
+                          @click="editOrderListItemQuantityFun(editOrderForm, orderItem, -1)"
+                          :icon="orderItem.quantity > 1 ? 'mdi-minus' : 'mdi-trash-can-outline'"
                           color="error"
                           density="compact"
-                          size="medium"
+                          size="large"
                         />
-                        <span class="text-h6 mx-2">
-                          {{ item.quantity }}
+                        <span class="text-h5 font-weight-bold mx-3">
+                          {{ orderItem.quantity }}
                         </span>
                         <v-btn
                           flat
-                          @click="editOrderListItemQuantityFun(editOrderForm, item, 1)"
+                          @click="editOrderListItemQuantityFun(editOrderForm, orderItem, 1)"
                           icon="mdi-plus"
                           color="success"
                           density="compact"
-                          size="medium"
+                          size="large"
                         />
                       </div>
                       <div>
                         $
                         <span class="font-weight-bold text-h6">
-                          {{ item.price }}
+                          {{ orderItem.price }}
                         </span>
                       </div>
                     </div>
-                  </template>
-                </v-list>
-              </div>
+                  </v-col>
+                </v-row>
+              </v-card>
+
+              <v-icon v-show="computedOrderItems.length < 1" size="x-large">mdi-dropbox</v-icon>
             </v-col>
 
             <v-col class="sticky-t-10">
