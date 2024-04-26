@@ -113,12 +113,14 @@ export const useOrdersStore = defineStore('orders', () => {
       const orderMarkersLength = orderItem.markers.length
       const productMarkersLength = productItem.markers.length
       const sameProductId = orderItem.product._id === productItem.product._id
+      const sameNotes = orderItem.notes === productItem.notes
 
       if (
         orderExtrasLength < 1 &&
         productExtrasLength < 1 &&
         orderMarkersLength < 1 &&
         productMarkersLength < 1 &&
+        sameNotes &&
         sameProductId
       )
         return true
@@ -151,7 +153,8 @@ export const useOrdersStore = defineStore('orders', () => {
           orderExtrasLength === matchExtrasNum &&
           orderMarkersLength === matchMarkersNum &&
           productMarkersLength === matchMarkersNum &&
-          productExtrasLength === orderExtrasLength
+          productExtrasLength === orderExtrasLength &&
+          sameNotes
         )
           return true
       }
