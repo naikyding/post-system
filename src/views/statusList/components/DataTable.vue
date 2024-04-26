@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useSystemOrderList } from '@/stores/orders'
-import { useMarkersStore } from '@/stores/products'
+import { useMarkersStore, useProductsStore } from '@/stores/products'
 import { useDisplay } from 'vuetify'
 import { encrypt, decrypt } from '@/utils/secret'
 
@@ -139,6 +139,33 @@ function initEditForm(editForm, activeOrderContent) {
   })
 }
 
+const productsStore = useProductsStore()
+const tabActiveId = ref(0)
+const addProduct = ref({
+  dialog: false,
+})
+
+function showProductListDialog() {
+  addProduct.value.dialog = true
+}
+function addProductItemInOrder(orderList, item) {
+  item.extras = item.extras.reduce((acc, cur) => {
+    return (acc = [...acc, ...cur.items])
+  }, [])
+
+  orderList.items.push({
+    product: item,
+    extrasData: [],
+    markers: [],
+    notes: '',
+    price: item.price,
+    quantity: 1,
+    status: false,
+  })
+  orderList.totalPrice = computedOrderListPrice(orderList)
+  addProduct.value.dialog = false
+}
+
 const preSaveEditOrderDialog = ref(false)
 
 function editOrderList() {
@@ -205,6 +232,7 @@ function initCloseItemData() {
 onMounted(() => {
   initCloseItemData()
   markerStore.getMarkers()
+  productsStore.getProducts()
 })
 
 const divider = { type: 'divider' }
@@ -1102,7 +1130,10 @@ async function removeProductItemBagS(bagSizeId) {
         <v-container>
           <v-row :align="computedOrderItems.length < 1 ? 'center' : 'start'">
             <v-col :class="[{ 'text-center': computedOrderItems.length < 1 }, 'py-0']">
-              <!-- NEW -->
+              <!-- 無商品 -->
+              <v-icon v-show="computedOrderItems.length < 1" size="5rem">mdi-dropbox</v-icon>
+
+              <!-- 有商品 -->
               <v-card
                 class="my-4 pa-4"
                 variant="tonal"
@@ -1344,7 +1375,92 @@ async function removeProductItemBagS(bagSizeId) {
                 </v-row>
               </v-card>
 
-              <v-icon v-show="computedOrderItems.length < 1" size="x-large">mdi-dropbox</v-icon>
+              <v-btn @click="showProductListDialog" class="my-3" color="success" block>
+                <v-icon>mdi-plus</v-icon>
+                商品
+              </v-btn>
+
+              <!-- 商品列表 -->
+              <v-bottom-sheet v-model="addProduct.dialog" fullscreen>
+                <v-card>
+                  <v-toolbar>
+                    <v-btn icon="mdi-close" @click="addProduct.dialog = false"></v-btn>
+                    <v-toolbar-title>挑選商品</v-toolbar-title>
+                  </v-toolbar>
+
+                  <!-- 商品列表 -->
+                  <v-col
+                    class="order-type bg-grey-darken-3 px-10 h-screen overflow-x-hidden overflow-y-auto"
+                  >
+                    <!-- TABs -->
+                    <v-tabs
+                      v-model="tabActiveId"
+                      color="primary"
+                      bg-color="grey-darken-3"
+                      class="product-tabs"
+                      center-active
+                      show-arrows
+                    >
+                      <v-tab
+                        v-for="(productItems, index) in productsStore.products"
+                        :key="productItems + index"
+                        :value="index"
+                        class="text-subtitle-1"
+                      >
+                        {{ productItems.type }}
+                      </v-tab>
+                    </v-tabs>
+
+                    <!-- 產品列表 -->
+                    <v-card-text>
+                      <v-window continuous v-model="tabActiveId">
+                        <v-window-item
+                          v-for="(productItems, index) in productsStore.products"
+                          :key="productItems + index"
+                          :value="index"
+                        >
+                          <v-container>
+                            <v-row>
+                              <!-- 產品項目 -->
+                              <v-col
+                                v-for="(productItem, index) in productItems.items"
+                                :key="productItem + index"
+                                cols="12"
+                                sm="6"
+                                md="4"
+                                class="pa-1"
+                              >
+                                <v-card
+                                  @click.stop="addProductItemInOrder(editOrderForm, productItem)"
+                                >
+                                  <template #title>
+                                    <div class="d-flex flex-column">
+                                      <div class="text-subtitle-1 font-weight-bold text-primary">
+                                        {{ productItem.name }}
+                                      </div>
+                                      <div class="text-caption">
+                                        {{ productItem.description }}
+                                      </div>
+                                    </div>
+                                  </template>
+                                  <template #text>
+                                    <div>
+                                      $
+                                      <span class="text-h5 font-weight-bold">{{
+                                        productItem.price
+                                      }}</span>
+                                    </div>
+                                  </template>
+                                </v-card>
+                              </v-col>
+                            </v-row>
+                          </v-container>
+                        </v-window-item>
+                      </v-window>
+                    </v-card-text>
+                  </v-col>
+                </v-card>
+              </v-bottom-sheet>
             </v-col>
 
             <v-col class="sticky-t-10">
@@ -1396,9 +1512,27 @@ async function removeProductItemBagS(bagSizeId) {
 
               <div>
                 訂單金額 NT$
-                <span class="text-h4 font-weight-bold">
+                <span class="text-h4 font-weight-bold mr-2">
                   {{ editOrderForm.totalPrice }}
                 </span>
+                <span
+                  v-show="
+                    editOrderForm.totalPrice - systemOrderStore.activeOrderList.totalPrice !== 0
+                  "
+                  class="text-h4 font-weight-bold"
+                  :class="[
+                    editOrderForm.totalPrice - systemOrderStore.activeOrderList.totalPrice > 0
+                      ? 'text-success'
+                      : 'text-error',
+                  ]"
+                  >{{
+                    editOrderForm.totalPrice - systemOrderStore.activeOrderList.totalPrice > 0
+                      ? '收'
+                      : '退'
+                  }}{{
+                    editOrderForm.totalPrice - systemOrderStore.activeOrderList.totalPrice
+                  }}</span
+                >
               </div>
 
               <div class="mt-8">
