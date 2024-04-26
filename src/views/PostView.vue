@@ -606,6 +606,18 @@ onMounted(async () => {
                   {{ extra.extraItem.name }}x{{ extra.quantity }} (${{ extra.price }})
                 </div>
               </div>
+
+              <div class="mark">
+                <v-chip v-for="marker in orderItem.markers" class="ma-1" :key="marker._id">
+                  {{ marker.name }}
+                </v-chip>
+              </div>
+
+              <div class="notes">
+                <v-chip v-show="orderItem.notes" color="warning" prepend-icon="mdi-lead-pencil">
+                  {{ orderItem.notes }}
+                </v-chip>
+              </div>
             </div>
             <v-spacer></v-spacer>
             <div class="order-item_quantity mr-4">
@@ -613,9 +625,7 @@ onMounted(async () => {
             </div>
             <div class="order-item_total-price">
               $
-              <span class="font-weight-bold">
-                {{ orderItem.total }}
-              </span>
+              <span class="font-weight-bold"> {{ orderItem.total }} </span>
             </div>
           </div>
 
