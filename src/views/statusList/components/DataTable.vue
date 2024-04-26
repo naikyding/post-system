@@ -851,6 +851,18 @@ async function removeProductItemBagS(bagSizeId) {
                   class="ml-1"
                 ></v-btn>
               </div>
+
+              <div class="mark">
+                <v-chip v-for="marker in orderItem.markers" class="ma-1" :key="marker._id">
+                  {{ marker.name }}
+                </v-chip>
+              </div>
+
+              <div class="notes">
+                <v-chip v-show="orderItem.notes" color="warning" prepend-icon="mdi-lead-pencil">
+                  {{ orderItem.notes }}
+                </v-chip>
+              </div>
             </div>
 
             <v-spacer></v-spacer>
