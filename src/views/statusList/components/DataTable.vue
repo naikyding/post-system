@@ -21,6 +21,74 @@ const paymentAlertSnackbar = ref(false)
 const editSheetStatus = ref(false)
 const editOrderForm = ref({})
 
+const optionExtras = ref({
+  dialog: false,
+  list: [],
+  activeItem: null,
+})
+
+function extrasMinusAndPlus(type, extras) {
+  if (type === 'plus') {
+    extras.quantity++
+  } else {
+    if (extras.quantity < 1) return false
+    extras.quantity--
+  }
+  computedOptionExtras(extras)
+}
+
+watch(
+  () => optionExtras.value.dialog,
+  (status) => {
+    if (!status) {
+      optionExtras.value.list = []
+      optionExtras.value.activeItem = null
+    }
+  },
+)
+
+function optionExtraSave(optionExtra) {
+  optionExtras.value.dialog = false
+
+  const matchItem = editOrderForm.value.items.find(
+    (item) => item._id === optionExtras.value.activeItem,
+  )
+
+  matchItem.extrasData = [
+    ...optionExtra.reduce((acc, cur) => {
+      if (cur.quantity > 0) return (acc = [...acc, cur])
+      else return acc
+    }, []),
+  ]
+  matchItem.price = computedOrderItemPrice(editOrderForm.value, matchItem._id)
+  editOrderForm.value.totalPrice = computedOrderListPrice(editOrderForm.value)
+}
+
+function computedOptionExtras(extraItem) {
+  extraItem.price = extraItem.quantity * extraItem.extraItem.price
+}
+
+function showCurrentProductSExtrasData(list, item) {
+  optionExtras.value.list = []
+  optionExtras.value.activeItem = null
+
+  optionExtras.value.activeItem = item._id
+  optionExtras.value.dialog = true
+  optionExtras.value.list = item.product.extras.reduce((acc, cur) => {
+    const matchItem = item.extrasData.find((item) => item.extraItem._id === cur._id)
+
+    return (acc = [
+      ...acc,
+      {
+        _id: cur._id,
+        extraItem: cur,
+        price: matchItem ? matchItem.price : 0,
+        quantity: matchItem ? matchItem.quantity : 0,
+      },
+    ])
+  }, [])
+}
+
 function formatOrderForm(form) {
   const cloneForm = JSON.parse(JSON.stringify(form))
 
@@ -47,7 +115,7 @@ function formatOrderForm(form) {
 }
 
 async function submitEditForm(form) {
-  const status = await systemOrderStore.updateOrderContent(form._id, formatOrderForm(form))
+  await systemOrderStore.updateOrderContent(form._id, formatOrderForm(form))
 
   editSheetStatus.value = false
   preSaveEditOrderDialog.value = false
@@ -1077,6 +1145,98 @@ async function removeProductItemBagS(bagSizeId) {
                         </span>
                       </div>
                     </div>
+
+                    <!-- 加選配料 -->
+                    <v-btn
+                      @click="showCurrentProductSExtrasData(editOrderForm, item)"
+                      class="my-2"
+                      color="success"
+                      density="compact"
+                      block
+                    >
+                      <v-icon>mdi-plus</v-icon>
+                      配料
+                    </v-btn>
+
+                    <!-- 加選配料表 -->
+                    <v-dialog v-model="optionExtras.dialog" width="600" scrollable>
+                      <v-card title="更新配料">
+                        <v-card-text style="height: 600px">
+                          <v-container fluid>
+                            <v-row dense>
+                              <v-col
+                                :cols="6"
+                                sm="4"
+                                v-for="extra in optionExtras.list"
+                                :key="extra._id"
+                              >
+                                <v-btn block variant="flat" color="primary" height="150">
+                                  <div>
+                                    <div class="mb-2">
+                                      <span class="">
+                                        {{ extra.extraItem.name }}
+                                      </span>
+                                      <span class="text-caption">${{ extra.extraItem.price }}</span>
+                                    </div>
+                                    <div class="d-flex justify-center align-center">
+                                      <!-- 減數量 -->
+                                      <v-btn
+                                        @click="extrasMinusAndPlus('minus', extra)"
+                                        flat
+                                        icon="mdi-minus"
+                                        color="error"
+                                        density="compact"
+                                      />
+
+                                      <span class="text-h6 mx-2 font-weight-bold">{{
+                                        extra.quantity
+                                      }}</span>
+
+                                      <!-- 加數量 -->
+                                      <v-btn
+                                        @click="extrasMinusAndPlus('plus', extra)"
+                                        flat
+                                        icon="mdi-plus"
+                                        color="success"
+                                        density="compact"
+                                      />
+                                    </div>
+                                    <div>${{ extra.price }}</div>
+                                  </div>
+                                </v-btn>
+                              </v-col>
+                            </v-row>
+                          </v-container>
+                        </v-card-text>
+
+                        <v-card-actions>
+                          <v-row class="px-4 py-2">
+                            <v-col
+                              ><v-btn
+                                @click="
+                                  initEditForm(ref(editOrderForm), systemOrderStore.activeOrderList)
+                                "
+                                variant="flat"
+                                size="large"
+                                text="還原"
+                                color="warning"
+                                block
+                              ></v-btn
+                            ></v-col>
+                            <v-col>
+                              <v-btn
+                                variant="flat"
+                                @click="optionExtraSave(optionExtras.list)"
+                                size="large"
+                                color="success"
+                                text="修改"
+                                block
+                              ></v-btn>
+                            </v-col>
+                          </v-row>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
 
                     <!-- 註記 -->
                     <v-select
