@@ -149,16 +149,17 @@ function showProductListDialog() {
   addProduct.value.dialog = true
 }
 function addProductItemInOrder(orderList, item) {
-  item.extras = item.extras.reduce((acc, cur) => {
+  const cloneItem = JSON.parse(JSON.stringify(item))
+  cloneItem.extras = cloneItem.extras.reduce((acc, cur) => {
     return (acc = [...acc, ...cur.items])
   }, [])
 
   orderList.items.push({
-    product: item,
+    product: cloneItem,
     extrasData: [],
     markers: [],
     notes: '',
-    price: item.price,
+    price: cloneItem.price,
     quantity: 1,
     status: false,
   })
