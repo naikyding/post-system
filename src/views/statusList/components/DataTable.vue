@@ -4,6 +4,7 @@ import { useSystemOrderList } from '@/stores/orders'
 import { useMarkersStore, useProductsStore } from '@/stores/products'
 import { useDisplay } from 'vuetify'
 import { encrypt, decrypt } from '@/utils/secret'
+import { speak } from '@/utils/speechSynthesis'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
@@ -20,6 +21,10 @@ const paymentType = ref(null)
 const paymentAlertSnackbar = ref(false)
 const editSheetStatus = ref(false)
 const editOrderForm = ref({})
+
+function formatSpeak(mobile) {
+  return mobile.split('').join(' ') + ' 您的可麗餅好了'
+}
 
 const optionExtras = ref({
   dialog: false,
@@ -671,9 +676,18 @@ async function removeProductItemBagS(bagSizeId) {
               </td>
               <!-- 未三碼 -->
               <td>
-                <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
-                  {{ items.mobileNoThreeDigits || '--' }}
-                </span>
+                <v-btn
+                  @click="speak(formatSpeak(items.mobileNoThreeDigits))"
+                  size="x-large"
+                  density="compact"
+                  color="success"
+                  rounded
+                >
+                  <span class="text-h6 mr-2 font-italic">
+                    {{ items.mobileNoThreeDigits || '--' }}
+                  </span>
+                  <v-icon>mdi-microphone</v-icon>
+                </v-btn>
 
                 <!-- 支付方式 -->
                 <v-chip
