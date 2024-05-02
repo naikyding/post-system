@@ -1,9 +1,8 @@
 const synth = speechSynthesis
 
-export const speak = (text) => {
-  if (!text) return false
-  if (synth.speaking) return false
+export const speak = (content) => {
+  if (!content || synth.speaking) return false
 
-  let utterance = new SpeechSynthesisUtterance(text)
+  let utterance = new SpeechSynthesisUtterance(content)
   return synth.speak(utterance)
 }
