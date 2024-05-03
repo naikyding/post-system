@@ -27,7 +27,8 @@
         "editor.stickyScroll.enabled": true,
 
         // 拼字套件，忽略指定資料夾
-        "cSpell.ignorePaths": ["**/.devcontainer/devcontainer.json"]
+        "cSpell.ignorePaths": ["**/.devcontainer/devcontainer.json"],
+        "emmet.triggerExpansionOnTab": true
       },
       "extensions": [
         // format
