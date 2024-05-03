@@ -14,17 +14,15 @@ const rangeMode = computed(() => (props.isRange ? 'range' : false))
 
 const dates = ref([])
 const formatDates = computed(() => {
-  const isRange = props.isRange
-  const selectedNum = dates.value.length
   const start = dateFormat(dayjs(dates.value[0]))
 
-  if (!isRange) {
+  if (!rangeMode.value) {
     return dateFormat(dayjs(dates.value))
   }
 
   return {
     start,
-    end: dateFormat(dayjs(dates.value[0]))(dates.value[dates.value.length]),
+    end: dateFormat(dayjs(dates.value[dates.value.length - 1])),
   }
 })
 
@@ -34,12 +32,20 @@ function showDatePicker() {
   initDates()
 }
 
-// 日期設置今日
+function datePickerByToday() {
+  if (rangeMode.value) {
+    dates.value = [today]
+  } else dates.value = today
+}
+
+// 初始化日期選擇器
 function initDates() {
-  const activeDate = dayjs(props.activeDate).toDate()
+  const activeDate = !rangeMode.value
+    ? dayjs(props.activeDate).toDate()
+    : { from: dayjs(props.activeDate.from).toDate(), to: dayjs(props.activeDate.to).toDate() }
 
   if (rangeMode.value) {
-    dates.value = [activeDate]
+    dates.value = [activeDate.from, activeDate.to]
   } else dates.value = activeDate
 }
 
@@ -66,7 +72,8 @@ const buttonDisplayContent = computed(() => {
 
   const { start, end } = formatDates.value
 
-  if (start === end && start === today) return 'Today'
+  if (start === end && start === dateFormat(dayjs(today))) return 'Today'
+  if (start === end) return start
   return `${start} ~ ${end}`
 })
 
@@ -106,7 +113,7 @@ function searchData(searchDate) {
 
       <div class="px-4">
         <v-btn
-          @click="initDates"
+          @click="datePickerByToday"
           block
           class="text-none"
           color="warning"
