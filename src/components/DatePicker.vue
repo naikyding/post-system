@@ -1,48 +1,53 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import { dateFormat } from '@/utils/day'
 
 const props = defineProps(['activeDate', 'isRange'])
 const emit = defineEmits(['searchList'])
 
-// 動態修飾符
-const modifiers = computed(() => ({
-  range: props.isRange || false,
-  string: true,
-}))
-
-console.log(props)
-
+// NEW =================================
 const bottomSheet = ref(false)
 const datePicker = ref(null)
-const today = dateFormat(dayjs())
-const datePickerConfig = ref({
-  // 組件內容設置
-  attributes: [
-    // 標記今天
-    {
-      content: {
-        style: {
-          color: 'lightgreen',
-          fontStyle: 'italic',
-        },
-      },
-      dates: today,
-    },
-  ],
+const today = new Date()
+const rangeMode = computed(() => (props.isRange ? 'range' : false))
 
-  // 日期選擇
-  date: props.isRange ? { start: today, end: today } : today,
+const dates = ref([])
+const formatDates = computed(() => {
+  const isRange = props.isRange
+  const selectedNum = dates.value.length
+  const start = dateFormat(dayjs(dates.value[0]))
 
-  // 日期選擇格式
-  masks: {
-    modelValue: 'YYYY-MM-DD',
-  },
+  if (!isRange) {
+    return dateFormat(dayjs(dates.value))
+  }
 
-  // 禁用日期
-  disabledDates: [{ start: dateFormat(dayjs().add(1, 'day')), end: null }],
+  return {
+    start,
+    end: dateFormat(dayjs(dates.value[0]))(dates.value[dates.value.length]),
+  }
 })
+
+// show date Picker
+function showDatePicker() {
+  bottomSheet.value = !bottomSheet.value
+  initDates()
+}
+
+// 日期設置今日
+function initDates() {
+  const activeDate = dayjs(props.activeDate).toDate()
+
+  if (rangeMode.value) {
+    dates.value = [activeDate]
+  } else dates.value = activeDate
+}
+
+onMounted(() => {
+  initDates()
+})
+
+// NEW =================================
 
 function buttonContentDisplay(today, currentDate) {
   if (props.isRange) {
@@ -55,27 +60,15 @@ function buttonContentDisplay(today, currentDate) {
 }
 
 const buttonDisplayContent = computed(() => {
-  if (props.isRange) {
-    const { start, end } = datePickerConfig.value.date
-    if (datePickerConfig.value.date === today || (start === end && start === today)) return 'Today'
-    return `${start} ~ ${end}`
+  if (!rangeMode.value) {
+    return today === dates.value ? 'Today' : formatDates.value
   }
 
-  if (datePickerConfig.value.date === today) return 'Today'
-  else return datePickerConfig.value.date
+  const { start, end } = formatDates.value
+
+  if (start === end && start === today) return 'Today'
+  return `${start} ~ ${end}`
 })
-
-// 日期設置今日
-function selectToday(datePickerConfig) {
-  if (props.isRange) {
-    datePickerConfig.date = {
-      start: today,
-      end: today,
-    }
-  } else datePickerConfig.date = today
-
-  datePicker.value.move(today)
-}
 
 // 依設置日期取得資料
 function searchData(searchDate) {
@@ -85,12 +78,7 @@ function searchData(searchDate) {
 </script>
 
 <template>
-  <v-btn
-    block
-    variant="outlined"
-    class="overflow-hidden text-left"
-    @click="bottomSheet = !bottomSheet"
-  >
+  <v-btn block variant="outlined" class="overflow-hidden text-left" @click="showDatePicker">
     <template v-slot:prepend>
       <v-icon icon="mdi-tune-variant"></v-icon>
     </template>
@@ -100,45 +88,45 @@ function searchData(searchDate) {
   <v-bottom-sheet v-model="bottomSheet">
     <v-card class="rounded-t-xl py-4">
       <div class="text-center font-italic text-grey">{{ buttonDisplayContent }}</div>
-      <VDatePicker
-        v-model="datePickerConfig.date"
-        :model-modifiers="modifiers"
-        :attributes="datePickerConfig.attributes"
-        :masks="datePickerConfig.masks"
-        :disabled-dates="datePickerConfig.disabledDates"
+
+      <v-date-picker
+        v-model="dates"
+        :max="today"
+        :multiple="rangeMode"
         ref="datePicker"
-        mode="date"
+        view-mode="month"
+        min-width="100vw"
+        color="blue"
         borderless
         transparent
-        expanded
         is-dark
+        hide-header
       >
-        <template #footer>
-          <div class="px-4">
-            <v-btn
-              @click="selectToday(datePickerConfig)"
-              block
-              class="text-none mb-4"
-              color="warning"
-              size="x-large"
-              variant="flat"
-            >
-              Today
-            </v-btn>
+      </v-date-picker>
 
-            <v-btn
-              @click="searchData(datePickerConfig.date)"
-              block
-              class="text-none mb-4"
-              color="success"
-              size="x-large"
-              variant="flat"
-            >
-              Search
-            </v-btn>
-          </div>
-        </template>
-      </VDatePicker>
+      <div class="px-4">
+        <v-btn
+          @click="initDates"
+          block
+          class="text-none"
+          color="warning"
+          variant="flat"
+          size="x-large"
+        >
+          Today
+        </v-btn>
+
+        <v-btn
+          @click="searchData(formatDates)"
+          block
+          class="text-none my-4"
+          color="success"
+          variant="flat"
+          size="x-large"
+        >
+          Search
+        </v-btn>
+      </div>
     </v-card>
   </v-bottom-sheet>
 </template>
