@@ -10,8 +10,10 @@ import {
 import { login, refreshToken, gerUserBaseInfo } from './auth'
 import { getDashboardBaseData } from './dashboard'
 import { getMarkers, createMarker, deleteMarker, editMarker } from './markers.js'
+import { getExtras } from './extras.js'
 
 export const getProductsAPI = getProducts
+export const getExtrasAPI = getExtras
 
 export const getOrderListAPI = getOrderList
 export const createOrderAPI = createOrder
