@@ -34,7 +34,7 @@ export const errorFunction = (errors, message) => {
       title: message || errors.response.data.message || '🔥 請求失敗',
       html: formatText,
       width: '400px',
-      timer: 2000,
+      timer: 2500,
       showConfirmButton: false,
     })
 
