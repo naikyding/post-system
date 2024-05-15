@@ -1,4 +1,4 @@
-import { getProducts } from './products'
+import { getProducts, createProduct, deleteProduct } from './products'
 import {
   createOrder,
   getOrderList,
@@ -10,10 +10,14 @@ import {
 import { login, refreshToken, gerUserBaseInfo } from './auth'
 import { getDashboardBaseData } from './dashboard'
 import { getMarkers, createMarker, deleteMarker, editMarker } from './markers.js'
-import { getExtras } from './extras.js'
+import { getExtras, createExtras } from './extras.js'
 
 export const getProductsAPI = getProducts
+export const createProductAPI = createProduct
+export const deleteProductAPI = deleteProduct
+
 export const getExtrasAPI = getExtras
+export const createExtrasAPI = createExtras
 
 export const getOrderListAPI = getOrderList
 export const createOrderAPI = createOrder
