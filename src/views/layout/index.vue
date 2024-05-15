@@ -185,4 +185,8 @@ function resetForm() {
   </v-card>
 </template>
 
-<style scoped></style>
+<style>
+.swal2-container {
+  z-index: 2500;
+}
+</style>
