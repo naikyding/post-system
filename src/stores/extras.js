@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getExtrasAPI } from '@/api'
+import { getExtrasAPI, createExtrasAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 
 export const useExtrasStore = defineStore('extras', () => {
@@ -14,8 +14,14 @@ export const useExtrasStore = defineStore('extras', () => {
     }
   })
 
+  const createExtrasItem = catchAsync(async (form) => {
+    const res = await createExtrasAPI(form)
+    return res
+  })
+
   return {
     extras,
     getExtrasList,
+    createExtrasItem,
   }
 })
