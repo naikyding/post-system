@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { getProductsAPI, getMarkersAPI } from '@/api'
+import { getProductsAPI, getMarkersAPI, createProductAPI, deleteProductAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 
 export const useProductsStore = defineStore('products', () => {
@@ -13,9 +13,31 @@ export const useProductsStore = defineStore('products', () => {
     if (data) products.value = data.items
   })
 
+  const createProduct = catchAsync(async (form) => {
+    const res = await createProductAPI(form)
+    const {
+      data: { items },
+    } = res
+    if (items) products.value = items
+
+    return res
+  })
+
+  const deleteProduct = catchAsync(async (id) => {
+    const res = await deleteProductAPI(id)
+    const {
+      data: { items },
+    } = res
+    if (items) products.value = items
+
+    return res
+  })
+
   return {
     products,
     getProducts,
+    createProduct,
+    deleteProduct,
   }
 })
 
