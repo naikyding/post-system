@@ -125,6 +125,8 @@ function resetForm() {
               <v-icon v-show="systemOrderStore.pendingQuantity < 1">mdi-list-status</v-icon>
             </template>
           </v-list-item>
+
+          <v-list-item to="/setting" prepend-icon="mdi-cog" title="Setting" value="setting" />
         </v-list>
 
         <!-- 登出 -->
@@ -183,4 +185,8 @@ function resetForm() {
   </v-card>
 </template>
 
-<style scoped></style>
+<style>
+.swal2-container {
+  z-index: 2500;
+}
+</style>

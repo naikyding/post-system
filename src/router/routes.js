@@ -1,3 +1,5 @@
+import { components } from 'vuetify/dist/vuetify-labs.js'
+
 const routes = [
   {
     path: '/login',
@@ -23,6 +25,11 @@ const routes = [
         path: 'list-status',
         name: 'ListStatus',
         component: () => import('@/views/statusList/index.vue'),
+      },
+      {
+        path: 'setting',
+        name: 'Setting',
+        component: () => import('@/views/setting/index.vue'),
       },
     ],
   },
