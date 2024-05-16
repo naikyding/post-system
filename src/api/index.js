@@ -1,4 +1,4 @@
-import { getProducts, createProduct, deleteProduct } from './products'
+import { getProducts, createProduct, deleteProduct, updateProduct } from './products'
 import {
   createOrder,
   getOrderList,
@@ -15,6 +15,7 @@ import { getExtras, createExtras } from './extras.js'
 export const getProductsAPI = getProducts
 export const createProductAPI = createProduct
 export const deleteProductAPI = deleteProduct
+export const updateProductAPI = updateProduct
 
 export const getExtrasAPI = getExtras
 export const createExtrasAPI = createExtras
