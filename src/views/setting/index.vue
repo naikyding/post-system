@@ -104,13 +104,26 @@ async function validationForm(ref) {
   return valid
 }
 
+watch(
+  () => addProductItem.value.status,
+  (status) => {
+    if (!status) {
+      addProductCancel()
+      addProductItem.value.form.extras.length = 0
+    }
+  },
+)
+
 async function preAddProductItemSubmit() {
   const valid = await validationForm(addProductForm)
   if (!valid) return false
 
   preSaveDialog.value = true
 }
-
+function addProductCancel() {
+  addProductItem.value.status = false
+  addProductForm.value.reset()
+}
 async function addProductItemSubmit(form) {
   form.agent = userStore.agents
 
@@ -119,12 +132,11 @@ async function addProductItemSubmit(form) {
 
   if (res) {
     const { message } = res
-    // reFetchData(active.value.index)
-    addProductItem.value.status = false
     statusSnackbar.value.color = 'success'
     statusSnackbar.value.text = message
 
-    addProductForm.value.reset()
+    addProductCancel()
+
     addProductItem.value.form.extras.length = 0
 
     statusSnackbar.value.status = true
@@ -356,16 +368,16 @@ getProductsList()
             <div class="pa-2">
               <v-btn
                 color="error"
-                text="Close"
+                text="取消"
                 variant="outlined"
                 size="large"
-                @click="dialog = false"
+                @click="addProductCancel"
               ></v-btn>
 
               <v-btn
                 type="submit"
                 color="success"
-                text="Save"
+                text="保存"
                 variant="flat"
                 size="large"
                 @click="addProductItem.preSubmit(addProductItem.form)"
@@ -449,7 +461,7 @@ getProductsList()
             <div class="pa-2">
               <v-btn
                 color="error"
-                text="Close"
+                text="取消"
                 variant="outlined"
                 size="large"
                 @click="editProductCancel"
