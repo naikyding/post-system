@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useProductsStore } from '@/stores/products'
 import { useExtrasStore } from '@/stores/extras'
 import { useUserStore } from '@/stores/users'
@@ -9,6 +9,38 @@ const productsStore = useProductsStore()
 const userStore = useUserStore()
 const search = ref('')
 const addProductForm = ref(null)
+const editProductForm = ref(null)
+
+const preEditSaveDialog = ref(false)
+async function preEditSave() {
+  const validation = await validationForm(editProductForm)
+  if (validation) preEditSaveDialog.value = true
+}
+function priEditCancel() {
+  preEditSaveDialog.value = false
+}
+
+function editProductCancel() {
+  editDialog.value.content = {}
+  editDialog.value.status = false
+  editProductForm.value.reset()
+}
+
+async function saveEditProduct(form) {
+  form.agent = userStore.agents
+  const { status, message } = (await productsStore.updateProduct(form._id, form)) || {
+    status: false,
+    message: '發生錯誤',
+  }
+  if (!status) return priEditCancel()
+
+  priEditCancel()
+  editProductCancel()
+
+  statusSnackbar.value.color = 'success'
+  statusSnackbar.value.text = message
+  statusSnackbar.value.status = true
+}
 
 const preSaveDialog = ref(false)
 
@@ -23,7 +55,7 @@ async function deleteProduct(id) {
   preDeleteDialog.value = false
 
   if (res) {
-    const { status, message } = res
+    const { message } = res
     preDeleteContent.value = {}
 
     statusSnackbar.value.text = message
@@ -166,11 +198,16 @@ function getProductsList() {
 }
 
 function editItem(item) {
+  getExtrasList()
   editDialog.value.status = true
   editDialog.value.content = {}
   const cloneItem = JSON.parse(JSON.stringify(item))
+  cloneItem.extras = cloneItem.extras.reduce((acc, cur) => {
+    return (acc = [...acc, ...cur.items.map((item) => item._id)])
+  }, [])
   editDialog.value.content = cloneItem
 }
+
 getProductsList()
 </script>
 
@@ -340,19 +377,19 @@ getProductsList()
     </v-dialog>
 
     <!-- 修改 DIALOG -->
-    <template>
-      <div class="pa-4 text-center">
-        <v-dialog v-model="editDialog.status" max-width="600">
-          <v-card title="修改">
-            <v-card-text>
+    <v-dialog v-model="editDialog.status" max-width="600" scrollable>
+      <v-form ref="editProductForm" @submit.prevent>
+        <v-card title="修改">
+          <v-card-text>
+            <v-container>
               <v-row dense>
                 <v-col cols="12" sm="6">
                   <v-text-field
-                    v-model="editDialog.content.name"
+                    v-model="editDialog.content.type"
                     clearable
                     label="類別"
                     variant="outlined"
-                    required
+                    :rules="[addProductItem.rules.required]"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
@@ -361,7 +398,7 @@ getProductsList()
                     clearable
                     label="價錢"
                     variant="outlined"
-                    required
+                    :rules="[addProductItem.rules.required]"
                   ></v-text-field>
                 </v-col>
 
@@ -371,7 +408,7 @@ getProductsList()
                     clearable
                     label="名稱"
                     variant="outlined"
-                    required
+                    :rules="[addProductItem.rules.required]"
                   ></v-text-field>
                 </v-col>
 
@@ -381,97 +418,73 @@ getProductsList()
                     clearable
                     label="說明"
                     variant="outlined"
+                    :rules="[addProductItem.rules.required]"
                   ></v-text-field>
                 </v-col>
 
                 <v-col cols="12">
-                  <v-text-field clearable label="配料" variant="outlined"></v-text-field>
-                </v-col>
-
-                <v-col cols="12">{{ editDialog.content }}</v-col>
-
-                <v-col cols="12" md="4" sm="6">
-                  <v-text-field
-                    hint="example of helper text only on focus"
-                    label="Middle name"
-                  ></v-text-field>
-                </v-col>
-
-                <v-col cols="12" md="4" sm="6">
-                  <v-text-field
-                    hint="example of persistent helper text"
-                    label="Last name*"
-                    persistent-hint
-                    required
-                  ></v-text-field>
-                </v-col>
-
-                <v-col cols="12" md="4" sm="6">
-                  <v-text-field label="Email*" required></v-text-field>
-                </v-col>
-
-                <v-col cols="12" md="4" sm="6">
-                  <v-text-field label="Password*" type="password" required></v-text-field>
-                </v-col>
-
-                <v-col cols="12" md="4" sm="6">
-                  <v-text-field label="Confirm Password*" type="password" required></v-text-field>
-                </v-col>
-
-                <v-col cols="12" sm="6">
-                  <v-select
-                    :items="['0-17', '18-29', '30-54', '54+']"
-                    label="Age*"
-                    required
-                  ></v-select>
-                </v-col>
-
-                <v-col cols="12" sm="6">
-                  <v-autocomplete
-                    :items="[
-                      'Skiing',
-                      'Ice hockey',
-                      'Soccer',
-                      'Basketball',
-                      'Hockey',
-                      'Reading',
-                      'Writing',
-                      'Coding',
-                      'Basejump',
-                    ]"
-                    label="Interests"
-                    auto-select-first
-                    multiple
-                  ></v-autocomplete>
+                  配料
+                  <v-divider></v-divider>
+                  <v-data-table
+                    :headers="addExtrasTable.headers"
+                    :items="active.items[1]['list']"
+                    :item-value="(item) => item._id"
+                    v-model="editDialog.content.extras"
+                    :mobile="false"
+                    :search="search"
+                    fixed-header
+                    items-per-page="-1"
+                    show-select
+                  >
+                    <template #bottom></template>
+                  </v-data-table>
                 </v-col>
               </v-row>
+            </v-container>
+          </v-card-text>
 
-              <small class="text-caption text-medium-emphasis">*indicates required field</small>
-            </v-card-text>
+          <v-divider></v-divider>
 
-            <v-divider></v-divider>
-
-            <v-card-actions>
+          <v-card-actions>
+            <div class="pa-2">
               <v-btn
                 color="error"
                 text="Close"
                 variant="outlined"
                 size="large"
-                @click="dialog = false"
+                @click="editProductCancel"
               ></v-btn>
 
               <v-btn
+                type="submit"
                 color="success"
-                text="Save"
+                text="保存"
                 variant="flat"
                 size="large"
-                @click="dialog = false"
+                @click="preEditSave"
               ></v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
-    </template>
+            </div>
+          </v-card-actions>
+        </v-card>
+      </v-form>
+    </v-dialog>
+
+    <!-- 修改 確認 dialog -->
+    <v-dialog v-model="preEditSaveDialog" width="auto">
+      <v-card width="400" title="保存確認" text="是否保存所有設置?">
+        <template v-slot:actions>
+          <v-btn variant="outlined" text="取消" size="large" color="error" @click="priEditCancel" />
+          <v-btn
+            class="ma-2"
+            size="large"
+            variant="flat"
+            text="保存"
+            color="success"
+            @click="saveEditProduct(editDialog.content)"
+          />
+        </template>
+      </v-card>
+    </v-dialog>
 
     <!-- 確認 dialog -->
     <v-dialog v-model="preSaveDialog" width="auto">
@@ -528,6 +541,6 @@ getProductsList()
 
 <style lang="scss" scoped>
 .content-height {
-  height: calc(100dvh - 152px);
+  height: calc(100dvh - 136px);
 }
 </style>
