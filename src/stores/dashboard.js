@@ -19,6 +19,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
       pending: [],
       cancelled: [],
     },
+    completedTotalItem: [],
   })
 
   const formatSearchQueryString = computed(() => {
@@ -42,6 +43,7 @@ export const useDashboardStore = defineStore('Dashboard', () => {
       cancelled: [],
     }
     dashboardData.total = { ...res.data.total }
+    dashboardData.completedTotalItem = [...res.data.completedTotalItem]
   })
 
   return {

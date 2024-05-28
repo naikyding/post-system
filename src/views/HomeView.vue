@@ -112,6 +112,15 @@ function searchDataByDatePicker(searchDate) {
 
   dashboardStore.getDashboardData(dashboardStore.formatSearchQueryString)
 }
+
+const dataTable = ref({
+  headers: [
+    { title: '類別', key: 'type' },
+    { title: '名稱', key: 'name' },
+    { title: '數量', key: 'quantity' },
+  ],
+  list: computed(() => dashboardStore.dashboardData.completedTotalItem),
+})
 </script>
 
 <template>
@@ -305,6 +314,17 @@ function searchDataByDatePicker(searchDate) {
               </v-row>
             </v-card-text>
           </v-card>
+        </v-col>
+
+        <!-- 項目列表 -->
+        <v-col cols="12">
+          <v-data-table
+            :headers="dataTable.headers"
+            :mobile="false"
+            fixed-header
+            items-per-page="-1"
+            :items="dataTable.list"
+          ></v-data-table>
         </v-col>
       </v-row>
     </v-container>
