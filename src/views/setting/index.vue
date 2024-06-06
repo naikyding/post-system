@@ -28,10 +28,18 @@ function editProductCancel() {
 
 async function saveEditProduct(form) {
   form.agent = userStore.agents
-  const { status, message } = (await productsStore.updateProduct(form._id, form)) || {
+  const defaultMsg = {
     status: false,
     message: '發生錯誤',
   }
+
+  let res
+
+  active.value.index === 0
+    ? (res = await productsStore.updateProduct(form._id, form))
+    : (res = await extrasStore.updateExtra(form._id, form))
+
+  const { status, message } = res || defaultMsg
   if (!status) return priEditCancel()
 
   priEditCancel()
@@ -46,12 +54,18 @@ const preSaveDialog = ref(false)
 
 const preDeleteDialog = ref(false)
 const preDeleteContent = ref({})
-function proDeleteProduct(data) {
+function proDeleteProductOrExtras(data) {
   preDeleteDialog.value = true
   preDeleteContent.value = data
 }
-async function deleteProduct(id) {
-  const res = await productsStore.deleteProduct(id)
+async function deleteProductOrExtras(id) {
+  let res
+
+  // 如果是配料 tab
+  active.value.index === 1
+    ? (res = await extrasStore.deleteExtra(id))
+    : (res = await productsStore.deleteProduct(id))
+
   preDeleteDialog.value = false
 
   if (res) {
@@ -125,9 +139,13 @@ function addProductCancel() {
   addProductForm.value.reset()
 }
 async function addProductItemSubmit(form) {
+  let res
   form.agent = userStore.agents
 
-  const res = await productsStore.createProduct(form)
+  active.value.index === 1
+    ? (res = await extrasStore.createExtrasItem(form))
+    : (res = await productsStore.createProduct(form))
+
   preSaveDialog.value = false
 
   if (res) {
@@ -213,10 +231,15 @@ function editItem(item) {
   getExtrasList()
   editDialog.value.status = true
   editDialog.value.content = {}
+
   const cloneItem = JSON.parse(JSON.stringify(item))
-  cloneItem.extras = cloneItem.extras.reduce((acc, cur) => {
-    return (acc = [...acc, ...cur.items.map((item) => item._id)])
-  }, [])
+
+  if (active.value.index === 0) {
+    cloneItem.extras = cloneItem.extras.reduce((acc, cur) => {
+      return (acc = [...acc, ...cur.items.map((item) => item._id)])
+    }, [])
+  }
+
   editDialog.value.content = cloneItem
 }
 
@@ -226,7 +249,7 @@ getProductsList()
 <template>
   <div class="">
     <v-sheet class="mx-4 mb-4">
-      <v-slide-group v-model="active.index">
+      <v-slide-group v-model="active.index" mandatory>
         <v-slide-group-item
           v-for="(item, index) in active.items"
           :key="index"
@@ -286,7 +309,7 @@ getProductsList()
               size="small"
               color="error"
               icon="mdi-delete"
-              @click="proDeleteProduct(item)"
+              @click="proDeleteProductOrExtras(item)"
             ></v-btn>
           </div>
         </template>
@@ -296,7 +319,7 @@ getProductsList()
     <!-- 新增 dialog -->
     <v-dialog v-model="addProductItem.status" max-width="600" scrollable>
       <v-form ref="addProductForm" @submit.prevent>
-        <v-card title="新增">
+        <v-card :title="`新增${active.index === 1 ? '配料' : '產品'}`">
           <v-card-text>
             <v-container>
               <v-row dense>
@@ -318,6 +341,7 @@ getProductsList()
                     clearable
                     label="價錢"
                     variant="outlined"
+                    :rules="[addProductItem.rules.required]"
                   ></v-text-field>
                 </v-col>
 
@@ -341,7 +365,7 @@ getProductsList()
                   ></v-text-field>
                 </v-col>
 
-                <v-col cols="12">
+                <v-col cols="12" v-show="active.index === 0">
                   配料
                   <v-divider></v-divider>
                   <v-data-table
@@ -391,7 +415,7 @@ getProductsList()
     <!-- 修改 DIALOG -->
     <v-dialog v-model="editDialog.status" max-width="600" scrollable>
       <v-form ref="editProductForm" @submit.prevent>
-        <v-card title="修改">
+        <v-card :title="`修改${active.index === 1 ? '配料' : '產品'}`">
           <v-card-text>
             <v-container>
               <v-row dense>
@@ -434,7 +458,7 @@ getProductsList()
                   ></v-text-field>
                 </v-col>
 
-                <v-col cols="12">
+                <v-col cols="12" v-if="active.index === 0">
                   配料
                   <v-divider></v-divider>
                   <v-data-table
@@ -538,7 +562,7 @@ getProductsList()
             variant="flat"
             text="確認"
             color="success"
-            @click="deleteProduct(preDeleteContent._id)"
+            @click="deleteProductOrExtras(preDeleteContent._id)"
           />
         </template>
       </v-card>
