@@ -125,6 +125,7 @@ watch(
     if (!status) {
       addProductCancel()
       addProductItem.value.form.extras.length = 0
+      addProductItem.value.form.status = 'active'
     }
   },
 )
