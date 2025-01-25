@@ -49,6 +49,10 @@ onMounted(async () => {
   await productsStore.getProducts()
   await markerStore.getMarkers()
 })
+
+// 篩選 "上架" 商品
+const activeProductItems = (productItems) =>
+  productItems.filter((productItem) => productItem.status === 'active')
 </script>
 
 <template>
@@ -264,7 +268,7 @@ onMounted(async () => {
                 <v-row>
                   <!-- 產品項目 -->
                   <v-col
-                    v-for="(productItem, index) in productItems.items"
+                    v-for="(productItem, index) in activeProductItems(productItems.items)"
                     :key="productItem + index"
                     cols="12"
                     sm="6"

@@ -103,6 +103,7 @@ const addProductItem = ref({
     },
   },
   form: {
+    status: 'active',
     name: '',
     description: '',
     type: '',
@@ -124,6 +125,7 @@ watch(
     if (!status) {
       addProductCancel()
       addProductItem.value.form.extras.length = 0
+      addProductItem.value.form.status = 'active'
     }
   },
 )
@@ -323,6 +325,18 @@ getProductsList()
           <v-card-text>
             <v-container>
               <v-row dense>
+                <v-col cols="12">
+                  <v-switch
+                    v-model="addProductItem.form.status"
+                    color="green"
+                    :label="editDialog.content.status"
+                    true-value="active"
+                    false-value="inactive"
+                    hide-details
+                    inset
+                  ></v-switch>
+                </v-col>
+
                 <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="addProductItem.form.type"
@@ -419,6 +433,18 @@ getProductsList()
           <v-card-text>
             <v-container>
               <v-row dense>
+                <v-col cols="12">
+                  <v-switch
+                    v-model="editDialog.content.status"
+                    color="green"
+                    :label="editDialog.content.status"
+                    true-value="active"
+                    false-value="inactive"
+                    hide-details
+                    inset
+                  ></v-switch>
+                </v-col>
+
                 <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="editDialog.content.type"
