@@ -53,6 +53,13 @@ onMounted(async () => {
 // 篩選 "上架" 商品
 const activeProductItems = (productItems) =>
   productItems.filter((productItem) => productItem.status === 'active')
+
+const activeProducts = (allProducts) => {
+  return allProducts.filter((productItem) => {
+    const activeProduct = productItem.items.filter((item) => item.status === 'active')
+    if (activeProduct.length > 0) return productItem
+  })
+}
 </script>
 
 <template>
@@ -247,7 +254,7 @@ const activeProductItems = (productItems) =>
           show-arrows
         >
           <v-tab
-            v-for="(productItems, index) in productsStore.products"
+            v-for="(productItems, index) in activeProducts(productsStore.products)"
             :key="productItems + index"
             :value="index"
             class="text-subtitle-1"
@@ -260,7 +267,7 @@ const activeProductItems = (productItems) =>
         <v-card-text>
           <v-window continuous v-model="tabActiveId">
             <v-window-item
-              v-for="(productItems, index) in productsStore.products"
+              v-for="(productItems, index) in activeProducts(productsStore.products)"
               :key="productItems + index"
               :value="index"
             >
