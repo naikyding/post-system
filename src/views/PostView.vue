@@ -29,6 +29,16 @@ const computedDialog = reactive({
   ),
 })
 
+const rules = reactive({
+  activeProductItemQuantity: {
+    required: (value) => !!value || 'Required',
+    min: (value) => value > 0 || 'EnsureQuantityPositive',
+    check: (quantity) => {
+      if (quantity < 0 && quantity !== '') ordersStore.activeProductItem.quantity = 1
+    },
+  },
+})
+
 watch(
   () => computedDialog.status,
   (newValue) => {
@@ -390,9 +400,7 @@ const activeProducts = (allProducts) => {
                 :value="extras.type"
               >
                 <v-expansion-panel-title expand-icon="mdi-menu-down">
-                  <span class="text-subtitle-1">
-                    {{ extras.type }}
-                  </span>
+                  <span class="text-subtitle-1"> {{ extras.type }} </span>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
                   <div v-for="(extra, index) in extras.items" :key="extra">
@@ -533,17 +541,21 @@ const activeProducts = (allProducts) => {
 
       <v-divider></v-divider>
 
+      <!-- 數量 -->
       <div class="px-6 py-4">
         <v-text-field
+          class="mb-4"
           v-model="ordersStore.activeProductItem.quantity"
           @click:append="ordersStore.activeProductItemQuantity(true)"
           @click:prepend="ordersStore.activeProductItemQuantity()"
+          @update:modelValue="rules.activeProductItemQuantity.check"
+          :rules="[rules.activeProductItemQuantity.required, rules.activeProductItemQuantity.min]"
           append-icon="mdi-plus"
           prepend-icon="mdi-minus"
           type="number"
           min="1"
           variant="outlined"
-          readonly
+          hide-details
         />
 
         <!-- 操作功能 -->
@@ -631,9 +643,7 @@ const activeProducts = (allProducts) => {
               </div>
             </div>
             <v-spacer></v-spacer>
-            <div class="order-item_quantity mr-4">
-              {{ orderItem.quantity }}
-            </div>
+            <div class="order-item_quantity mr-4">{{ orderItem.quantity }}</div>
             <div class="order-item_total-price">
               $
               <span class="font-weight-bold"> {{ orderItem.total }} </span>
