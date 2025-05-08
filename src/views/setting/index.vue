@@ -192,11 +192,12 @@ function formatProductList(list) {
 
 const table = ref({
   headers: [
+    { title: '狀態', key: 'status' },
     { title: '類型', key: 'type' },
     { title: '名稱', key: 'name' },
     { title: '說明', key: 'description' },
     { title: '價錢', key: 'price', align: 'end', value: (item) => `$${item.price}` },
-    { title: 'Actions', key: 'actions', align: 'center' },
+    { title: '操作', key: 'actions', align: 'center' },
   ],
 })
 
@@ -297,6 +298,17 @@ getProductsList()
         fixed-header
         items-per-page="-1"
       >
+        <!-- 狀態 -->
+        <template v-slot:item.status="{ item }">
+          <v-switch
+            :model-value="item.status === 'active'"
+            color="success"
+            hide-details
+            readonly
+          ></v-switch>
+        </template>
+
+        <!-- 操作 -->
         <template v-slot:item.actions="{ item }">
           <div class="d-flex">
             <!-- 修改 -->
@@ -355,7 +367,6 @@ getProductsList()
                     clearable
                     label="價錢"
                     variant="outlined"
-                    :rules="[addProductItem.rules.required]"
                   ></v-text-field>
                 </v-col>
 
