@@ -545,14 +545,13 @@ const activeProducts = (allProducts) => {
       <div class="px-6 py-4">
         <v-text-field
           class="mb-4"
-          v-model="ordersStore.activeProductItem.quantity"
+          v-model.number="ordersStore.activeProductItem.quantity"
           @click:append="ordersStore.activeProductItemQuantity(true)"
           @click:prepend="ordersStore.activeProductItemQuantity()"
           @update:modelValue="rules.activeProductItemQuantity.check"
           :rules="[rules.activeProductItemQuantity.required, rules.activeProductItemQuantity.min]"
           append-icon="mdi-plus"
           prepend-icon="mdi-minus"
-          type="number"
           min="1"
           variant="outlined"
           hide-details
