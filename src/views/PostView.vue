@@ -374,8 +374,13 @@ const activeProducts = (allProducts) => {
         </v-btn>
       </v-toolbar>
 
-      <v-card-subtitle class="px-6 mt-4">
-        {{ ordersStore.activeProductItem.product.description }}
+      <v-card-subtitle class="px-6 mt-4 d-flex align-center">
+        <span class="me-auto">
+          {{ ordersStore.activeProductItem.product.description }}
+        </span>
+
+        <!-- 客製訂單時間 -->
+        <v-btn color="warning" icon="mdi-timer-edit" variant="plain"> </v-btn>
       </v-card-subtitle>
 
       <v-divider class="mt-4" />
@@ -586,7 +591,7 @@ const activeProducts = (allProducts) => {
     </v-card>
   </v-dialog>
 
-  <!-- confirm Dialog -->
+  <!-- 訂單明細 Dialog -->
   <v-dialog
     transition="dialog-bottom-transition"
     v-model="dialog.confirmOrderList"
