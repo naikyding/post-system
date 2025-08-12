@@ -24,12 +24,35 @@ const dialog = reactive({
 })
 
 const schedule = reactive({
-  data: null,
+  date: null,
   time: null,
   menu2: false,
   timeModal: false,
   dateModal: false,
 })
+
+const cancelSettingDateAndTime = () => {
+  schedule.date = null
+  schedule.time = null
+  delete ordersStore.ordersList.scheduledAt
+  dialog.scheduleAt = false
+}
+
+const submitList = (data) => {
+  ordersStore.submitOrderList(data)
+  cancelSettingDateAndTime()
+}
+
+const setScheduleDateDone = () => {
+  let settingDateAndTime
+  schedule.dateModal = false
+  const [hour, minute] = schedule.time.split(':')
+
+  settingDateAndTime = dayjs(schedule.date).set('hour', hour).set('minute', minute).toISOString()
+  console.log('settingDateAndTime (Z+0) =>', settingDateAndTime)
+  ordersStore.ordersList.scheduledAt = settingDateAndTime
+  dialog.scheduleAt = false
+}
 
 const parseDate = ref(null)
 
@@ -42,11 +65,12 @@ watch(
 
 const cancelScheduleDateNTime = (schedule, type) => {
   schedule[type] = null
-  console.log(schedule[`${type}Modal`])
+
   schedule[`${type}Modal`] = false
 }
 
 const showScheduleDialog = () => {
+  if (schedule.date === null) resetDateTime()
   dialog.scheduleAt = true
 }
 
@@ -59,6 +83,12 @@ const computedDialog = reactive({
       : '--',
   ),
 })
+
+const resetDateTime = () => {
+  const now = dayjs()
+  schedule.date = now.format('YYYY-MM-DD')
+  schedule.time = now.format('HH:mm')
+}
 
 const rules = reactive({
   activeProductItemQuantity: {
@@ -713,7 +743,20 @@ const activeProducts = (allProducts) => {
             </v-text-field>
 
             <template v-slot:actions>
-              <v-btn class="ms-auto" text="Ok" @click="dialog = false"></v-btn>
+              <v-btn
+                class="mb-4"
+                color="error"
+                variant="tonal"
+                text="取消"
+                @click="cancelSettingDateAndTime"
+              ></v-btn>
+              <v-btn
+                class="mb-4"
+                color="success"
+                variant="tonal"
+                text="完成"
+                @click="setScheduleDateDone"
+              ></v-btn>
             </template>
           </v-card>
         </v-dialog>
@@ -859,7 +902,7 @@ const activeProducts = (allProducts) => {
               color="error"
               size="x-large"
               @click="
-                ordersStore.submitOrderList({
+                submitList({
                   list: ordersStore.ordersList,
                   isPaid: false,
                   dialog,
