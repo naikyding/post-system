@@ -51,6 +51,7 @@ export const useOrdersStore = defineStore('orders', () => {
     ordersList.note = ''
     ordersList.isPaid = false
     ordersList.mobileNoThreeDigits = null
+    delete ordersList.scheduledAt
   }
 
   // 當前產品項目加入購物車
@@ -310,6 +311,7 @@ export const useOrdersStore = defineStore('orders', () => {
         if (!init.isPaid) init.isPaid = list.isPaid || false
         if (!init.paymentType) init.paymentType = list.paymentType || null
         if (!init.totalPrice) init.totalPrice = list.total.totalPrice
+        if (!init.scheduledAt) init.scheduledAt = list.scheduledAt
 
         return init
       },
@@ -323,7 +325,7 @@ export const useOrdersStore = defineStore('orders', () => {
     formatData.agent = userStore.agents
 
     dialog.confirmOrderList = false
-
+    console.log('formatData', formatData)
     const { status } = await createOrderAPI(formatData)
     appStore.resStatusDialog({ status: status, text: '新增訂單' })
     resFunc(status, () => {
