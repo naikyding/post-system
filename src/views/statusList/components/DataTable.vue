@@ -513,6 +513,13 @@ async function removeProductItemBagS(bagSizeId) {
       </thead>
       <tbody>
         <template v-for="items in systemOrderStore.orderList" :key="items._id">
+          <!-- 預定時間 -->
+          <!-- <div class="text-center" v-show="items.scheduledAt">
+            <span class="bg-error py-1 px-2 rounded-xl">
+              預訂時間: {{ dayJS(items.scheduledAt).format('MM/DD HH:mm') }}
+            </span>
+          </div> -->
+
           <template v-if="closeOrderItem.includes(items._id)">
             <tr>
               <td>
