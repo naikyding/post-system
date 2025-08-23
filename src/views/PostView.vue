@@ -4,6 +4,7 @@ import { useDisplay } from 'vuetify'
 
 import { useProductsStore, useMarkersStore } from '../stores/products'
 import { useOrdersStore } from '../stores/orders'
+import dayjs from 'dayjs'
 
 const productsStore = useProductsStore()
 const ordersStore = useOrdersStore()
@@ -17,7 +18,61 @@ const dialog = reactive({
   activeProductItem: false,
   // 確認訂單
   confirmOrderList: false,
+
+  // 客製訂單時間
+  scheduleAt: false,
 })
+
+const schedule = reactive({
+  date: null,
+  time: null,
+  menu2: false,
+  timeModal: false,
+  dateModal: false,
+})
+
+const cancelSettingDateAndTime = () => {
+  schedule.date = null
+  schedule.time = null
+  delete ordersStore.ordersList.scheduledAt
+  dialog.scheduleAt = false
+}
+
+const submitList = (data) => {
+  ordersStore.submitOrderList(data)
+  cancelSettingDateAndTime()
+}
+
+const setScheduleDateDone = () => {
+  let settingDateAndTime
+  schedule.dateModal = false
+  const [hour, minute] = schedule.time.split(':')
+
+  settingDateAndTime = dayjs(schedule.date).set('hour', hour).set('minute', minute).toISOString()
+  console.log('settingDateAndTime (Z+0) =>', settingDateAndTime)
+  ordersStore.ordersList.scheduledAt = settingDateAndTime
+  dialog.scheduleAt = false
+}
+
+const parseDate = ref(null)
+
+watch(
+  () => schedule.date,
+  (pickDate) => {
+    parseDate.value = !pickDate ? null : dayjs(pickDate).format('YYYY/MM/DD')
+  },
+)
+
+const cancelScheduleDateNTime = (schedule, type) => {
+  schedule[type] = null
+
+  schedule[`${type}Modal`] = false
+}
+
+const showScheduleDialog = () => {
+  if (schedule.date === null) resetDateTime()
+  dialog.scheduleAt = true
+}
 
 const computedDialog = reactive({
   status: false,
@@ -28,6 +83,12 @@ const computedDialog = reactive({
       : '--',
   ),
 })
+
+const resetDateTime = () => {
+  const now = dayjs()
+  schedule.date = now.format('YYYY-MM-DD')
+  schedule.time = now.format('HH:mm')
+}
 
 const rules = reactive({
   activeProductItemQuantity: {
@@ -374,8 +435,10 @@ const activeProducts = (allProducts) => {
         </v-btn>
       </v-toolbar>
 
-      <v-card-subtitle class="px-6 mt-4">
-        {{ ordersStore.activeProductItem.product.description }}
+      <v-card-subtitle class="px-6 mt-4 d-flex align-center">
+        <span class="me-auto">
+          {{ ordersStore.activeProductItem.product.description }}
+        </span>
       </v-card-subtitle>
 
       <v-divider class="mt-4" />
@@ -586,7 +649,7 @@ const activeProducts = (allProducts) => {
     </v-card>
   </v-dialog>
 
-  <!-- confirm Dialog -->
+  <!-- 訂單明細 Dialog -->
   <v-dialog
     transition="dialog-bottom-transition"
     v-model="dialog.confirmOrderList"
@@ -596,6 +659,108 @@ const activeProducts = (allProducts) => {
   >
     <v-card>
       <v-card-item class="text-primary text-center pb-2 p-relative" title="訂單明細">
+        <!-- 客製訂單時間 -->
+        <v-btn
+          class="customSchedule-btn"
+          color="warning"
+          icon="mdi-clock-outline"
+          variant="plain"
+          @click="showScheduleDialog"
+        >
+        </v-btn>
+
+        <!-- 客製訂單時間 dialog -->
+        <v-dialog v-model="dialog.scheduleAt" width="400">
+          <v-card class="px-3" max-width="400" prepend-icon="mdi-clock-outline" title="設定時間">
+            <!-- 日期選擇器 -->
+            <v-text-field
+              v-model="parseDate"
+              :active="schedule.dateModal"
+              :focused="schedule.dateModal"
+              label="日期"
+              variant="outlined"
+              readonly
+            >
+              <v-dialog v-model="schedule.dateModal" activator="parent" width="auto">
+                <v-card>
+                  <v-date-picker v-model="schedule.date"></v-date-picker>
+                  <template v-slot:actions>
+                    <v-btn
+                      color="error"
+                      class="ms-auto"
+                      text="cancel"
+                      variant="outlined"
+                      @click="cancelScheduleDateNTime(schedule, 'date')"
+                    ></v-btn>
+                    <v-btn
+                      class="ml-2"
+                      color="success"
+                      text="SAVE"
+                      variant="tonal"
+                      @click="schedule.dateModal = false"
+                    ></v-btn>
+                  </template>
+                </v-card>
+              </v-dialog>
+            </v-text-field>
+
+            <!-- 時間選擇器 -->
+            <v-text-field
+              v-model="schedule.time"
+              :active="schedule.timeModal"
+              :focused="schedule.timeModal"
+              readonly
+              label="時間"
+              variant="outlined"
+            >
+              <v-dialog v-model="schedule.timeModal" activator="parent" width="auto">
+                <v-card>
+                  <v-time-picker
+                    v-if="schedule.timeModal"
+                    v-model="schedule.time"
+                    format="24hr"
+                    scrollable
+                  >
+                    <template v-slot:actions>
+                      <v-btn
+                        color="error"
+                        class="ms-auto"
+                        text="cancel"
+                        variant="outlined"
+                        @click="cancelScheduleDateNTime(schedule, 'time')"
+                      ></v-btn>
+                      <v-btn
+                        class="ml-2"
+                        color="success"
+                        text="SAVE"
+                        variant="tonal"
+                        @click="schedule.timeModal = false"
+                      ></v-btn>
+                    </template>
+                  </v-time-picker>
+                </v-card>
+              </v-dialog>
+            </v-text-field>
+
+            <template v-slot:actions>
+              <v-btn
+                class="mb-4"
+                color="error"
+                variant="tonal"
+                text="取消"
+                @click="cancelSettingDateAndTime"
+              ></v-btn>
+              <v-btn
+                class="mb-4"
+                color="success"
+                variant="tonal"
+                text="完成"
+                @click="setScheduleDateDone"
+              ></v-btn>
+            </template>
+          </v-card>
+        </v-dialog>
+
         <v-btn class="close-btn" @click="dialog.confirmOrderList = !dialog.confirmOrderList" icon>
           <v-icon>mdi-close</v-icon>
         </v-btn>
@@ -737,7 +902,7 @@ const activeProducts = (allProducts) => {
               color="error"
               size="x-large"
               @click="
-                ordersStore.submitOrderList({
+                submitList({
                   list: ordersStore.ordersList,
                   isPaid: false,
                   dialog,
@@ -836,6 +1001,12 @@ table {
   top: 4px;
   right: 1rem;
 }
+.customSchedule-btn {
+  position: absolute;
+  top: 4px;
+  left: 1rem;
+}
+
 .c-pointer {
   cursor: pointer;
 }

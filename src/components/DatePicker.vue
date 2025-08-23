@@ -98,7 +98,6 @@ function searchData(searchDate) {
 
       <v-date-picker
         v-model="dates"
-        :max="today"
         :multiple="rangeMode"
         ref="datePicker"
         view-mode="month"

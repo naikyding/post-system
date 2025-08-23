@@ -2,7 +2,7 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.234.0/containers/javascript-node
 {
   "name": "Node.js",
-  "image": "node:16.15.0",
+  "image": "node:22.11.0",
   // Set *default* container specific settings.json values on container create.
   // Add the IDs of extensions you want installed when the container is created.
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
