@@ -23,7 +23,7 @@ const editSheetStatus = ref(false)
 const editOrderForm = ref({})
 
 function formatSpeak(mobile) {
-  return `` + mobile.split('').join(' ') + '，，您的可麗餅好囉!'
+  return `末三碼：` + mobile.split('').join(' ') + '，，您的可麗餅好囉!'
 }
 
 const optionExtras = ref({
@@ -507,19 +507,12 @@ async function removeProductItemBagS(bagSizeId) {
           <th class="text-left">商品名稱</th>
           <th class="text-left">數量</th>
           <!-- <th class="text-left min-width-90px">付款狀態</th> -->
-          <th class="text-left">未三碼</th>
+          <th class="text-left">末三碼</th>
           <th class="text-center">-</th>
         </tr>
       </thead>
       <tbody>
         <template v-for="items in systemOrderStore.orderList" :key="items._id">
-          <!-- 預定時間 -->
-          <div class="text-center" v-show="items.scheduledAt">
-            <span class="bg-error py-1 px-2 rounded-xl">
-              預訂時間: {{ dayJS(items.scheduledAt).format('MM/DD HH:mm') }}
-            </span>
-          </div>
-
           <template v-if="closeOrderItem.includes(items._id)">
             <tr>
               <td>
@@ -548,7 +541,15 @@ async function removeProductItemBagS(bagSizeId) {
                 </div>
               </td>
               <td>
-                <v-btn @click="toggleOrderItem(items._id)" variant="outlined">展開查看</v-btn>
+                <v-badge
+                  location="top left"
+                  :offset-x="-0"
+                  :offset-y="-0"
+                  color="error"
+                  :content="dayJS(items.scheduledAt).format('MM/DD HH:mm')"
+                >
+                  <v-btn @click="toggleOrderItem(items._id)" variant="outlined">展開查看</v-btn>
+                </v-badge>
                 <div class="notes">
                   <v-chip v-show="items.note" color="warning" prepend-icon="mdi-lead-pencil">
                     {{ items.note }}
@@ -623,13 +624,20 @@ async function removeProductItemBagS(bagSizeId) {
               </td>
               <!-- 名稱與備註 -->
               <td class="font-weight-bold">
-                <a
-                  href="javascript:;"
-                  class="text-white font-weight-bold"
-                  @click="showOrderListDetails(items)"
+                <v-badge
+                  location="top left"
+                  :offset-x="-10"
+                  :offset-y="-10"
+                  color="error"
+                  :content="dayJS(items.scheduledAt).format('MM/DD HH:mm')"
                 >
-                  {{ product.product?.name }}
-                </a>
+                  <a
+                    href="javascript:;"
+                    class="text-white font-weight-bold"
+                    @click="showOrderListDetails(items)"
+                    >{{ product.product?.name }}</a
+                  >
+                </v-badge>
 
                 <!-- 加選配料 -->
                 <div>
