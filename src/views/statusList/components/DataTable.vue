@@ -541,15 +541,24 @@ async function removeProductItemBagS(bagSizeId) {
                 </div>
               </td>
               <td>
-                <v-badge
-                  location="top left"
-                  :offset-x="-0"
-                  :offset-y="-0"
-                  color="error"
-                  :content="dayJS(items.scheduledAt).format('MM/DD HH:mm')"
+                <!-- 動態顯示 預定時間 -->
+                <component
+                  :is="items.scheduledAt ? 'v-badge' : 'span'"
+                  v-bind="
+                    items.scheduledAt
+                      ? {
+                          location: 'left',
+                          offsetX: -18,
+                          offsetY: -10,
+                          color: 'error',
+                          content: dayJS(items.scheduledAt).format('MM/DD HH:mm'),
+                        }
+                      : {}
+                  "
                 >
                   <v-btn @click="toggleOrderItem(items._id)" variant="outlined">展開查看</v-btn>
-                </v-badge>
+                </component>
+
                 <div class="notes">
                   <v-chip v-show="items.note" color="warning" prepend-icon="mdi-lead-pencil">
                     {{ items.note }}
@@ -624,20 +633,29 @@ async function removeProductItemBagS(bagSizeId) {
               </td>
               <!-- 名稱與備註 -->
               <td class="font-weight-bold">
-                <v-badge
-                  location="top left"
-                  :offset-x="-10"
-                  :offset-y="-10"
-                  color="error"
-                  :content="dayJS(items.scheduledAt).format('MM/DD HH:mm')"
+                <!-- 動態顯示 預定時間 -->
+                <component
+                  :is="items.scheduledAt ? 'v-badge' : 'span'"
+                  v-bind="
+                    items.scheduledAt
+                      ? {
+                          location: 'left',
+                          offsetX: -18,
+                          offsetY: -10,
+                          color: 'error',
+                          content: dayJS(items.scheduledAt).format('MM/DD HH:mm'),
+                        }
+                      : {}
+                  "
                 >
                   <a
                     href="javascript:;"
                     class="text-white font-weight-bold"
                     @click="showOrderListDetails(items)"
-                    >{{ product.product?.name }}</a
                   >
-                </v-badge>
+                    {{ product.product?.name }}
+                  </a>
+                </component>
 
                 <!-- 加選配料 -->
                 <div>
@@ -1666,5 +1684,8 @@ async function removeProductItemBagS(bagSizeId) {
 .sticky-t-10 {
   position: sticky;
   top: 10px;
+}
+.z-99 {
+  z-index: 99;
 }
 </style>
