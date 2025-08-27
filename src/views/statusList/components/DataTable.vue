@@ -23,7 +23,7 @@ const editSheetStatus = ref(false)
 const editOrderForm = ref({})
 
 function formatSpeak(mobile) {
-  return `末三碼：` + mobile.split('').join(' ') + '，，您的可麗餅好囉!'
+  return `` + mobile.split('').join(' ') + '，，您的可麗餅好囉!'
 }
 
 const optionExtras = ref({
