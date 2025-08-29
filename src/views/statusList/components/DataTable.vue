@@ -12,6 +12,7 @@ import dayJS from 'dayjs'
 import { watch } from 'vue'
 import { computed } from 'vue'
 import { toRaw } from 'vue'
+import { useOrdersStore } from '@/stores/orders.js'
 
 const systemOrderStore = useSystemOrderList()
 const markerStore = useMarkersStore()
@@ -49,6 +50,23 @@ watch(
       optionExtras.value.list = []
       optionExtras.value.activeItem = null
     }
+  },
+)
+
+const computedDialog = reactive({
+  status: false,
+  deposit: 0,
+  computedNumber: computed(() =>
+    computedDialog.deposit > systemOrderStore.activeOrderList.totalPrice
+      ? computedDialog.deposit - systemOrderStore.activeOrderList.totalPrice
+      : '--',
+  ),
+})
+
+watch(
+  () => computedDialog.status,
+  (newValue) => {
+    if (!newValue) computedDialog.deposit = 0
   },
 )
 
@@ -996,10 +1014,46 @@ async function removeProductItemBagS(bagSizeId) {
             </div>
             <v-spacer></v-spacer>
             <div class="order-list-total__total">
-              總計 {{ systemOrderStore.activeOrderList.totalPrice }} 元
+              <v-btn variant="outlined" @click="computedDialog.status = true">
+                總計 {{ systemOrderStore.activeOrderList.totalPrice }} 元
+              </v-btn>
             </div>
           </div>
-
+          <!-- 計算 -->
+          <v-dialog v-model="computedDialog.status" width="280">
+            <v-card>
+              <v-card-title>計算</v-card-title>
+              <v-card-text>
+                <div>
+                  <v-text-field
+                    autofocus
+                    v-model.number="computedDialog.deposit"
+                    type="tel"
+                    clearable
+                    label="收入金額"
+                    variant="outlined"
+                  ></v-text-field>
+                </div>
+                <div>
+                  訂單總金額
+                  <span class="font-weight-bold text-primary font-italic">
+                    {{ systemOrderStore.activeOrderList.totalPrice }}
+                  </span>
+                </div>
+                <div class="text-h6 text-primary mt-2">
+                  找零
+                  <span class="text-h5 font-italic font-weight-bold">
+                    {{ computedDialog.computedNumber }}
+                  </span>
+                </div>
+              </v-card-text>
+              <v-card-actions class="px-6 pb-4">
+                <v-btn block color="error" variant="tonal" @click="computedDialog.status = false">
+                  Close
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-alert
             v-show="!systemOrderStore.activeOrderList.isPaid"
             type="warning"
