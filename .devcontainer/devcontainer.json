@@ -36,6 +36,8 @@
         "esbenp.prettier-vscode",
         // vue tool
         "vue.volar",
+        // 切割視窗工具
+        "johnsoncodehk.vue-split-editor",
         "sdras.vue-vscode-snippets",
         // css
         "bradlc.vscode-tailwindcss",
