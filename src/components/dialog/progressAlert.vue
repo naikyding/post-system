@@ -5,8 +5,8 @@ const appStore = useAppStore()
 </script>
 
 <template>
-  <v-dialog v-model="appStore.progressStatus" width="100" persistent>
-    <v-card height="100" class="justify-center align-center rounded-xl">
+  <v-dialog v-model="appStore.progressStatus" width="100px" height="100px" persistent>
+    <v-card class="justify-center align-center rounded-xl">
       <v-progress-circular :size="70" :width="7" color="teal" indeterminate></v-progress-circular>
     </v-card>
   </v-dialog>
