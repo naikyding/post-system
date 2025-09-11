@@ -1,5 +1,3 @@
-import { components } from 'vuetify/dist/vuetify-labs.js'
-
 const routes = [
   {
     path: '/login',
