@@ -2,8 +2,8 @@
 import { ref, onMounted, reactive, watch, computed } from 'vue'
 import { useDisplay } from 'vuetify'
 
-import { useProductsStore, useMarkersStore } from '../stores/products'
-import { useOrdersStore } from '../stores/orders'
+import { useProductsStore, useMarkersStore } from '@/stores/products'
+import { useOrdersStore } from '@/stores/orders'
 import dayjs from 'dayjs'
 
 const productsStore = useProductsStore()
