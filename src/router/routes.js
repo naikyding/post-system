@@ -14,9 +14,15 @@ const routes = [
         name: 'Dashboard',
         component: () => import('@/views/HomeView.vue'),
       },
+      // 點餐頁面
+      {
+        path: 'order',
+        name: 'Order',
+        component: () => import('@/views/order/index.vue'),
+      },
       {
         path: 'post',
-        name: 'Order',
+        name: 'Post',
         component: () => import('@/views/PostView.vue'),
       },
       {
