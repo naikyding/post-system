@@ -17,8 +17,14 @@ const routes = [
       // 點餐頁面
       {
         path: 'order',
-        name: 'Order',
+        name: 'order',
         component: () => import('@/views/order/index.vue'),
+      },
+      // 訂單狀態
+      {
+        path: 'order-status',
+        name: 'orderStatus',
+        component: () => import('@/views/order-status/index.vue'),
       },
       {
         path: 'post',
