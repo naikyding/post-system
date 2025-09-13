@@ -77,5 +77,6 @@ export function useLayout() {
     systemOrderStore,
     passwordInput,
     passwordForm,
+    userStore,
   }
 }

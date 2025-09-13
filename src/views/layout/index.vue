@@ -11,6 +11,7 @@ const {
   systemOrderStore,
   passwordInput,
   passwordForm,
+  userStore,
 } = useLayout()
 </script>
 
