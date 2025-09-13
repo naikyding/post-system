@@ -1,6 +1,6 @@
 <script setup>
 import { useLogin } from './useLogin'
-const { loginForm, form } = useLogin()
+const { loginForm, form, login } = useLogin()
 </script>
 
 <template>
