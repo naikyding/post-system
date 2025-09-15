@@ -15,6 +15,7 @@ const {
   computedDialog,
   ordersStore,
   productsStore,
+  markerStore,
 } = useOrder()
 </script>
 

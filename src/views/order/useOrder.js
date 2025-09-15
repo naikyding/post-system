@@ -148,5 +148,6 @@ export function useOrder() {
     computedDialog,
     ordersStore,
     productsStore,
+    markerStore,
   }
 }
