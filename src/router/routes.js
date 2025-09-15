@@ -38,17 +38,6 @@ const routes = [
         component: () => import('@/views/setting/index.vue'),
         meta: { title: '設定' },
       },
-
-      {
-        path: 'post',
-        name: 'Post',
-        component: () => import('@/views/PostView.vue'),
-      },
-      {
-        path: 'list-status',
-        name: 'ListStatus',
-        component: () => import('@/views/statusList/index.vue'),
-      },
     ],
   },
 ]
