@@ -22,6 +22,7 @@ const {
   addProductForm,
   editProductForm,
   priEditCancel,
+  preDeleteContent,
 } = useSetting()
 </script>
 

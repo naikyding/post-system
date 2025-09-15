@@ -270,5 +270,6 @@ export function useSetting() {
     addProductForm,
     editProductForm,
     priEditCancel,
+    preDeleteContent,
   }
 }
