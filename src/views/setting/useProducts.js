@@ -3,7 +3,7 @@ import { useProductsStore } from '@/stores/products'
 import { useExtrasStore } from '@/stores/extras'
 import { useUserStore } from '@/stores/users'
 
-export function useSetting() {
+export function useProducts() {
   const extrasStore = useExtrasStore()
   const productsStore = useProductsStore()
   const userStore = useUserStore()

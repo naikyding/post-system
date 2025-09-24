@@ -1,5 +1,5 @@
 <script setup>
-import { useSetting } from './useSetting'
+import { useProducts } from './useProducts'
 const {
   preEditSave,
   saveEditProduct,
@@ -23,7 +23,7 @@ const {
   editProductForm,
   priEditCancel,
   preDeleteContent,
-} = useSetting()
+} = useProducts()
 </script>
 
 <template>

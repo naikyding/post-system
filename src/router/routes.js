@@ -34,9 +34,21 @@ const routes = [
       // 設定
       {
         path: 'setting',
-        name: 'Setting',
-        component: () => import('@/views/setting/index.vue'),
-        meta: { title: '設定' },
+        name: 'setting',
+        children: [
+          {
+            path: 'menus',
+            name: 'settingMenus',
+            component: () => import('@/views/setting/menus.vue'),
+            meta: { title: '選單設定' },
+          },
+          {
+            path: 'products',
+            name: 'settingProducts',
+            component: () => import('@/views/setting/products.vue'),
+            meta: { title: '產品設定' },
+          },
+        ],
       },
     ],
   },
