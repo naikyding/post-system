@@ -1,7 +1,14 @@
-<template>
-  <div>Menus</div>
-</template>
+<script setup>
+import menuTable from './components/menuTable.vue'
+import { useMenus } from './useMenus'
 
-<script setup></script>
+const { menuStore } = useMenus()
+</script>
+
+<template>
+  <h3 class="ma-4 mb-0">選單設定</h3>
+
+  <menuTable :menus="menuStore.menus" />
+</template>
 
 <style lang="scss" scoped></style>
