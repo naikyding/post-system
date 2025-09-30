@@ -11,6 +11,7 @@ import { login, refreshToken, gerUserBaseInfo } from './auth'
 import { getDashboardBaseData } from './dashboard'
 import { getMarkers, createMarker, deleteMarker, editMarker } from './markers.js'
 import { getExtras, createExtras, deleteExtra, updateExtra } from './extras.js'
+import { getMenus, getMenusAndOperations, createMenu, deleteMenu, updateMenu } from './menus.js'
 
 export const getProductsAPI = getProducts
 export const createProductAPI = createProduct
@@ -39,3 +40,9 @@ export const getMarkersAPI = getMarkers
 export const createMarkerAPI = createMarker
 export const deleteMarkerAPI = deleteMarker
 export const editMarkerAPI = editMarker
+
+export const getMenusAPI = getMenus
+export const getMenusAndOperationsAPI = getMenusAndOperations
+export const createMenuAPI = createMenu
+export const deleteMenuAPI = deleteMenu
+export const updateMenuAPI = updateMenu
