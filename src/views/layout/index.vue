@@ -74,7 +74,17 @@ const {
             </template>
           </v-list-item>
 
-          <v-list-item to="/setting" prepend-icon="mdi-cog" title="Setting" value="setting" />
+          <v-list-group prepend-icon="mdi-cog" value="setting">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" title="Setting"></v-list-item>
+            </template>
+            <v-list-item
+              prepend-icon="mdi-food-fork-drink"
+              title="Products"
+              to="/setting/products"
+            ></v-list-item>
+            <v-list-item prepend-icon="mdi-sitemap" title="Menus" to="/setting/menus"></v-list-item>
+          </v-list-group>
         </v-list>
 
         <!-- 登出 -->
