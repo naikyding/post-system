@@ -1,5 +1,8 @@
 <script setup>
+import { inject, ref } from 'vue'
+
 import { useMenuTable } from './useMenuTableJS'
+import confirmDialog from './confirmDialog.vue'
 
 const props = defineProps({
   menus: {
@@ -7,7 +10,11 @@ const props = defineProps({
   },
 })
 
+const operation = inject('operation')
+
 const { headers, formatMenus, search, openChildrenId, getColor } = useMenuTable(props)
+
+const confirmDialogRef = ref(null)
 </script>
 
 <template>
@@ -54,7 +61,8 @@ const { headers, formatMenus, search, openChildrenId, getColor } = useMenuTable(
             <td>{{ item.path }}</td>
             <td>{{ item.component }}</td>
             <td class="text-center">
-              <v-btn icon="mdi-plus" size="30" variant="flat" color="success"></v-btn>
+              <v-btn icon="mdi-sticker-plus" size="40" variant="plain" color="success"></v-btn>
+              <v-btn icon="mdi-toy-brick-plus" size="40" variant="plain" color="success"></v-btn>
               <v-btn icon="mdi-pencil" size="40" variant="plain" color="warning"></v-btn>
               <v-btn icon="mdi-delete" size="40" variant="plain" color="error"></v-btn>
             </td>
@@ -82,7 +90,19 @@ const { headers, formatMenus, search, openChildrenId, getColor } = useMenuTable(
                 <td>{{ childrenItem.path }}</td>
                 <td>{{ childrenItem.component }}</td>
                 <td class="text-center">
-                  <v-btn icon="mdi-plus" size="40" variant="plain" color="success"></v-btn>
+                  <v-btn icon="mdi-sticker-plus" size="40" variant="plain" color="success"></v-btn>
+                  <v-btn
+                    @click="
+                      operation.openOperationForm({
+                        menuId: childrenItem._id,
+                        model: 'createOperation',
+                      })
+                    "
+                    icon="mdi-toy-brick-plus"
+                    size="40"
+                    variant="plain"
+                    color="success"
+                  ></v-btn>
                   <v-btn icon="mdi-pencil" size="40" variant="plain" color="warning"></v-btn>
                   <v-btn icon="mdi-delete" size="40" variant="plain" color="error"></v-btn>
                 </td>
@@ -104,8 +124,24 @@ const { headers, formatMenus, search, openChildrenId, getColor } = useMenuTable(
                   <td></td>
                   <td></td>
                   <td class="text-center">
-                    <v-btn icon="mdi-pencil" size="40" variant="plain" color="warning"></v-btn>
-                    <v-btn icon="mdi-delete" size="40" variant="plain" color="error"></v-btn>
+                    <v-btn
+                      @click="
+                        confirmDialogRef.openConfirmDialog('updateOperation', operationItem._id)
+                      "
+                      icon="mdi-pencil"
+                      size="40"
+                      variant="plain"
+                      color="warning"
+                    ></v-btn>
+                    <v-btn
+                      @click="
+                        confirmDialogRef.openConfirmDialog('deleteOperation', operationItem._id)
+                      "
+                      icon="mdi-delete"
+                      size="40"
+                      variant="plain"
+                      color="error"
+                    ></v-btn>
                   </td>
                 </tr>
               </template>
@@ -115,6 +151,8 @@ const { headers, formatMenus, search, openChildrenId, getColor } = useMenuTable(
       </v-data-table>
     </v-card-text>
   </v-card>
+
+  <confirmDialog ref="confirmDialogRef" />
 </template>
 
 <style lang="scss" scoped></style>
