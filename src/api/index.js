@@ -13,6 +13,8 @@ import { getMarkers, createMarker, deleteMarker, editMarker } from './markers.js
 import { getExtras, createExtras, deleteExtra, updateExtra } from './extras.js'
 import { getMenus, getMenusAndOperations, createMenu, deleteMenu, updateMenu } from './menus.js'
 
+import { deleteOperation, createOperation } from './operations.js'
+
 export const getProductsAPI = getProducts
 export const createProductAPI = createProduct
 export const deleteProductAPI = deleteProduct
@@ -46,3 +48,6 @@ export const getMenusAndOperationsAPI = getMenusAndOperations
 export const createMenuAPI = createMenu
 export const deleteMenuAPI = deleteMenu
 export const updateMenuAPI = updateMenu
+
+export const deleteOperationAPI = deleteOperation
+export const createOperationAPI = createOperation
