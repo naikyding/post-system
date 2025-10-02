@@ -12,13 +12,6 @@ export function useMenus(operationFormDialogRef) {
     return { name, description, menuId, operate, action }
   }
 
-  const resetOperation = () => {
-    operationForm.value = initOperationForm()
-    activeModel.value = null
-    activeId.value = null
-    operationFormDialogRef.value.status = false
-  }
-
   const operationForm = ref(initOperationForm())
 
   const activeId = ref(null)
@@ -26,8 +19,14 @@ export function useMenus(operationFormDialogRef) {
 
   provide('activeId', {
     id: activeId,
-    saveActiveIdByType,
   })
+
+  const resetOperation = () => {
+    operationForm.value = initOperationForm()
+    activeModel.value = null
+    activeId.value = null
+    operationFormDialogRef.value.status = false
+  }
 
   const createOperation = catchAsync(async () => {
     const validateForm = await operationFormDialogRef.value.validateOperationForm()
@@ -41,7 +40,6 @@ export function useMenus(operationFormDialogRef) {
   })
 
   const updateOperation = catchAsync(async () => {
-    console.log('updateOperation')
     const validateForm = await operationFormDialogRef.value.validateOperationForm()
     if (validateForm) {
       const { status } = await updateOperationAPI(activeId.value, operationForm.value)
@@ -83,10 +81,6 @@ export function useMenus(operationFormDialogRef) {
     operationForm.value.menuId = menuId
   }
 
-  function saveActiveIdByType(type, menuId) {
-    if (type === 'operation') operationForm.value.menuId = menuId
-  }
-
   onMounted(() => {
     menuStore.getMenusAndOperations()
   })
@@ -96,7 +90,6 @@ export function useMenus(operationFormDialogRef) {
     activeId,
     activeModel,
     menuStore,
-    saveActiveIdByType,
     resetOperationForm,
   }
 }
