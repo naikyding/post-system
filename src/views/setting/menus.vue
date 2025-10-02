@@ -6,6 +6,7 @@ import { useMenus } from './useMenus'
 
 const menuTableRef = ref(null)
 const operationFormDialogRef = ref(null)
+
 const { menuStore } = useMenus(operationFormDialogRef)
 
 onMounted(() => {
