@@ -29,6 +29,12 @@ export function useMenuTable(props) {
 
   const formatMenus = computed(() =>
     props.menus.map((item) => {
+      if (item.operations && item.operations.length > 0) {
+        item.operations.map((operationItem) => {
+          openChildrenId.value[operationItem._id] = false
+        })
+      }
+
       if (item.children && item.children.length > 0) {
         openChildrenId.value[item._id] = false
         item.children.map((menuChildren) => {

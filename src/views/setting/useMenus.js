@@ -1,23 +1,16 @@
 import { useMenusStore } from '@/stores/menus'
 import { onMounted, provide, ref } from 'vue'
-import { createOperationAPI } from '@/api'
+import { createOperationAPI, updateOperationAPI } from '@/api'
 import catchAsync from '../../utils/catchAsync'
 
 const menuStore = useMenusStore()
 
 export function useMenus(operationFormDialogRef) {
-  const initOperationForm = () => ({
-    // 顯示名稱
-    name: '',
-    // 說明
-    description: '',
-    // 哪個路由使用
-    menuId: '', // 設定頁id
-    // 操作項目名稱
-    operate: '',
-    // 操作動作
-    action: '',
-  })
+  const initOperationForm = (item = {}) => {
+    const { name = '', description = '', menuId = '', operate = '', action = '' } = item
+
+    return { name, description, menuId, operate, action }
+  }
 
   const resetOperation = () => {
     operationForm.value = initOperationForm()
@@ -47,6 +40,18 @@ export function useMenus(operationFormDialogRef) {
     }
   })
 
+  const updateOperation = catchAsync(async () => {
+    console.log('updateOperation')
+    const validateForm = await operationFormDialogRef.value.validateOperationForm()
+    if (validateForm) {
+      const { status } = await updateOperationAPI(activeId.value, operationForm.value)
+      if (status) {
+        resetOperation()
+        menuStore.getMenusAndOperations()
+      }
+    }
+  })
+
   provide('operation', {
     model: activeModel,
     form: operationForm,
@@ -57,15 +62,19 @@ export function useMenus(operationFormDialogRef) {
     cancelOperation: resetOperation,
   })
 
-  function updateOperation(id) {
-    console.log(id)
-  }
-
-  function openOperationForm({ menuId, model }) {
-    operationFormDialogRef.value.status = true
-    operationForm.value.menuId = menuId
+  function openOperationForm({ menuId, model, operationItem }) {
     activeModel.value = model
-    activeId.value = menuId
+
+    if (operationItem) {
+      activeId.value = operationItem._id
+      operationForm.value = initOperationForm(operationItem)
+    }
+
+    if (menuId) {
+      operationForm.value.menuId = menuId
+      activeId.value = menuId
+    }
+    operationFormDialogRef.value.status = true
   }
 
   function resetOperationForm() {

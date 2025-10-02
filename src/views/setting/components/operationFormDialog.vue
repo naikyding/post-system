@@ -16,11 +16,20 @@ defineExpose({
 function resetFrom() {
   operation.resetOperationForm()
 }
+
+const dynamicCardTitle = (model) => {
+  const title = {
+    createOperation: '新增',
+    updateOperation: '修改',
+  }
+
+  return title[model.value] + '操作項目'
+}
 </script>
 
 <template>
-  <v-dialog v-model="status" max-width="600">
-    <v-card title="新增操作項目">
+  <v-dialog v-model="status" max-width="600" persistent>
+    <v-card :title="dynamicCardTitle(operation.model)">
       <v-form ref="form">
         <v-card-text>
           <v-row dense>
@@ -72,7 +81,7 @@ function resetFrom() {
 
         <div class="pa-6">
           <v-btn class="" color="success" block @click="operation[operation.model.value]">
-            新增
+            保存
           </v-btn>
 
           <v-btn class="mt-4" color="warning" block @click="resetFrom"> 重置 </v-btn>
