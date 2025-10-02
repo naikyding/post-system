@@ -1,11 +1,11 @@
 import { useMenusStore } from '@/stores/menus'
 import { onMounted, provide, ref } from 'vue'
-import { createOperationAPI, updateOperationAPI } from '@/api'
+import { createOperationAPI, updateOperationAPI, deleteOperationAPI } from '@/api'
 import catchAsync from '../../utils/catchAsync'
 
 const menuStore = useMenusStore()
 
-export function useMenus(operationFormDialogRef) {
+export function useMenus({ operationFormDialogRef, confirmDialogRef, menuTableRef }) {
   const initOperationForm = (item = {}) => {
     const { name = '', description = '', menuId = '', operate = '', action = '' } = item
 
@@ -50,14 +50,33 @@ export function useMenus(operationFormDialogRef) {
     }
   })
 
+  const deleteOperation = catchAsync(async () => {
+    const { status } = await deleteOperationAPI(activeId.value)
+    if (status) {
+      menuTableRef.value.openChildrenId = {}
+      resetOperation()
+      menuStore.getMenusAndOperations()
+      confirmDialogRef.value.confirmDialogToggle()
+    }
+  })
+
+  provide('activeModel', activeModel)
+
   provide('operation', {
     model: activeModel,
     form: operationForm,
     openOperationForm,
+
     createOperation,
     updateOperation,
+    deleteOperation,
+
     resetOperationForm,
     cancelOperation: resetOperation,
+  })
+
+  provide('menus', {
+    openConfirmDialog,
   })
 
   function openOperationForm({ menuId, model, operationItem }) {
@@ -73,6 +92,12 @@ export function useMenus(operationFormDialogRef) {
       activeId.value = menuId
     }
     operationFormDialogRef.value.status = true
+  }
+
+  function openConfirmDialog(model, id) {
+    activeModel.value = model
+    activeId.value = id
+    confirmDialogRef.value.confirmDialogToggle()
   }
 
   function resetOperationForm() {

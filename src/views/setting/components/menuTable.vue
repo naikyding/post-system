@@ -1,8 +1,7 @@
 <script setup>
-import { inject, ref } from 'vue'
+import { inject } from 'vue'
 
 import { useMenuTable } from './useMenuTableJS'
-import confirmDialog from './confirmDialog.vue'
 
 const props = defineProps({
   menus: {
@@ -11,10 +10,11 @@ const props = defineProps({
 })
 
 const operation = inject('operation')
+const menu = inject('menus')
 
 const { headers, formatMenus, search, openChildrenId, getColor } = useMenuTable(props)
 
-const confirmDialogRef = ref(null)
+defineExpose({ openChildrenId })
 </script>
 
 <template>
@@ -111,7 +111,7 @@ const confirmDialogRef = ref(null)
 
                 <!-- 刪除 -->
                 <v-btn
-                  @click="confirmDialogRef.openConfirmDialog('deleteOperation', operationItem._id)"
+                  @click="menu.openConfirmDialog('deleteOperation', operationItem._id)"
                   icon="mdi-delete"
                   size="40"
                   variant="plain"
@@ -177,19 +177,22 @@ const confirmDialogRef = ref(null)
                   <td></td>
                   <td></td>
                   <td class="text-right">
+                    <!-- 修改 -->
                     <v-btn
                       @click="
-                        confirmDialogRef.openConfirmDialog('updateOperation', operationItem._id)
+                        operation.openOperationForm({
+                          operationItem: operationItem,
+                          model: 'updateOperation',
+                        })
                       "
                       icon="mdi-pencil"
                       size="40"
                       variant="plain"
                       color="warning"
                     ></v-btn>
+                    <!-- 刪除 -->
                     <v-btn
-                      @click="
-                        confirmDialogRef.openConfirmDialog('deleteOperation', operationItem._id)
-                      "
+                      @click="menu.openConfirmDialog('deleteOperation', operationItem._id)"
                       icon="mdi-delete"
                       size="40"
                       variant="plain"
@@ -204,8 +207,6 @@ const confirmDialogRef = ref(null)
       </v-data-table>
     </v-card-text>
   </v-card>
-
-  <confirmDialog ref="confirmDialogRef" />
 </template>
 
 <style lang="scss" scoped></style>
