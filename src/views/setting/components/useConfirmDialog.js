@@ -1,17 +1,6 @@
 import { ref } from 'vue'
 
 export const useConfirmDialog = () => {
-  const initMenuForm = () => ({
-    sort: 0,
-    status: true,
-    icon: '',
-    name: '',
-    description: '',
-    routeName: '',
-    path: '',
-    component: '',
-  })
-
   const dialogText = ref({
     createMenu: '確定新增選單?',
     updateMenu: '確定修改選單?',

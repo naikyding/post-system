@@ -10,7 +10,7 @@ const props = defineProps({
 })
 
 const operation = inject('operation')
-const menu = inject('menus')
+const menu = inject('menu')
 
 const { headers, formatMenus, search, openChildrenId, getColor } = useMenuTable(props)
 
@@ -61,7 +61,17 @@ defineExpose({ openChildrenId })
             <td>{{ item.path }}</td>
             <td>{{ item.component }}</td>
             <td class="text-right">
-              <v-btn icon="mdi-sticker-plus" size="40" variant="plain" color="success"></v-btn>
+              <v-btn
+                @click="
+                  menu.openFormDialog({
+                    model: 'createMenu',
+                  })
+                "
+                icon="mdi-sticker-plus"
+                size="40"
+                variant="plain"
+                color="success"
+              ></v-btn>
               <v-btn
                 icon="mdi-toy-brick-plus"
                 @click="
@@ -79,7 +89,7 @@ defineExpose({ openChildrenId })
             </td>
           </tr>
 
-          <!-- 父層 操作項 -->
+          <!-- 父層 operation項 -->
           <template v-if="openChildrenId[item._id]">
             <tr v-for="operationItem in item.operations" :key="operationItem._id">
               <td class="pl-12">
@@ -161,7 +171,7 @@ defineExpose({ openChildrenId })
                 </td>
               </tr>
 
-              <!-- 操作層 -->
+              <!-- operation 層 -->
               <template v-if="openChildrenId[childrenItem._id]">
                 <tr v-for="operationItem in childrenItem.operations" :key="operationItem._id">
                   <td class="pl-12">

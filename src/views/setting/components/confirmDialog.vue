@@ -2,7 +2,7 @@
 import { inject, ref } from 'vue'
 import { useConfirmDialog } from './useConfirmDialog.js'
 
-const { dialogText, reset, snackbarStatus } = useConfirmDialog()
+const { dialogText, reset } = useConfirmDialog()
 
 const dialogStatus = ref(false)
 
