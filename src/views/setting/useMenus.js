@@ -5,14 +5,38 @@ import catchAsync from '../../utils/catchAsync'
 
 const menuStore = useMenusStore()
 
-export function useMenus({ operationFormDialogRef, confirmDialogRef, menuTableRef }) {
+export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
   const initOperationForm = (item = {}) => {
     const { name = '', description = '', menuId = '', operate = '', action = '' } = item
 
     return { name, description, menuId, operate, action }
   }
 
+  const initMenuForm = (item = {}) => {
+    const {
+      sort = 0,
+      status = true,
+      icon = '',
+      name = '',
+      description = '',
+      routeName = '',
+      path = '',
+      component = '',
+    } = item
+    return {
+      sort,
+      status,
+      icon,
+      name,
+      description,
+      routeName,
+      path,
+      component,
+    }
+  }
+
   const operationForm = ref(initOperationForm())
+  const menuForm = ref(initMenuForm())
 
   const activeId = ref(null)
   const activeModel = ref(null)
@@ -21,15 +45,17 @@ export function useMenus({ operationFormDialogRef, confirmDialogRef, menuTableRe
     id: activeId,
   })
 
+  provide('activeModel', activeModel)
+
   const resetOperation = () => {
     operationForm.value = initOperationForm()
     activeModel.value = null
     activeId.value = null
-    operationFormDialogRef.value.status = false
+    formDialogRef.value.status = false
   }
 
   const createOperation = catchAsync(async () => {
-    const validateForm = await operationFormDialogRef.value.validateOperationForm()
+    const validateForm = await formDialogRef.value.validateOperationForm()
     if (validateForm) {
       const { status } = await createOperationAPI(operationForm.value)
       if (status) {
@@ -40,7 +66,7 @@ export function useMenus({ operationFormDialogRef, confirmDialogRef, menuTableRe
   })
 
   const updateOperation = catchAsync(async () => {
-    const validateForm = await operationFormDialogRef.value.validateOperationForm()
+    const validateForm = await formDialogRef.value.validateOperationForm()
     if (validateForm) {
       const { status } = await updateOperationAPI(activeId.value, operationForm.value)
       if (status) {
@@ -60,8 +86,6 @@ export function useMenus({ operationFormDialogRef, confirmDialogRef, menuTableRe
     }
   })
 
-  provide('activeModel', activeModel)
-
   provide('operation', {
     model: activeModel,
     form: operationForm,
@@ -75,8 +99,20 @@ export function useMenus({ operationFormDialogRef, confirmDialogRef, menuTableRe
     cancelOperation: resetOperation,
   })
 
-  provide('menus', {
-    openConfirmDialog,
+  const createMenu = catchAsync(async () => {
+    console.log('createMenu')
+  })
+
+  const updateMenu = catchAsync(async () => {
+    console.log('updateMenu')
+  })
+
+  provide('menu', {
+    openFormDialog,
+
+    menuForm,
+    createMenu,
+    updateMenu,
   })
 
   function openOperationForm({ menuId, model, operationItem }) {
@@ -91,19 +127,34 @@ export function useMenus({ operationFormDialogRef, confirmDialogRef, menuTableRe
       operationForm.value.menuId = menuId
       activeId.value = menuId
     }
-    operationFormDialogRef.value.status = true
+    formDialogRef.value.status = true
+  }
+
+  function openFormDialog({ menuId, model, menuItem }) {
+    activeModel.value = model
+
+    if (menuItem) {
+      activeId.value = menuItem._id
+      menuForm.value = initOperationForm(menuItem)
+    }
+
+    if (menuId) {
+      menuForm.value.menuId = menuId
+      activeId.value = menuId
+    }
+    formDialogRef.value.status = true
+  }
+
+  function resetOperationForm() {
+    const menuId = activeId.value
+    formDialogRef.value.resetOperationForm()
+    operationForm.value.menuId = menuId
   }
 
   function openConfirmDialog(model, id) {
     activeModel.value = model
     activeId.value = id
     confirmDialogRef.value.confirmDialogToggle()
-  }
-
-  function resetOperationForm() {
-    const menuId = activeId.value
-    operationFormDialogRef.value.resetOperationForm()
-    operationForm.value.menuId = menuId
   }
 
   onMounted(() => {
