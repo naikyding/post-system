@@ -9,7 +9,7 @@ import {
   updateMenuAPI,
   deleteMenuAPI,
 } from '@/api'
-import catchAsync from '../../utils/catchAsync'
+import catchAsync from '../../../utils/catchAsync'
 
 const menuStore = useMenusStore()
 
