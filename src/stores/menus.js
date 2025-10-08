@@ -1,13 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import catchAsync from '../utils/catchAsync'
-import {
-  getMenusAPI,
-  getMenusAndOperationsAPI,
-  createMenuAPI,
-  deleteMenuAPI,
-  updateMenuAPI,
-} from '@/api'
+import { getMenusAndOperationsAPI } from '@/api'
 
 export const useMenusStore = defineStore('Menus', () => {
   const menus = ref([])
@@ -15,6 +9,7 @@ export const useMenusStore = defineStore('Menus', () => {
   const getMenus = catchAsync(async () => {})
 
   const getMenusAndOperations = catchAsync(async () => {
+    menus.value.length = 0
     const { data } = await getMenusAndOperationsAPI()
     if (data) menus.value = data.items
   })
