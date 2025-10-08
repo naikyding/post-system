@@ -28,7 +28,6 @@ const dynamicDelete = (model) => {
 <template>
   <v-dialog v-model="dialogStatus" max-width="400" persistent>
     <v-card prepend-icon="mdi-alert" :text="dialogText[activeModel]" title="再次確認">
-      {{ activeModel }}
       <template v-slot:actions>
         <v-spacer></v-spacer>
         <v-btn variant="outlined" color="error" @click="confirmDialog.cancel">取消</v-btn>

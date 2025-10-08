@@ -56,7 +56,7 @@ function modelCheck(activeModel) {
           <component :is="dynamicInput(activeModel)" :rules="rules" />
         </v-card-text>
         <v-divider></v-divider>
-        {{ activeModel }}
+
         <div class="pa-6">
           <v-btn class="" color="success" block @click="dynamicSaveDialog(activeModel)">
             保存
