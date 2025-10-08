@@ -1,6 +1,14 @@
 import { useMenusStore } from '@/stores/menus'
 import { onMounted, provide, ref } from 'vue'
-import { createOperationAPI, updateOperationAPI, deleteOperationAPI } from '@/api'
+import {
+  createOperationAPI,
+  updateOperationAPI,
+  deleteOperationAPI,
+  // menu
+  createMenuAPI,
+  updateMenuAPI,
+  deleteMenuAPI,
+} from '@/api'
 import catchAsync from '../../utils/catchAsync'
 
 const menuStore = useMenusStore()
@@ -22,6 +30,7 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
       routeName = '',
       path = '',
       component = '',
+      parentId = '',
     } = item
     return {
       sort,
@@ -32,6 +41,7 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
       routeName,
       path,
       component,
+      parentId,
     }
   }
 
@@ -46,22 +56,41 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
   })
 
   provide('activeModel', activeModel)
+  provide('confirmDialog', {
+    open: openConfirmDialog,
+    cancel: cancelConfirmDialog,
+  })
 
-  const resetOperation = () => {
-    operationForm.value = initOperationForm()
+  function modelCheck(activeModel) {
+    if (['createOperation', 'updateOperation'].includes(activeModel)) return 'operation'
+    if (['createMenu', 'updateMenu'].includes(activeModel)) return 'menu'
+  }
+
+  const cancelDialogForm = () => {
+    if (modelCheck(activeModel.value) === 'operation') {
+      operationForm.value = initOperationForm()
+    }
+    if (modelCheck(activeModel.value) === 'menu') {
+      menuForm.value = initMenuForm()
+    }
     activeModel.value = null
     activeId.value = null
+
     formDialogRef.value.status = false
+  }
+
+  function resetFormAndGetMenus(status) {
+    if (status) {
+      cancelDialogForm()
+      menuStore.getMenusAndOperations()
+    }
   }
 
   const createOperation = catchAsync(async () => {
     const validateForm = await formDialogRef.value.validateOperationForm()
     if (validateForm) {
       const { status } = await createOperationAPI(operationForm.value)
-      if (status) {
-        resetOperation()
-        menuStore.getMenusAndOperations()
-      }
+      resetFormAndGetMenus(status)
     }
   })
 
@@ -69,10 +98,7 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
     const validateForm = await formDialogRef.value.validateOperationForm()
     if (validateForm) {
       const { status } = await updateOperationAPI(activeId.value, operationForm.value)
-      if (status) {
-        resetOperation()
-        menuStore.getMenusAndOperations()
-      }
+      resetFormAndGetMenus(status)
     }
   })
 
@@ -80,7 +106,8 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
     const { status } = await deleteOperationAPI(activeId.value)
     if (status) {
       menuTableRef.value.openChildrenId = {}
-      resetOperation()
+
+      cancelDialogForm()
       menuStore.getMenusAndOperations()
       confirmDialogRef.value.confirmDialogToggle()
     }
@@ -96,23 +123,64 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
     deleteOperation,
 
     resetOperationForm,
-    cancelOperation: resetOperation,
+    cancelDialogForm,
   })
 
   const createMenu = catchAsync(async () => {
-    console.log('createMenu')
+    const form = menuForm.value
+    const validateForm = await formDialogRef.value.validateOperationForm()
+    const allowInput = [
+      'sort',
+      'status',
+      'icon',
+      'name',
+      'description',
+      'routeName',
+      'path',
+      'component',
+      'parentId',
+    ]
+    if (validateForm) {
+      const payload = allowInput.reduce((acc, cur) => {
+        if (form[cur] !== '') acc[cur] = form[cur]
+        return acc
+      }, {})
+
+      const { status } = await createMenuAPI(payload)
+      resetFormAndGetMenus(status)
+    }
   })
 
   const updateMenu = catchAsync(async () => {
-    console.log('updateMenu')
+    const id = activeId.value
+    const payload = menuForm.value
+    const validateForm = await formDialogRef.value.validateOperationForm()
+
+    if (validateForm) {
+      const { status } = await updateMenuAPI(id, payload)
+      resetFormAndGetMenus(status)
+    }
+  })
+
+  const deleteMenu = catchAsync(async () => {
+    const { status } = await deleteMenuAPI(activeId.value)
+
+    if (status) {
+      menuTableRef.value.openChildrenId = {}
+      await menuStore.getMenusAndOperations()
+      cancelConfirmDialog()
+    }
   })
 
   provide('menu', {
+    openConfirmDialog,
     openFormDialog,
 
-    menuForm,
+    form: menuForm,
     createMenu,
     updateMenu,
+    deleteMenu,
+    cancelDialogForm,
   })
 
   function openOperationForm({ menuId, model, operationItem }) {
@@ -125,23 +193,22 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
 
     if (menuId) {
       operationForm.value.menuId = menuId
-      activeId.value = menuId
     }
     formDialogRef.value.status = true
   }
 
-  function openFormDialog({ menuId, model, menuItem }) {
+  function openFormDialog({ parentId, model, menuItem }) {
     activeModel.value = model
-
+    console.log(parentId)
     if (menuItem) {
       activeId.value = menuItem._id
-      menuForm.value = initOperationForm(menuItem)
+      menuForm.value = initMenuForm(menuItem)
     }
 
-    if (menuId) {
-      menuForm.value.menuId = menuId
-      activeId.value = menuId
+    if (parentId) {
+      menuForm.value.parentId = parentId
     }
+
     formDialogRef.value.status = true
   }
 
@@ -154,6 +221,11 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
   function openConfirmDialog(model, id) {
     activeModel.value = model
     activeId.value = id
+    confirmDialogRef.value.confirmDialogToggle()
+  }
+  function cancelConfirmDialog() {
+    activeModel.value = null
+    activeId.value = null
     confirmDialogRef.value.confirmDialogToggle()
   }
 

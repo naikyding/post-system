@@ -1,11 +1,12 @@
 <script setup>
 import { inject, ref } from 'vue'
-import { useOperationFormDialog } from './useOperationFormDialog'
+import { useOperationFormDialog } from './useFormDialog'
 import operationInput from './operationInput.vue'
 import menuInput from './menuInput.vue'
 
 const status = ref(false)
 const operation = inject('operation')
+const menu = inject('menu')
 const form = ref(null)
 const { validate, reset, rules } = useOperationFormDialog(form)
 
@@ -21,14 +22,29 @@ function resetFrom() {
   operation.resetOperationForm()
 }
 
+const dynamicSaveDialog = (model) => {
+  if (modelCheck(model) === 'operation') return operation[model]()
+  if (modelCheck(model) === 'menu') return menu[model]()
+}
+
+const dynamicCancelDialog = (model) => {
+  if (modelCheck(model) === 'operation') return operation.cancelDialogForm()
+  if (modelCheck(model) === 'menu') return menu.cancelDialogForm()
+}
+
 const dynamicCardTitle = (model) => {
   if (['createOperation', 'createMenu'].includes(model)) return `新增操作項目`
   if (['updateOperation', 'updateMenu'].includes(model)) return `修改操作項目`
 }
 
 const dynamicInput = (model) => {
-  if (['createOperation', 'updateOperation'].includes(model)) return operationInput
-  if (['createMenu', 'updateMenu'].includes(model)) return menuInput
+  if (modelCheck(model) === 'operation') return operationInput
+  if (modelCheck(model) === 'menu') return menuInput
+}
+
+function modelCheck(activeModel) {
+  if (['createOperation', 'updateOperation'].includes(activeModel)) return 'operation'
+  if (['createMenu', 'updateMenu'].includes(activeModel)) return 'menu'
 }
 </script>
 
@@ -42,7 +58,7 @@ const dynamicInput = (model) => {
         <v-divider></v-divider>
         {{ activeModel }}
         <div class="pa-6">
-          <v-btn class="" color="success" block @click="operation[operation.model.value]">
+          <v-btn class="" color="success" block @click="dynamicSaveDialog(activeModel)">
             保存
           </v-btn>
 
@@ -52,7 +68,7 @@ const dynamicInput = (model) => {
             color="error"
             variant="outlined"
             block
-            @click="operation.cancelOperation"
+            @click="dynamicCancelDialog(activeModel)"
           >
             取消
           </v-btn>

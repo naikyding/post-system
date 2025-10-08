@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 export function useMenuTable(props) {
   const search = ref('')
@@ -27,26 +27,25 @@ export function useMenuTable(props) {
 
   const openChildrenId = ref({})
 
-  const formatMenus = computed(() =>
-    props.menus.map((item) => {
-      if (item.operations && item.operations.length > 0) {
-        item.operations.map((operationItem) => {
-          openChildrenId.value[operationItem._id] = false
-        })
-      }
+  const formatMenus = computed(() => {
+    props.menus.forEach((item) => initOpenChildren(item, openChildrenId))
+    return props.menus
+  })
 
-      if (item.children && item.children.length > 0) {
-        openChildrenId.value[item._id] = false
-        item.children.map((menuChildren) => {
-          if (menuChildren.operations && menuChildren.operations.length > 0) {
-            openChildrenId.value[menuChildren._id] = false
-          }
-        })
-      }
+  function initOpenChildren(node, openChildrenId) {
+    // 如果有 operations → 初始化
+    if (node.operations?.length) {
+      node.operations.forEach((op) => {
+        openChildrenId.value[op._id] = false
+      })
+    }
 
-      return item
-    }),
-  )
+    // 如果有 children → 初始化自己 + 遞迴子層
+    if (node.children?.length) {
+      openChildrenId.value[node._id] = false
+      node.children.forEach((child) => initOpenChildren(child, openChildrenId))
+    }
+  }
 
   const getColor = (action) => {
     const colors = {
@@ -60,6 +59,10 @@ export function useMenuTable(props) {
   }
 
   const filterItem = (parent, id) => parent.filter((item) => item._id === id)
+
+  onMounted(() => {
+    //
+  })
 
   return { headers, formatMenus, search, openChildrenId, filterItem, getColor }
 }

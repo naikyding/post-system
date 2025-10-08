@@ -11,7 +11,8 @@ export function useOperationFormDialog(formRef) {
   }
 
   const rules = ref({
-    required: (v) => !!v || '必填項目',
+    required: (v) => (v !== null && v !== undefined && String(v) !== '') || '必填項目',
+    isNumber: (num) => !isNaN(Number(num)) || '必須為數字格式',
   })
 
   return { validate, reset, rules }
