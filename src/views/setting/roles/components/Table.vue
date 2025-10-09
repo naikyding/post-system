@@ -54,7 +54,13 @@ const role = inject('role')
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-btn icon="mdi-sitemap" size="40" variant="plain" color="success"></v-btn>
+          <v-btn
+            @click="role.openMenuAndOperationDrawer({ model: 'menus', roleItem: item })"
+            icon="mdi-sitemap"
+            size="40"
+            variant="plain"
+            color="success"
+          ></v-btn>
           <!-- 修改 -->
           <v-btn
             icon="mdi-pencil"

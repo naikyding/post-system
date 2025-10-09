@@ -5,12 +5,19 @@ import { useRoles } from './useRoles'
 import Table from './components/Table.vue'
 import FormDialog from './components/FormDialog.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
+import MenuAndOperationDrawer from './components/MenuAndOperationDrawer.vue'
 
 const tableRef = ref(null)
 const formDialogRef = ref(null)
 const confirmDialogRef = ref(null)
+const menuAndOperationDrawerRef = ref(null)
 
-const { rolesStore, active } = useRoles({ tableRef, formDialogRef, confirmDialogRef })
+const { rolesStore, active } = useRoles({
+  tableRef,
+  formDialogRef,
+  confirmDialogRef,
+  menuAndOperationDrawerRef,
+})
 </script>
 
 <template>
@@ -19,5 +26,6 @@ const { rolesStore, active } = useRoles({ tableRef, formDialogRef, confirmDialog
     <Table ref="tableRef" />
     <FormDialog ref="formDialogRef" />
     <ConfirmDialog ref="confirmDialogRef" />
+    <MenuAndOperationDrawer ref="menuAndOperationDrawerRef" />
   </div>
 </template>

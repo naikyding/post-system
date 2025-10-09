@@ -3,12 +3,13 @@ import { useRolesStore } from '@/stores/roles'
 import { createRoleAPI, deleteRoleAPI, updateRoleAPI } from '@/api'
 import catchAsync from '../../../utils/catchAsync'
 
-export function useRoles({ tableRef, formDialogRef, confirmDialogRef }) {
+export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOperationDrawerRef }) {
   const rolesStore = useRolesStore()
 
   const initActive = () => ({
     id: null,
     model: null,
+    item: {},
   })
 
   const initForm = (payload = {}) => {
@@ -30,6 +31,7 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef }) {
   const update = catchAsync(async () => {
     const id = active.value.id
     const payload = form.value
+
     afterValidateSuccessCallApi(() => updateRoleAPI(id, payload))
   })
 
@@ -60,8 +62,11 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef }) {
 
     openFormDialog,
     cancelFormDialog,
+
     openConfirmDialog,
     cancelConfirmDialog,
+
+    openMenuAndOperationDrawer,
 
     create,
     update,
@@ -81,6 +86,14 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef }) {
       if (oldStatus && !newStatus) cancelFormDialog()
     },
   )
+
+  function openMenuAndOperationDrawer({ model, roleItem }) {
+    active.value.model = model
+    active.value.id = roleItem._id
+    active.value.item = roleItem
+
+    menuAndOperationDrawerRef.value.status = true
+  }
 
   function openConfirmDialog({ model, id }) {
     active.value.id = id
