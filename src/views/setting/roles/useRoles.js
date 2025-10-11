@@ -1,10 +1,12 @@
 import { onMounted, provide, ref, watch } from 'vue'
 import { useRolesStore } from '@/stores/roles'
+import { useMenusStore } from '@/stores/menus'
 import { createRoleAPI, deleteRoleAPI, updateRoleAPI } from '@/api'
-import catchAsync from '../../../utils/catchAsync'
+import catchAsync from '@/utils/catchAsync'
 
 export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOperationDrawerRef }) {
   const rolesStore = useRolesStore()
+  const menusStore = useMenusStore()
 
   const initActive = () => ({
     id: null,
@@ -91,6 +93,7 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
     active.value.model = model
     active.value.id = roleItem._id
     active.value.item = roleItem
+    menusStore.getMenusAndOperations()
 
     menuAndOperationDrawerRef.value.status = true
   }
