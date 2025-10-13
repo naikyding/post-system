@@ -3,7 +3,8 @@ import { useErrorStore } from '../stores/errorStore'
 
 // 錯誤預設處理
 export const errorFunction = (errors, message) => {
-  console.log(errors.response)
+  console.warn('(DEBUG) catchAsync:', errors)
+
   let formatText = null
 
   // 直接操作
@@ -40,7 +41,7 @@ export const errorFunction = (errors, message) => {
 
     // log
     return console.warn(
-      `%c🔥 ${errors.response.status} 請求失敗:`,
+      `%c🔥 ${errors.response?.status} 請求失敗:`,
       'background: #F2B33D; border-radius: 4px; color: #fff; padding: .3rem 1rem;',
       `${errors.config.baseURL}/${errors.config.url}`,
       errors.response.data.errors,
@@ -59,6 +60,24 @@ export const errorFunction = (errors, message) => {
 
     return console.warn(
       '%c🔥 網路連線失敗:',
+      'background: #F2B33D; border-radius: 4px; color: #fff; padding: .3rem 1rem;',
+      `${errors.config.baseURL}/${errors.config.url}`,
+      errors.message,
+    )
+  }
+
+  if (errors.code === 'ECONNABORTED') {
+    Swal.fire({
+      icon: 'error',
+      title: '🔥 系統連線逾時',
+      text: `請稍後再試`,
+      width: '400px',
+      timer: 1500,
+      showConfirmButton: false,
+    })
+
+    return console.warn(
+      '%c🔥 系統連線逾時:',
       'background: #F2B33D; border-radius: 4px; color: #fff; padding: .3rem 1rem;',
       `${errors.config.baseURL}/${errors.config.url}`,
       errors.message,
