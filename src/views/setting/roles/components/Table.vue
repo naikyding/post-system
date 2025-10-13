@@ -15,7 +15,6 @@ const role = inject('role')
 
 <template>
   <v-card>
-    {{ role.active }}
     <v-card-text>
       <v-text-field
         v-model="search"
