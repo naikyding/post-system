@@ -29,7 +29,7 @@ defineExpose({
       </v-card-title>
 
       <v-card-text>
-        <v-list>
+        <v-list :key="role.active.value.id">
           <ListGroupLoop :items="menusStore.menus" />
         </v-list>
       </v-card-text>
@@ -39,8 +39,15 @@ defineExpose({
 
     <template v-slot:append>
       <div class="pa-4">
-        <v-btn block color="success">保存</v-btn>
-        <v-btn class="mt-3" variant="outlined" block color="error">取消</v-btn>
+        <v-btn @click="role.updateMenusAndOperations" block color="success">保存</v-btn>
+        <v-btn
+          @click="role.closeMenuAndOperationDrawer"
+          class="mt-3"
+          variant="outlined"
+          block
+          color="error"
+          >取消</v-btn
+        >
       </div>
     </template>
   </v-navigation-drawer>

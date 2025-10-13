@@ -14,6 +14,15 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
     item: {},
   })
 
+  const initMenusAndOperations = ({ model = '', menus = [], operations = [] } = {}) => {
+    if (!model) return { menus: [...menus], operations: [...operations] }
+    if (model === 'menus') return [...menus]
+    if (model === 'operations') return [...operations]
+  }
+
+  const menusForm = ref(initMenusAndOperations({ model: 'menus' }))
+  const operationsForm = ref(initMenusAndOperations({ model: 'operations' }))
+
   const initForm = (payload = {}) => {
     const { name = '', code = '', status = true, isSystem = true, description = '' } = payload
     return { name, code, status, isSystem, description }
@@ -56,11 +65,24 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
     }
   })
 
+  const updateMenusAndOperations = catchAsync(async () => {
+    const id = active.value.id
+    const payload = { menus: [...menusForm.value], operations: [...operationsForm.value] }
+
+    const { status } = await updateRoleAPI(id, payload)
+    if (status) {
+      rolesStore.getList()
+    }
+    closeMenuAndOperationDrawer()
+  })
+
   provide('role', {
     active,
     form,
     formRules,
     resetForm,
+    menusForm,
+    operationsForm,
 
     openFormDialog,
     cancelFormDialog,
@@ -69,10 +91,13 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
     cancelConfirmDialog,
 
     openMenuAndOperationDrawer,
+    closeMenuAndOperationDrawer,
 
     create,
     update,
     deleteItem,
+
+    updateMenusAndOperations,
   })
 
   watch(
@@ -89,11 +114,34 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
     },
   )
 
+  watch(
+    () => menuAndOperationDrawerRef.value?.status,
+    (newStatus, oldStatus) => {
+      if (oldStatus && !newStatus) closeMenuAndOperationDrawer()
+    },
+  )
+
+  function closeMenuAndOperationDrawer() {
+    active.value = initActive()
+
+    menuAndOperationDrawerRef.value.status = false
+    const { menus, operations } = initMenusAndOperations()
+    menusForm.value = menus
+    operationsForm.value = operations
+  }
+
   function openMenuAndOperationDrawer({ model, roleItem }) {
     active.value.model = model
     active.value.id = roleItem._id
     active.value.item = roleItem
-    menusStore.getMenusAndOperations()
+
+    const { menus, operations } = initMenusAndOperations({
+      menus: [...active.value.item.menus],
+      operations: [...active.value.item.operations],
+    })
+
+    menusForm.value = menus
+    operationsForm.value = operations
 
     menuAndOperationDrawerRef.value.status = true
   }
@@ -145,6 +193,7 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
 
   onMounted(() => {
     rolesStore.getList()
+    menusStore.getMenusAndOperations()
   })
 
   return { rolesStore, active }
