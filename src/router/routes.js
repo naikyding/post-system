@@ -54,6 +54,12 @@ const routes = [
             component: () => import('@/views/setting/roles/index.vue'),
             meta: { title: '角色設定' },
           },
+          {
+            path: 'user',
+            name: 'settingUser',
+            component: () => import('@/views/setting/user/index.vue'),
+            meta: { title: '人員設定' },
+          },
         ],
       },
     ],

@@ -86,6 +86,11 @@ const {
               title="Roles"
               to="/setting/roles"
             ></v-list-item>
+            <v-list-item
+              prepend-icon="mdi-account-group"
+              title="User"
+              to="/setting/user"
+            ></v-list-item>
           </v-list-group>
         </v-list>
 
