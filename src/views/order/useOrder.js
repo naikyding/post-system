@@ -7,8 +7,6 @@ import dayjs from 'dayjs'
 
 export function useOrder() {
   // order page 邏輯
-  console.log('ORDER PAGE!')
-
   const productsStore = useProductsStore()
   const ordersStore = useOrdersStore()
   const markerStore = useMarkersStore()
@@ -149,5 +147,8 @@ export function useOrder() {
     ordersStore,
     productsStore,
     markerStore,
+    parseDate,
+    schedule,
+    cancelSettingDateAndTime,
   }
 }

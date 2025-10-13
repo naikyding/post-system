@@ -16,6 +16,9 @@ const {
   ordersStore,
   productsStore,
   markerStore,
+  parseDate,
+  schedule,
+  cancelSettingDateAndTime,
 } = useOrder()
 </script>
 
