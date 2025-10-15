@@ -102,7 +102,7 @@ export const useUserStore = defineStore('user', () => {
     async () => {
       const { data } = await gerUserBaseInfoAPI()
 
-      await saveUserAgentsId(data.agents[0]._id)
+      await saveUserAgentsId(data.agentRoles[0].agent)
 
       baseInfo.value = data
     },

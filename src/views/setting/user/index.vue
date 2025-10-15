@@ -1,9 +1,11 @@
 <script setup>
 import { useUser } from './useUser'
+import Table from './components/Table.vue'
 
-const {} = useUser()
+const { userList } = useUser()
 </script>
 
 <template>
   <div>USER</div>
+  <Table :items="userList" />
 </template>
