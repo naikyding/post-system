@@ -33,7 +33,6 @@ onMounted(() => {
 async function searchOrderList(filterSearch) {
   console.log('searchOrderList', filterSearch)
   const res = await systemOrderStore.pureGetOrderList(filterSearch)
-  console.log('res', res)
   data.value = res.items
 }
 </script>

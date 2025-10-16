@@ -62,7 +62,6 @@ function initChart() {
 
 onMounted(() => {
   chartConstructor = initChart()
-  console.log(chartConstructor)
 })
 </script>
 
