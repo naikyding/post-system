@@ -13,9 +13,9 @@ import { getMarkers, createMarker, deleteMarker, editMarker } from './markers.js
 import { getExtras, createExtras, deleteExtra, updateExtra } from './extras.js'
 import { getMenus, getMenusAndOperations, createMenu, deleteMenu, updateMenu } from './menus.js'
 import { deleteOperation, createOperation, updateOperation } from './operations.js'
-import { getRoles, createRole, deleteRole, updateRole } from './roles.js'
+import { getRoles, getRolesByAgent, createRole, deleteRole, updateRole } from './roles.js'
 
-import { getUsers } from './user.js'
+import { getUsers, createUser } from './user.js'
 
 export const getProductsAPI = getProducts
 export const createProductAPI = createProduct
@@ -56,8 +56,10 @@ export const createOperationAPI = createOperation
 export const updateOperationAPI = updateOperation
 
 export const getRolesAPI = getRoles
+export const getRolesByAgentAPI = getRolesByAgent
 export const createRoleAPI = createRole
 export const deleteRoleAPI = deleteRole
 export const updateRoleAPI = updateRole
 
 export const getUsersAPI = getUsers
+export const createUserAPI = createUser
