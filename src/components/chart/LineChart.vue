@@ -77,7 +77,6 @@ const dataFormat = (data) => {
 
 const formatData = computed(() => {
   let cloneData = [...props.data]
-  console.log('dataFormat(cloneData)', dataFormat(cloneData))
   return dataFormat(cloneData)
 })
 
