@@ -24,7 +24,7 @@ export const useUserStore = defineStore('user', () => {
   })
 
   const roles = computed(() => {
-    return baseInfo.value.roles ? baseInfo.value.roles[0] : null
+    return baseInfo.value.agentRoles[0].roles[0]
   })
 
   watchEffect(() => {
