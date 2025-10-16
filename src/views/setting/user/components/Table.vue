@@ -3,20 +3,11 @@ import { useUserStore } from '@/stores/user'
 
 import { ref } from 'vue'
 import { dateFormat } from '@/utils/day'
+import { useTable } from './useTable'
 
+const { getRoles, headers } = useTable()
 const userStore = useUserStore()
 const search = ref('')
-const headers = [
-  { title: '綽號', key: 'nickname' },
-  { title: 'email', key: 'email' },
-  { title: '角色', key: 'agentRoles' },
-  { title: '創建時間', key: 'createdAt' },
-  { title: '操作', key: 'actions', align: 'center' },
-]
-
-const getRoles = (agentRoles) => {
-  return agentRoles[0]['roles']
-}
 </script>
 
 <template>
@@ -70,13 +61,6 @@ const getRoles = (agentRoles) => {
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-btn
-            @click="role.openMenuAndOperationDrawer({ model: 'menus', roleItem: item })"
-            icon="mdi-sitemap"
-            size="40"
-            variant="plain"
-            color="success"
-          ></v-btn>
           <!-- 修改 -->
           <v-btn
             icon="mdi-pencil"
