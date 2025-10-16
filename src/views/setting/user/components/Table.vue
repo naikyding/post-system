@@ -1,10 +1,10 @@
 <script setup>
 import { useUserStore } from '@/stores/user'
-
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { dateFormat } from '@/utils/day'
 import { useTable } from './useTable'
 
+const user = inject('user')
 const { getRoles, headers } = useTable()
 const userStore = useUserStore()
 const search = ref('')
@@ -23,7 +23,7 @@ const search = ref('')
         single-line
       ></v-text-field>
 
-      <v-btn block color="success" @click="role.openFormDialog({ model: 'create' })">
+      <v-btn block color="success" @click="user.openFormDialog({ model: 'create' })">
         <v-icon size="30">mdi-plus</v-icon>
       </v-btn>
 
@@ -67,11 +67,11 @@ const search = ref('')
             size="40"
             variant="plain"
             color="warning"
-            @click="role.openFormDialog({ model: 'update', roleItem: item })"
+            @click="user.openFormDialog({ model: 'update', userItem: item })"
           ></v-btn>
           <!-- 刪除 -->
           <v-btn
-            @click="role.openConfirmDialog({ model: 'delete', id: item._id })"
+            @click="user.openConfirmDialog({ model: 'delete', id: item._id })"
             icon="mdi-delete"
             size="40"
             variant="plain"
