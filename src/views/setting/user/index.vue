@@ -1,11 +1,13 @@
 <script setup>
-import { useUser } from './useUser'
+import { ref } from 'vue'
 import Table from './components/Table.vue'
+import { useUser } from './useUser.js'
 
-const { userList } = useUser()
+const tableRef = ref(null)
+const {} = useUser({ tableRef })
 </script>
 
 <template>
-  <div>USER</div>
-  <Table :items="userList" />
+  <h3 class="pa-4 pb-0">使用者設定</h3>
+  <Table ref="tableRef" />
 </template>
