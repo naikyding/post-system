@@ -1,10 +1,13 @@
 import { computed, onMounted, provide, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import catchAsync from '@/utils/catchAsync'
+import { useRolesStore } from '@/stores/roles'
 
 export function useUser({ tableRef, formDialogRef }) {
   const userStore = useUserStore()
   const userList = computed(() => userStore.list)
+
+  const roleStore = useRolesStore()
 
   const initActive = () => ({
     id: null,
@@ -18,7 +21,7 @@ export function useUser({ tableRef, formDialogRef }) {
       password: '',
       agentRoles: [
         {
-          agent: '',
+          agent: localStorage.getItem('agentsId'),
           roles: [],
         },
       ],
@@ -63,19 +66,24 @@ export function useUser({ tableRef, formDialogRef }) {
 
   const openFormDialog = ({ model, userItem }) => {
     active.value.model = model
+    roleStore.getList('all')
+
     if (userItem) {
       active.value.data = userItem
       form.value = initForm(active.value.data)
     }
+
     formDialogRef.value.status = true
   }
 
   const create = catchAsync(async () => {})
 
   const update = catchAsync(async () => {})
+  const roleList = computed(() => roleStore.list)
 
   provide('user', {
     active,
+    roleList,
 
     form,
     formRules,
@@ -89,11 +97,15 @@ export function useUser({ tableRef, formDialogRef }) {
   })
 
   function cancelFormDialog() {
+    formDialogRef.value.status = false
     form.value = initForm()
     active.value = initActive()
   }
 
-  function resetForm() {}
+  function resetForm() {
+    form.value = initForm(active.value?.data || '')
+    formDialogRef.value.form.resetValidation()
+  }
 
   return { userList }
 }

@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getRolesAPI } from '@/api'
+import { getRolesAPI, getRolesByAgentAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 
 export const useRolesStore = defineStore('Roles', () => {
   const list = ref([])
 
-  const getList = catchAsync(async () => {
+  const getList = catchAsync(async (type) => {
     list.value.length = 0
-    const { status, data } = await getRolesAPI()
+    const { status, data } = type ? await getRolesByAgentAPI() : await getRolesAPI()
     if (status) {
       list.value = data.items
     }
