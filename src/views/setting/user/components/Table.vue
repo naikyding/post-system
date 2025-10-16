@@ -34,6 +34,7 @@ const search = ref('')
         density="compact"
         fixed-header
         hide-default-footer
+        :items-per-page="-1"
         hover
       >
         <template v-slot:item.nickname="{ value }">

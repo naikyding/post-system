@@ -10,7 +10,9 @@ const {} = useUser({ tableRef, formDialogRef })
 </script>
 
 <template>
-  <h3 class="pa-4 pb-0">使用者設定</h3>
-  <Table ref="tableRef" />
-  <FormDialog ref="formDialogRef" />
+  <div style="height: 100dvh">
+    <h3 class="pa-4 pb-0">使用者設定</h3>
+    <Table ref="tableRef" />
+    <FormDialog ref="formDialogRef" />
+  </div>
 </template>

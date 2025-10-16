@@ -1,7 +1,9 @@
-import { computed, onMounted, provide, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, provide, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import catchAsync from '@/utils/catchAsync'
 import { useRolesStore } from '@/stores/roles'
+import { isLength, isEmail } from 'validator'
+import { createUserAPI } from '@/api'
 
 export function useUser({ tableRef, formDialogRef }) {
   const userStore = useUserStore()
@@ -46,6 +48,10 @@ export function useUser({ tableRef, formDialogRef }) {
 
   const formRules = {
     required: (value) => !!value || '必須項目',
+    email: (email) => isEmail(email) || '格式錯誤',
+    nickname: (name) => isLength(name, { min: 2 }) || '請輸入至少 2 字元',
+    roles: (roles) => roles.length > 0 || '至少選擇一個角色',
+    password: (psw) => isLength(psw, { min: 8 }) || '至少 8 字元長度',
   }
 
   const active = ref(initActive())
@@ -76,7 +82,16 @@ export function useUser({ tableRef, formDialogRef }) {
     formDialogRef.value.status = true
   }
 
-  const create = catchAsync(async () => {})
+  const create = catchAsync(async () => {
+    const { valid } = await formDialogRef.value.form.validate()
+    if (valid) {
+      const { status } = await createUserAPI(form.value)
+      if (status) {
+        cancelFormDialog()
+        userStore.getUserList()
+      }
+    }
+  })
 
   const update = catchAsync(async () => {})
   const roleList = computed(() => roleStore.list)
@@ -102,8 +117,9 @@ export function useUser({ tableRef, formDialogRef }) {
     active.value = initActive()
   }
 
-  function resetForm() {
+  async function resetForm() {
     form.value = initForm(active.value?.data || '')
+    await nextTick()
     formDialogRef.value.form.resetValidation()
   }
 

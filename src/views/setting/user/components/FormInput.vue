@@ -12,16 +12,17 @@ const user = inject('user')
         label="email"
         variant="outlined"
         required
-        :rules="[user.formRules.required]"
+        :rules="[user.formRules.required, user.formRules.email]"
       ></v-text-field>
     </v-col>
     <v-col v-if="user.active.value.model === 'create'" cols="12">
       <v-text-field
         v-model="user.form.value.password"
+        type="password"
         label="密碼"
         variant="outlined"
         required
-        :rules="[user.formRules.required]"
+        :rules="[user.formRules.required, user.formRules.password]"
       ></v-text-field>
     </v-col>
 
@@ -31,13 +32,14 @@ const user = inject('user')
         label="綽號"
         variant="outlined"
         required
-        :rules="[user.formRules.required]"
+        :rules="[user.formRules.required, user.formRules.nickname]"
       ></v-text-field>
     </v-col>
 
     <v-col cols="12">
       <v-select
         v-model="user.form.value.agentRoles[0]['roles']"
+        :rules="[user.formRules.roles]"
         :items="user.roleList.value"
         item-title="name"
         item-value="_id"
