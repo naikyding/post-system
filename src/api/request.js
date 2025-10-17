@@ -25,8 +25,8 @@ request.interceptors.request.use(
     }
 
     if (localStorage.getItem('agentsId')) {
-      config.headers['Mc-Agents-Id'] = userStore.agents
       config.headers['mc-agent-id'] = userStore.agents
+      config.headers['mc-agents-id'] = userStore.agents
     }
 
     return config

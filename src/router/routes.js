@@ -1,42 +1,68 @@
-import { components } from 'vuetify/dist/vuetify-labs.js'
-
 const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/user/Login.vue'),
-  },
-  {
-    path: '/',
-    component: () => import('@/views/layout/index.vue'),
-    redirect: '/post',
-    children: [
-      {
-        path: 'dashboard',
-        name: 'Dashboard',
-        component: () => import('@/views/HomeView.vue'),
-      },
-      {
-        path: 'post',
-        name: 'Order',
-        component: () => import('@/views/PostView.vue'),
-      },
-      {
-        path: 'list-status',
-        name: 'ListStatus',
-        component: () => import('@/views/statusList/index.vue'),
-      },
-      {
-        path: 'setting',
-        name: 'Setting',
-        component: () => import('@/views/setting/index.vue'),
-      },
-    ],
+    component: () => import('@/views/login/index.vue'),
   },
 
   {
-    path: '/dash',
-    component: () => import('@/views/user/Login.vue'),
+    path: '/',
+    component: () => import('@/views/layout/index.vue'),
+    redirect: '/order',
+    children: [
+      // 儀表板
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => import('@/views/dashboard/index.vue'),
+        meta: { title: '儀表板' },
+      },
+      // 點餐頁面
+      {
+        path: 'order',
+        name: 'order',
+        component: () => import('@/views/order/index.vue'),
+        meta: { title: '點餐' },
+      },
+      // 訂單狀態
+      {
+        path: 'order-status',
+        name: 'orderStatus',
+        component: () => import('@/views/order-status/index.vue'),
+        meta: { title: '訂單狀態' },
+      },
+      // 設定
+      {
+        path: 'setting',
+        name: 'setting',
+        children: [
+          {
+            path: 'menus',
+            name: 'settingMenus',
+            component: () => import('@/views/setting/menus/index.vue'),
+            meta: { title: '選單設定' },
+          },
+          {
+            path: 'products',
+            name: 'settingProducts',
+            component: () => import('@/views/setting/products/index.vue'),
+            meta: { title: '產品設定' },
+          },
+          {
+            path: 'roles',
+            name: 'settingRoles',
+            component: () => import('@/views/setting/roles/index.vue'),
+            meta: { title: '角色設定' },
+          },
+          {
+            path: 'user',
+            name: 'settingUser',
+            component: () => import('@/views/setting/user/index.vue'),
+            meta: { title: '人員設定' },
+          },
+        ],
+      },
+    ],
   },
 ]
 

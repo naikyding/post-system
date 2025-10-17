@@ -4,7 +4,7 @@ import { loginAPI, refreshTokenAPI, gerUserBaseInfoAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
-import Swal from 'sweetalert2'
+
 import { isDev } from '../utils/devTool'
 
 export const useUserStore = defineStore('user', () => {
@@ -87,7 +87,7 @@ export const useUserStore = defineStore('user', () => {
 
   const login = catchAsync(async (emailNPassword) => {
     const { data } = await loginAPI(emailNPassword)
-    if (data) loginFunc(data)
+    if (data) await loginFunc(data)
     return true
   })
 
@@ -114,16 +114,6 @@ export const useUserStore = defineStore('user', () => {
   const loginFunc = async (data) => {
     await saveUserToken(data)
     await getUserBaseInfo()
-
-    Swal.fire({
-      icon: 'success',
-      title: '登入成功',
-      width: '400px',
-      timer: 1500,
-      showConfirmButton: false,
-    })
-
-    router.push('/')
   }
 
   const logoutFunc = async (path) => {

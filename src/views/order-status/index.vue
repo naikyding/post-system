@@ -1,18 +1,9 @@
 <script setup>
 import DataTable from './components/DataTable.vue'
-import { useSystemOrderList } from '../../stores/orders'
 import DatePicker from '@/components/DatePicker.vue'
 
-const systemOrderStore = useSystemOrderList()
-
-systemOrderStore.getOrderList('today')
-
-function datePickerEvent(searchDate) {
-  systemOrderStore.activeListDate.from = searchDate
-  systemOrderStore.activeListDate.to = searchDate
-
-  systemOrderStore.getOrderList()
-}
+import { useOrderStatus } from './useOrderStatus'
+const { datePickerEvent, systemOrderStore } = useOrderStatus()
 </script>
 
 <template>

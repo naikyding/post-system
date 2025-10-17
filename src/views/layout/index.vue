@@ -1,70 +1,18 @@
 <script setup>
-import { ref } from 'vue'
-import monsterLogo from '@/assets/images/ci/monster-crepes-ci.jpeg'
-import { useUserStore } from '../../stores/users'
-import { useSystemOrderList } from '@/stores/orders'
-import { watch } from 'vue'
-import router from '../../router'
-
-const systemOrderStore = useSystemOrderList()
-systemOrderStore.getOrderList('getPendingQuantity')
-
-const userStore = useUserStore()
-const state = ref({
-  drawer: true,
-  items: [
-    // { title: 'Home', icon: 'mdi-home-city' },
-    // { title: 'My Account', icon: 'mdi-account' },
-    // { title: 'Users', icon: 'mdi-account-group-outline' },
-  ],
-  rail: true,
-})
-
-const passwordForm = ref(null)
-const dialog = ref(false)
-const passwordInput = ref('')
-const rules = ref({
-  password: [(password) => !!password || '密碼必填'],
-})
-
-watch(dialog, (status) => {
-  if (!status) resetForm()
-})
-
-function goDashboard() {
-  dialog.value = true
-  // to="/dashboard"
-}
-
-function sidebarClose() {
-  if (state.value.rail) return false
-  state.value.rail = true
-}
-
-async function dialogSubmit() {
-  const check = await validateForm()
-  if (!check) return false
-  dialog.value = false
-  const res = await userStore.checkPassword({
-    email: userStore.baseInfo.email,
-    password: passwordInput.value,
-  })
-  if (res) router.push('/dashboard')
-}
-
-function dialogCancel() {
-  dialog.value = false
-}
-
-async function validateForm() {
-  const { valid } = await passwordForm.value.validate()
-  if (!valid) return false
-  return true
-}
-
-function resetForm() {
-  passwordForm.value.reset()
-}
+import { useLayout } from './useLayout'
+const {
+  state,
+  dialog,
+  rules,
+  goDashboard,
+  sidebarClose,
+  dialogCancel,
+  dialogSubmit,
+  systemOrderStore,
+  passwordInput,
+  passwordForm,
+  userStore,
+} = useLayout()
 </script>
 
 <template>
@@ -105,10 +53,10 @@ function resetForm() {
             value="home"
           ></v-list-item>
           <!-- 點餐 -->
-          <v-list-item to="/post" prepend-icon="mdi-plus-box-outline" title="Order" value="order">
+          <v-list-item to="/order" prepend-icon="mdi-plus-box-outline" title="Order" value="order">
           </v-list-item>
           <!-- 訂單狀態 -->
-          <v-list-item to="/list-status" title="List" value="list">
+          <v-list-item to="/order-status" title="List" value="list">
             <!-- 圖示 -->
             <template v-slot:prepend>
               <v-badge
@@ -126,7 +74,24 @@ function resetForm() {
             </template>
           </v-list-item>
 
-          <v-list-item to="/setting" prepend-icon="mdi-cog" title="Setting" value="setting" />
+          <v-list-group prepend-icon="mdi-cog" value="setting">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" title="Setting"></v-list-item>
+            </template>
+            <v-list-item prepend-icon="mdi-food-fork-drink" title="Products" to="/setting/products">
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-sitemap" title="Menus" to="/setting/menus"></v-list-item>
+            <v-list-item
+              prepend-icon="mdi-shield-account"
+              title="Roles"
+              to="/setting/roles"
+            ></v-list-item>
+            <v-list-item
+              prepend-icon="mdi-account-group"
+              title="User"
+              to="/setting/user"
+            ></v-list-item>
+          </v-list-group>
         </v-list>
 
         <!-- 登出 -->
