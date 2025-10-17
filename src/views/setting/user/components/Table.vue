@@ -13,7 +13,6 @@ const search = ref('')
 <template>
   <v-card>
     <v-card-text>
-      {{ user.active }}
       <v-text-field
         v-model="search"
         class="mb-4"

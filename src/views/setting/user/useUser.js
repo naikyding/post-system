@@ -3,7 +3,7 @@ import { useUserStore } from '@/stores/user'
 import catchAsync from '@/utils/catchAsync'
 import { useRolesStore } from '@/stores/roles'
 import { isLength, isEmail } from 'validator'
-import { createUserAPI, deleteUserAPI } from '@/api'
+import { createUserAPI, deleteUserAPI, updateUserAPI } from '@/api'
 
 export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
   const userStore = useUserStore()
@@ -33,14 +33,21 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
       note: '',
     }
 
-    // 特別處理 agentRoles，避免直接被覆蓋掉結構
+    // 定義允許的欄位
+    const allowedKeys = Object.keys(defaultForm)
+
+    // 過濾 data，只保留允許的欄位
+    const filteredData = Object.fromEntries(
+      Object.entries(data).filter(([key]) => allowedKeys.includes(key)),
+    )
+
     return {
       ...defaultForm,
-      ...data,
-      agentRoles: data.agentRoles
-        ? data.agentRoles.map((item) => ({
-            agent: item.agent || '',
-            roles: item.roles || [],
+      ...filteredData,
+      agentRoles: filteredData.agentRoles
+        ? filteredData.agentRoles.map((item) => ({
+            agent: item.agent ? item.agent._id : '',
+            roles: item.roles ? item.roles.map((role) => role._id) : [],
           }))
         : defaultForm.agentRoles,
     }
@@ -59,6 +66,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
   onMounted(() => {
     userStore.getUserList()
+    roleStore.getList('all')
   })
 
   watch(
@@ -80,11 +88,11 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
   const openFormDialog = ({ model, userItem }) => {
     active.value.model = model
-    roleStore.getList('all')
 
     if (userItem) {
       active.value.data = userItem
-      form.value = initForm(active.value.data)
+      active.value.id = userItem._id
+      form.value = initForm(userItem)
     }
 
     formDialogRef.value.status = true
@@ -96,14 +104,29 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     const { valid } = await formDialogRef.value.form.validate()
     if (valid) {
       const { status } = await createUserAPI(form.value)
-      if (status) {
-        cancelFormDialog()
-        userStore.getUserList()
-      }
+      createAndUpdateSuccess(status)
     }
   })
 
-  const update = catchAsync(async () => {})
+  const update = catchAsync(async () => {
+    const { valid } = await formDialogRef.value.form.validate()
+    const agentId = active.value.id
+    const update = { ...form.value }
+    if (valid) {
+      delete update.password
+
+      const { status } = await updateUserAPI(agentId, form.value)
+      createAndUpdateSuccess(status)
+    }
+  })
+
+  function createAndUpdateSuccess(status) {
+    if (status) {
+      cancelFormDialog()
+      userStore.getUserList()
+    }
+  }
+
   const deleteItem = catchAsync(async () => {
     const userId = active.value.id
     if (!userId) return false

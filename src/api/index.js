@@ -15,7 +15,7 @@ import { getMenus, getMenusAndOperations, createMenu, deleteMenu, updateMenu } f
 import { deleteOperation, createOperation, updateOperation } from './operations.js'
 import { getRoles, getRolesByAgent, createRole, deleteRole, updateRole } from './roles.js'
 
-import { getUsers, createUser, deleteUser } from './user.js'
+import { getUsers, createUser, deleteUser, updateUser } from './user.js'
 
 export const getProductsAPI = getProducts
 export const createProductAPI = createProduct
@@ -64,3 +64,4 @@ export const updateRoleAPI = updateRole
 export const getUsersAPI = getUsers
 export const createUserAPI = createUser
 export const deleteUserAPI = deleteUser
+export const updateUserAPI = updateUser
