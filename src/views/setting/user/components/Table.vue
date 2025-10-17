@@ -13,6 +13,7 @@ const search = ref('')
 <template>
   <v-card>
     <v-card-text>
+      {{ user.active }}
       <v-text-field
         v-model="search"
         class="mb-4"
@@ -47,6 +48,7 @@ const search = ref('')
 
         <template v-slot:item.agentRoles="{ value }">
           <v-chip
+            :style="{ marginRight: '2px' }"
             variant="outlined"
             color="cyan"
             size="small"
@@ -72,7 +74,7 @@ const search = ref('')
           ></v-btn>
           <!-- 刪除 -->
           <v-btn
-            @click="user.openConfirmDialog({ model: 'delete', id: item._id })"
+            @click="user.openConfirmDialog({ model: 'delete', id: item._id, data: item })"
             icon="mdi-delete"
             size="40"
             variant="plain"

@@ -3,9 +3,9 @@ import { useUserStore } from '@/stores/user'
 import catchAsync from '@/utils/catchAsync'
 import { useRolesStore } from '@/stores/roles'
 import { isLength, isEmail } from 'validator'
-import { createUserAPI } from '@/api'
+import { createUserAPI, deleteUserAPI } from '@/api'
 
-export function useUser({ tableRef, formDialogRef }) {
+export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
   const userStore = useUserStore()
   const userList = computed(() => userStore.list)
 
@@ -69,6 +69,14 @@ export function useUser({ tableRef, formDialogRef }) {
       }
     },
   )
+  watch(
+    () => confirmDialogRef.value?.status,
+    (newStatus, oldStatus) => {
+      if (oldStatus && !newStatus) {
+        cancelConfirmDialog()
+      }
+    },
+  )
 
   const openFormDialog = ({ model, userItem }) => {
     active.value.model = model
@@ -82,6 +90,8 @@ export function useUser({ tableRef, formDialogRef }) {
     formDialogRef.value.status = true
   }
 
+  const roleList = computed(() => roleStore.list)
+
   const create = catchAsync(async () => {
     const { valid } = await formDialogRef.value.form.validate()
     if (valid) {
@@ -94,7 +104,16 @@ export function useUser({ tableRef, formDialogRef }) {
   })
 
   const update = catchAsync(async () => {})
-  const roleList = computed(() => roleStore.list)
+  const deleteItem = catchAsync(async () => {
+    const userId = active.value.id
+    if (!userId) return false
+
+    const { status } = await deleteUserAPI(userId)
+    if (status) {
+      cancelConfirmDialog()
+      userStore.getUserList()
+    }
+  })
 
   provide('user', {
     active,
@@ -105,11 +124,27 @@ export function useUser({ tableRef, formDialogRef }) {
     resetForm,
     cancelFormDialog,
 
+    openConfirmDialog,
+    cancelConfirmDialog,
+    deleteItem,
+
     create,
     update,
 
     openFormDialog,
   })
+
+  function openConfirmDialog({ model, id, data }) {
+    active.value.id = id
+    active.value.model = model
+    active.value.data = data
+    confirmDialogRef.value.status = true
+  }
+
+  function cancelConfirmDialog() {
+    confirmDialogRef.value.status = false
+    active.value = initActive()
+  }
 
   function cancelFormDialog() {
     formDialogRef.value.status = false
