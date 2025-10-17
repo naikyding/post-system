@@ -63,6 +63,15 @@ const search = ref('')
         </template>
 
         <template v-slot:item.actions="{ item }">
+          <!-- 修改密碼 -->
+          <v-btn
+            icon="mdi-lock-reset"
+            size="40"
+            variant="plain"
+            color="pink"
+            @click="user.openFormDialog({ model: 'password', userItem: item })"
+          ></v-btn>
+
           <!-- 修改 -->
           <v-btn
             icon="mdi-pencil"

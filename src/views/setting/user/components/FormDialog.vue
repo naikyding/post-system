@@ -7,9 +7,13 @@ const form = ref(null)
 const user = inject('user')
 
 const title = computed(() => {
-  if (user.active.value.model === 'create') return '新增使用者'
-  if (user.active.value.model === 'update') return '修改使用者'
-  return '--'
+  const titles = {
+    create: '新增使用者',
+    update: '修改使用者',
+    password: '修改使用者密碼',
+  }
+
+  return titles[user.active.value.model] || '--'
 })
 
 function toggleStatus() {

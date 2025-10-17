@@ -3,7 +3,7 @@ import { useUserStore } from '@/stores/user'
 import catchAsync from '@/utils/catchAsync'
 import { useRolesStore } from '@/stores/roles'
 import { isLength, isEmail } from 'validator'
-import { createUserAPI, deleteUserAPI, updateUserAPI } from '@/api'
+import { createUserAPI, deleteUserAPI, updateUserAPI, updateUserPasswordAPI } from '@/api'
 
 export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
   const userStore = useUserStore()
@@ -16,6 +16,13 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     model: null,
     data: null,
   })
+
+  const initPwdForm = () => ({
+    oldPassword: '',
+    newPassword: '',
+  })
+
+  const pwdForm = ref(initPwdForm())
 
   function initForm(data = {}) {
     const defaultForm = {
@@ -138,6 +145,18 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     }
   })
 
+  const password = catchAsync(async () => {
+    const { valid } = await formDialogRef.value.form.validate()
+    const userId = active.value.id
+
+    if (valid) {
+      const { status } = await updateUserPasswordAPI(userId, pwdForm.value)
+      createAndUpdateSuccess(status)
+    }
+
+    //
+  })
+
   provide('user', {
     active,
     roleList,
@@ -146,6 +165,9 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     formRules,
     resetForm,
     cancelFormDialog,
+
+    pwdForm,
+    password,
 
     openConfirmDialog,
     cancelConfirmDialog,
@@ -173,6 +195,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     formDialogRef.value.status = false
     form.value = initForm()
     active.value = initActive()
+    pwdForm.value = initPwdForm()
   }
 
   async function resetForm() {
