@@ -5,3 +5,4 @@ export const getMenusAndOperations = () => request.get('/menus?include=operation
 export const createMenu = (payload) => request.post('/menus', payload)
 export const deleteMenu = (id) => request.delete(`/menus/${id}`)
 export const updateMenu = (id, payload) => request.patch(`/menus/${id}`, payload)
+export const getRoutes = () => request.get('/routes')

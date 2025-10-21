@@ -4,8 +4,7 @@ import { loginAPI, refreshTokenAPI, gerUserBaseInfoAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
-
-import { isDev } from '../utils/devTool'
+import Swal from 'sweetalert2'
 
 export const useUserStore = defineStore('user', () => {
   const adminCustomer = ref('6476f4088940f49853aa062e')
@@ -18,6 +17,9 @@ export const useUserStore = defineStore('user', () => {
   const isLogin = ref(false)
   // 使用者基本資料
   const baseInfo = ref([])
+
+  // user routes
+  const routes = ref([])
 
   const agents = computed(() => {
     return localStorage.getItem('agentsId')
@@ -170,6 +172,7 @@ export const useUserStore = defineStore('user', () => {
     token,
     isLogin,
     baseInfo,
+    routes,
 
     login,
     checkPassword,
