@@ -31,6 +31,7 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
       path = '',
       component = '',
       parentId = '',
+      redirect = null,
     } = item
     return {
       sort,
@@ -42,6 +43,7 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
       path,
       component,
       parentId,
+      redirect,
     }
   }
 
@@ -139,6 +141,7 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
       'path',
       'component',
       'parentId',
+      'redirect',
     ]
     if (validateForm) {
       const payload = allowInput.reduce((acc, cur) => {

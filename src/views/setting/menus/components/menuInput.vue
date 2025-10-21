@@ -67,6 +67,13 @@ defineProps({
     </v-col>
     <v-col cols="12">
       <v-text-field
+        v-model="menu.form.value.redirect"
+        label="跳轉路由"
+        variant="outlined"
+      ></v-text-field>
+    </v-col>
+    <v-col cols="12">
+      <v-text-field
         disabled
         v-model="menu.form.value.parentId"
         label="上層選單"

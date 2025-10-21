@@ -19,6 +19,7 @@ export const useRouterStore = defineStore('router-store', () => {
       .sort((a, b) => a.sort - b.sort)
       .map((menu) => {
         const route = {
+          redirect: menu.redirect,
           path: menu.path,
           name: menu.name,
           component: resolveComponent(menu.component),
