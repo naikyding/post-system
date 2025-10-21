@@ -13,6 +13,11 @@ const routes = [
 
     children: [],
   },
+  // 避免 addRoute 重刷頁面，首次失效
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('@/views/error-page/404.vue'),
+  },
 ]
 
 export default routes
