@@ -11,7 +11,7 @@ export const useRouterStore = defineStore('router-store', () => {
 
   function resolveComponent(path) {
     const fullPath = `../views/${path}.vue`
-    return modules[fullPath] || (() => import('@/views/NotFound.vue'))
+    return modules[fullPath] || (() => import('@/views/error-page/404.vue'))
   }
 
   function transformMenusToRoutes(menus) {
