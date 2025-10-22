@@ -5,6 +5,7 @@ import catchAsync from '../utils/catchAsync'
 import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
 import Swal from 'sweetalert2'
+import { useRouterStore } from '@/stores/router'
 
 export const useUserStore = defineStore('user', () => {
   const adminCustomer = ref('6476f4088940f49853aa062e')
@@ -26,7 +27,7 @@ export const useUserStore = defineStore('user', () => {
   })
 
   const roles = computed(() => {
-    return baseInfo.value.agentRoles[0].roles[0]
+    return baseInfo?.value?.agentRoles[0].roles[0]
   })
 
   watchEffect(() => {
@@ -119,6 +120,8 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const logoutFunc = async (path) => {
+    const routerStore = useRouterStore()
+    routerStore.generateRoutesStatus = false
     localStorage.removeItem('type')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')

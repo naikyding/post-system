@@ -12,6 +12,7 @@ const {
   passwordInput,
   passwordForm,
   userStore,
+  transformMenus,
 } = useLayout()
 </script>
 
@@ -45,53 +46,35 @@ const {
         <v-divider></v-divider>
 
         <v-list density="compact" nav>
-          <!-- 首頁 -->
-          <v-list-item
-            @click="goDashboard"
-            prepend-icon="mdi-chart-box-outline"
-            title="Home"
-            value="home"
-          ></v-list-item>
-          <!-- 點餐 -->
-          <v-list-item to="/order" prepend-icon="mdi-plus-box-outline" title="Order" value="order">
-          </v-list-item>
-          <!-- 訂單狀態 -->
-          <v-list-item to="/order-status" title="List" value="list">
-            <!-- 圖示 -->
-            <template v-slot:prepend>
-              <v-badge
-                v-show="systemOrderStore.pendingQuantity > 0"
-                offset-x="-5"
-                offset-y="-8"
-                color="red"
-                :content="systemOrderStore.pendingQuantity"
-                class="mr-8"
-              >
-                <v-icon class="">mdi-list-status</v-icon>
-              </v-badge>
-
-              <v-icon v-show="systemOrderStore.pendingQuantity < 1">mdi-list-status</v-icon>
-            </template>
-          </v-list-item>
-
-          <v-list-group prepend-icon="mdi-cog" value="setting">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" title="Setting"></v-list-item>
-            </template>
-            <v-list-item prepend-icon="mdi-food-fork-drink" title="Products" to="/setting/products">
+          <template v-for="(route, index) in transformMenus">
+            <v-list-item
+              v-if="route.children && route.children.length < 1"
+              :key="route + index"
+              :title="route.name"
+              :to="route.path"
+              :prepend-icon="route.icon"
+            >
             </v-list-item>
-            <v-list-item prepend-icon="mdi-sitemap" title="Menus" to="/setting/menus"></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-shield-account"
-              title="Roles"
-              to="/setting/roles"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-account-group"
-              title="User"
-              to="/setting/user"
-            ></v-list-item>
-          </v-list-group>
+
+            <v-list-group v-else prepend-icon="mdi-cog" value="setting" :key="route.name + index">
+              <template v-slot:activator="{ props }">
+                <v-list-item
+                  v-bind="props"
+                  :prepend-icon="route.icon"
+                  :title="route.name"
+                ></v-list-item>
+              </template>
+
+              <!-- 子層 -->
+              <v-list-item
+                v-for="(child, cIndex) in route.children"
+                :key="child.name + cIndex"
+                :title="child.name"
+                :to="route.path + child.path"
+                :prepend-icon="child.icon"
+              />
+            </v-list-group>
+          </template>
         </v-list>
 
         <!-- 登出 -->

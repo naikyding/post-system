@@ -22,6 +22,9 @@ router.beforeEach(async (to, from, next) => {
 
   // 已經登入
   if (userStore.isLogin && !routerStore.generateRoutesStatus) {
+    if (Array.isArray(userStore.baseInfo) && userStore.baseInfo.length < 1)
+      userStore.getUserBaseInfo()
+
     const routes = await routerStore.generateRoutes()
     routes.forEach((route) => {
       router.addRoute('root', route)
