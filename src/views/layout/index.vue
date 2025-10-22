@@ -47,16 +47,12 @@ const {
 
         <v-list density="compact" nav>
           <template v-for="(route, index) in transformMenus">
-            <v-list-item
-              v-if="route.children && route.children.length < 1"
-              :key="route + index"
-              :title="route.name"
-              :to="route.path"
-              :prepend-icon="route.icon"
+            <v-list-group
+              v-if="route.children && route.children.length > 0"
+              prepend-icon="mdi-cog"
+              value="setting"
+              :key="route.name + index"
             >
-            </v-list-item>
-
-            <v-list-group v-else prepend-icon="mdi-cog" value="setting" :key="route.name + index">
               <template v-slot:activator="{ props }">
                 <v-list-item
                   v-bind="props"
@@ -74,6 +70,30 @@ const {
                 :prepend-icon="child.icon"
               />
             </v-list-group>
+
+            <v-list-item
+              v-else
+              :key="route + index"
+              :title="route.name"
+              :to="route.path"
+              :prepend-icon="route.icon"
+            >
+              <template v-slot:prepend v-if="route.name === 'Order-status'">
+                <v-badge
+                  v-if="systemOrderStore.pendingQuantity > 0"
+                  bordered
+                  location="top right"
+                  color="pink"
+                  :offset-x="-3"
+                  :offset-y="-3"
+                  :content="systemOrderStore.pendingQuantity"
+                >
+                  <v-icon :icon="route.icon"></v-icon>
+                </v-badge>
+
+                <v-icon v-else :icon="route.icon"></v-icon>
+              </template>
+            </v-list-item>
           </template>
         </v-list>
 
