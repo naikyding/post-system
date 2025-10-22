@@ -75,8 +75,9 @@ const {
               v-else
               :key="route + index"
               :title="route.name"
-              :to="route.path"
+              :to="route.name === 'Dashboard' ? null : route.path"
               :prepend-icon="route.icon"
+              @click="route.name === 'Dashboard' ? goDashboard() : null"
             >
               <template v-slot:prepend v-if="route.name === 'Order-status'">
                 <v-badge
