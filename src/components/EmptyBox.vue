@@ -1,8 +1,8 @@
 <script setup></script>
 
 <template>
-  <div class="d-flex justify-center align-center">
-    <div>
+  <div class="d-flex justify-center align-stretch">
+    <div class="pa-10">
       <v-icon icon="mdi-dropbox" size="5rem" />
       <p class="text-caption text-center mt-4">
         <slot name="text">沒有資料</slot>

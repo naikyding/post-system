@@ -501,7 +501,7 @@ async function removeProductItemBagS(bagSizeId) {
 <template>
   <!-- 沒有資料 -->
   <template v-if="systemOrderStore.orderList.length < 1">
-    <EmptyBox class="table-height" />
+    <EmptyBox />
   </template>
 
   <!-- 有資料 -->
@@ -1727,9 +1727,6 @@ async function removeProductItemBagS(bagSizeId) {
   min-width: 63px;
 }
 
-.table-height {
-  height: calc(100dvh - 108px);
-}
 .close-btn {
   position: absolute;
   top: 4px;
