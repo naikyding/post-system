@@ -1,5 +1,7 @@
 <script setup>
 import { useLayout } from './useLayout'
+import Toolbar from './toolbar/index.vue'
+
 const {
   state,
   dialog,
@@ -147,8 +149,9 @@ const {
       </template>
 
       <!-- 內容 (右) -->
-      <v-main @click="sidebarClose">
-        <RouterView />
+      <v-main class="d-flex flex-column" :style="{ height: '100dvh' }" @click="sidebarClose">
+        <Toolbar />
+        <RouterView class="flex-grow-1" />
       </v-main>
     </v-layout>
   </v-card>
