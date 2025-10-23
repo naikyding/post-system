@@ -1,3 +1,5 @@
+import { components } from 'vuetify/dist/vuetify.js'
+
 const routes = [
   {
     path: '/login',
@@ -10,8 +12,13 @@ const routes = [
     name: 'root',
     component: () => import('@/views/layout/index.vue'),
     redirect: '/order',
-
-    children: [],
+    children: [
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/profile/index.vue'),
+      },
+    ],
   },
   // 避免 addRoute 重刷頁面，首次失效
   {
