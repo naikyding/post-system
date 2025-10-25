@@ -1,4 +1,4 @@
-import { ref, watchEffect, computed } from 'vue'
+import { ref, watchEffect, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { loginAPI, refreshTokenAPI, gerUserBaseInfoAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
@@ -29,6 +29,18 @@ export const useUserStore = defineStore('user', () => {
   const roles = computed(() => {
     return baseInfo?.value?.agentRoles[0].roles[0]
   })
+
+  function initActiveAgentId() {
+    return localStorage.getItem('activeAgentId')
+  }
+
+  const activeAgentId = ref(initActiveAgentId())
+
+  watch(activeAgentId, (newVal) => {
+    localStorage.setItem('activeAgentId', newVal)
+  })
+
+  const activeRoleId = computed(() => localStorage.getItem('activeRoleId'))
 
   watchEffect(() => {
     if (token.value.accessToken && token.value.refreshToken && token.value.type) {
@@ -101,6 +113,12 @@ export const useUserStore = defineStore('user', () => {
     return false
   })
 
+  function saveActiveAgentId(id) {
+    activeAgentId.value = id
+
+    localStorage.setItem('activeAgentId', id)
+  }
+
   const getUserBaseInfo = catchAsync(
     async () => {
       const { data } = await gerUserBaseInfoAPI()
@@ -126,6 +144,8 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('agentsId')
+    localStorage.removeItem('activeRoleId')
+    localStorage.removeItem('activeAgentId')
     ;(token.value.type = null),
       (token.value.accessToken = null),
       (token.value.refreshToken = null),
@@ -183,5 +203,8 @@ export const useUserStore = defineStore('user', () => {
     refreshToken,
     getUserBaseInfo,
     checkLocalTokenAndReturnAccessToken,
+    activeRoleId,
+    activeAgentId,
+    saveActiveAgentId,
   }
 })
