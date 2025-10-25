@@ -1,10 +1,13 @@
-import { components } from 'vuetify/dist/vuetify.js'
-
 const routes = [
   {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/login/index.vue'),
+  },
+  {
+    path: '/roles',
+    name: 'Roles',
+    component: () => import('@/views/roles/index.vue'),
   },
 
   {
