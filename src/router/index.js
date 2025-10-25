@@ -20,11 +20,11 @@ router.beforeEach(async (to, from, next) => {
     return next()
   }
 
-  // 已經登入
-  if (userStore.isLogin && !routerStore.generateRoutesStatus) {
-    if (Array.isArray(userStore.baseInfo) && userStore.baseInfo.length < 1)
-      userStore.getUserBaseInfo()
+  if (Array.isArray(userStore.baseInfo) && userStore.baseInfo.length < 1)
+    userStore.getUserBaseInfo()
 
+  // 已經登入
+  if (userStore.isLogin && !routerStore.generateRoutesStatus && to.name !== 'Roles') {
     const routes = await routerStore.generateRoutes()
     routes.forEach((route) => {
       router.addRoute('root', route)
@@ -34,6 +34,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (to.name === 'Login') {
+    if (!localStorage.getItem('activeRoleId')) return next({ path: '/roles' })
     if (to.query.redirect) {
       return next({ path: to.query.redirect })
     }

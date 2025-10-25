@@ -34,7 +34,7 @@ export function useLogin() {
         timer: 1500,
         showConfirmButton: false,
       })
-      router.push('/')
+      router.push('/roles')
     }
   }
 
