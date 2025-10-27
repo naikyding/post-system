@@ -1,9 +1,32 @@
 <script setup>
 import { useUserStore } from '@/stores/users'
-import { computed } from 'vue'
+import ConfirmDialog from '@/components/dialog/ConfirmDialog.vue'
+import { computed, ref } from 'vue'
 const userStore = useUserStore()
+const ConfirmDialogRef = ref(null)
 const user = computed(() => userStore.baseInfo)
 const userRoles = computed(() => user.value.agentRoles[0]['roles'] || [])
+
+const cardKey = ref(0)
+const activeRoleId = ref(null)
+
+function cancelDialog() {
+  console.log('Cancel')
+  activeRoleId.value = null
+  cardKey.value++
+  ConfirmDialogRef.value.status = false
+}
+async function saveDialog() {
+  await localStorage.setItem('activeRoleId', activeRoleId.value)
+  userStore.activeRoleId = localStorage.getItem('activeRoleId')
+  cardKey.value++
+  ConfirmDialogRef.value.status = false
+}
+
+function showConfirmDialog(id) {
+  activeRoleId.value = id
+  ConfirmDialogRef.value.status = true
+}
 </script>
 
 <template>
@@ -25,8 +48,20 @@ const userRoles = computed(() => user.value.agentRoles[0]['roles'] || [])
                 <v-col class="py-2 d-flex flex-column align-center" cols="12">
                   <p>角色切換</p>
 
-                  <v-btn-toggle color="primary" border mandatory>
-                    <v-btn v-for="role in userRoles" :value="role.name" :key="role._id">
+                  <v-btn-toggle
+                    border
+                    mandatory
+                    divided
+                    :model-value="userStore.activeRoleId"
+                    color="primary"
+                    :key="cardKey"
+                  >
+                    <v-btn
+                      v-for="role in userRoles"
+                      :value="role._id"
+                      @click="showConfirmDialog(role._id)"
+                      :key="role._id"
+                    >
                       {{ role.name }}
                     </v-btn>
                   </v-btn-toggle>
@@ -77,6 +112,14 @@ const userRoles = computed(() => user.value.agentRoles[0]['roles'] || [])
         </v-row>
       </v-card-text>
     </v-card>
+
+    <ConfirmDialog
+      ref="ConfirmDialogRef"
+      title="確認切換"
+      text="確認您要切換目前角色?"
+      @cancel-event="cancelDialog"
+      @save-event="saveDialog"
+    />
   </div>
 </template>
 

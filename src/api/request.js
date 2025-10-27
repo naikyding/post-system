@@ -27,7 +27,9 @@ request.interceptors.request.use(
     if (localStorage.getItem('agentsId')) {
       config.headers['mc-agent-id'] = userStore.agents
       config.headers['mc-agents-id'] = userStore.agents
-      config.headers['Mc-Active-Agent-Id'] = userStore.agents
+    }
+    if (localStorage.getItem('activeAgentId')) {
+      config.headers['Mc-Active-Agent-Id'] = userStore.activeAgentId
     }
 
     const activeRoleId = localStorage.getItem('activeRoleId')

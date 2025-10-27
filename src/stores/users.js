@@ -8,6 +8,7 @@ import Swal from 'sweetalert2'
 import { useRouterStore } from '@/stores/router'
 
 export const useUserStore = defineStore('user', () => {
+  const routerStore = useRouterStore()
   const adminCustomer = ref('6476f4088940f49853aa062e')
   const token = ref({
     type: localStorage.getItem('type') || null,
@@ -33,14 +34,20 @@ export const useUserStore = defineStore('user', () => {
   function initActiveAgentId() {
     return localStorage.getItem('activeAgentId')
   }
+  function initActiveRoleId() {
+    return localStorage.getItem('activeRoleId')
+  }
 
-  const activeAgentId = ref(initActiveAgentId())
+  const activeAgentId = ref(initActiveAgentId() || null)
+  const activeRoleId = ref(initActiveRoleId() || null)
 
-  watch(activeAgentId, (newVal) => {
-    localStorage.setItem('activeAgentId', newVal)
+  watch(activeRoleId, (newValue) => {
+    if (newValue) routerStore.generateRoutes()
   })
 
-  const activeRoleId = computed(() => localStorage.getItem('activeRoleId'))
+  watch(activeAgentId, (newVal) => {
+    if (newVal) localStorage.setItem('activeAgentId', newVal)
+  })
 
   watchEffect(() => {
     if (token.value.accessToken && token.value.refreshToken && token.value.type) {
@@ -54,13 +61,6 @@ export const useUserStore = defineStore('user', () => {
       token.value[key] = tokenData[key]
       localStorage.setItem(key, tokenData[key])
     })
-  }
-
-  function saveUserAgentsId(agentsId) {
-    // 開發商家
-    // if (isDev()) return localStorage.setItem('agentsId', '64e59b234803348644b99706')
-
-    localStorage.setItem('agentsId', agentsId)
   }
 
   function checkLocalTokenAndReturnAccessToken() {
@@ -115,16 +115,12 @@ export const useUserStore = defineStore('user', () => {
 
   function saveActiveAgentId(id) {
     activeAgentId.value = id
-
     localStorage.setItem('activeAgentId', id)
   }
 
   const getUserBaseInfo = catchAsync(
     async () => {
       const { data } = await gerUserBaseInfoAPI()
-      const agent = data.agentRoles[0]['agent']
-      await saveUserAgentsId(agent._id)
-
       baseInfo.value = data
     },
     () => {
@@ -140,6 +136,8 @@ export const useUserStore = defineStore('user', () => {
   const logoutFunc = async (path) => {
     const routerStore = useRouterStore()
     routerStore.generateRoutesStatus = false
+    activeAgentId.value = null
+    activeRoleId.value = null
     localStorage.removeItem('type')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')

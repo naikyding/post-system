@@ -399,8 +399,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   function getOrderListFilter(activeTab) {
     let urlQueryString = '?limit=0&offset=0'
-    if (localStorage.getItem('agentsId'))
-      urlQueryString += `&agent=${localStorage.getItem('agentsId')}`
+    if (localStorage.getItem('activeAgentId'))
+      urlQueryString += `&agent=${localStorage.getItem('activeAgentId')}`
     if (activeListDate.from && activeListDate.to)
       urlQueryString += `&from=${activeListDate.from}&to=${activeListDate.to}`
 

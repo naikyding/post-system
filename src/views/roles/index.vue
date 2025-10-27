@@ -1,6 +1,6 @@
 <script setup>
 import { useUserStore } from '@/stores/users'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import router from '@/router'
 
 const userStore = useUserStore()
@@ -8,6 +8,7 @@ const user = computed(() => userStore.baseInfo)
 const userActiveRoleId = computed(() => userStore.activeRoleId)
 
 async function saveActiveRoleId(id) {
+  userStore.activeRoleId = id
   await localStorage.setItem('activeRoleId', id)
   router.replace({ path: '/' })
 }
@@ -21,8 +22,8 @@ const activeRoles = computed(() => {
 <template>
   <div class="d-flex justify-center align-center" :style="{ height: '100dvh' }">
     <div>
-      <p class="text-subtitle-2 px-2 mb-2">選擇「商家」:</p>
-      <template v-if="user?.agentRoles">
+      <template v-if="user.agentRoles">
+        <p class="text-subtitle-2 px-2 mb-2">選擇「商家」:</p>
         <v-hover v-for="item in user?.agentRoles" :key="item.agent._id">
           <template v-slot:default="{ isHovering, props }">
             <v-btn
