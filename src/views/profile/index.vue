@@ -11,7 +11,6 @@ const cardKey = ref(0)
 const activeRoleId = ref(null)
 
 function cancelDialog() {
-  console.log('Cancel')
   activeRoleId.value = null
   cardKey.value++
   ConfirmDialogRef.value.status = false

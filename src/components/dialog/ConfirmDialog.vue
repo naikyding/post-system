@@ -30,10 +30,6 @@ function save() {
 <template>
   <div class="text-center pa-4">
     <v-dialog v-model="status" max-width="400" persistent>
-      <template v-slot:activator="{ props: activatorProps }">
-        <v-btn v-bind="activatorProps"> Open Dialog </v-btn>
-      </template>
-
       <v-card
         prepend-icon="mdi-alert"
         :title="props.title || '最後確認'"
