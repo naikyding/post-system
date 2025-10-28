@@ -24,10 +24,14 @@ const {
 
 <template>
   <div>
-    <v-container fluid class="ma-0 pa-0">
-      <v-row class="ma-0 pa-0">
+    <v-container
+      fluid
+      class="ma-0 pa-0 d-flex flex-column"
+      :style="{ height: 'calc(100dvh - 48px)' }"
+    >
+      <v-row class="ma-0 pa-0 flex-1">
         <!-- 點單項目 -->
-        <v-col cols="5" md="4" class="order-area bg-grey-darken-3 px-0 d-flex flex-column h-screen">
+        <v-col cols="5" md="4" class="order-area px-0 d-flex flex-column bg-grey-darken-3">
           <!-- 操作 -->
           <v-container class="py-0 px-2">
             <v-row dense>
@@ -46,7 +50,7 @@ const {
             <!-- 點單項目 -->
             <div class="flex-grow-1 h-0 overflow-y-auto">
               <!-- new -->
-              <v-container v-show="ordersStore.ordersList.items.length > 0" class="bg-black py-2">
+              <v-container v-show="ordersStore.ordersList.items.length > 0">
                 <v-row
                   v-for="(item, index) in ordersStore.ordersList.items"
                   :key="index"
@@ -203,7 +207,8 @@ const {
         <v-col
           cols="7"
           md="8"
-          class="order-type bg-grey-darken-3 pa-0 h-screen overflow-x-hidden overflow-y-auto"
+          class="order-type bg-grey-darken-3 pa-0 overflow-x-hidden overflow-y-auto d-flex flex-column"
+          :style="{ height: 'calc(100dvh - 48px)' }"
         >
           <!-- TABs -->
           <v-tabs
@@ -225,12 +230,13 @@ const {
           </v-tabs>
 
           <!-- 產品列表 -->
-          <v-card-text>
+          <div class="h-0">
             <v-window continuous v-model="tabActiveId">
               <v-window-item
                 v-for="(productItems, index) in activeProducts(productsStore.products)"
                 :key="productItems + index"
                 :value="index"
+                class="pa-1"
               >
                 <v-container>
                   <v-row>
@@ -299,7 +305,7 @@ const {
                 </v-container>
               </v-window-item>
             </v-window>
-          </v-card-text>
+          </div>
         </v-col>
       </v-row>
     </v-container>
