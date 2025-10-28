@@ -150,7 +150,7 @@ const {
     <!-- 內容 (右) -->
     <v-main class="d-flex flex-column" @click="sidebarClose" :style="{ height: '100dvh' }">
       <Toolbar />
-      <RouterView class="flex-grow-1 router-view" />
+      <RouterView class="flex-grow-1 router-view overflow-y-hidden" />
     </v-main>
   </v-layout>
 </template>

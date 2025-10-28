@@ -27,8 +27,8 @@ const {
 </script>
 
 <template>
-  <div class="">
-    <v-sheet class="mx-4 mb-4">
+  <div class="d-flex flex-column" :style="{ height: 'calc(100dvh-48px)' }">
+    <v-sheet class="px-4 pb-4">
       <v-slide-group v-model="active.index" mandatory>
         <v-slide-group-item
           v-for="(item, index) in active.items"
@@ -65,7 +65,6 @@ const {
         </v-col>
       </v-row>
     </v-sheet>
-
     <v-expand-transition class="content-height">
       <v-data-table
         :headers="table.headers"
@@ -391,6 +390,8 @@ const {
 
 <style lang="scss" scoped>
 .content-height {
-  height: calc(100dvh - 136px);
+  flex: 1; /* 撐滿剩餘空間 */
+  overflow: auto; /* 可捲動 */
+  min-height: 0; /* 避免 flex 捲軸失效 */
 }
 </style>
