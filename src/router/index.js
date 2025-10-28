@@ -1,29 +1,46 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
-
-import { useUserStore } from '../stores/users'
+import { useRouterStore } from '@/stores/router'
+import { useUserStore } from '@/stores/users'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
+  const routerStore = useRouterStore()
 
-  // 如果有登入，取得基本資料
-  if (userStore.isLogin) userStore.getUserBaseInfo()
+  // 尚未登入
+  if (!userStore.isLogin) {
+    if (to.name !== 'Login') {
+      return next({ path: '/login' })
+    }
+    return next()
+  }
 
-  // 沒有登入 && 不在登入頁
-  if (to.name !== 'Login' && !userStore.isLogin) return next({ path: '/login' })
+  if (Array.isArray(userStore.baseInfo) && userStore.baseInfo.length < 1)
+    userStore.getUserBaseInfo()
 
-  // 已經登入 && 進入登入頁面
-  if (to.name === 'Login' && userStore.isLogin) {
+  // 已經登入
+  if (userStore.isLogin && !routerStore.generateRoutesStatus && to.name !== 'Roles') {
+    const routes = await routerStore.generateRoutes()
+    routes.forEach((route) => {
+      router.addRoute('root', route)
+    })
+    routerStore.generateRoutesStatus = true
+    return next({ ...to, replace: true }) // 確保刷新後能正確匹配
+  }
+
+  if (to.name === 'Login') {
+    if (!localStorage.getItem('activeRoleId')) return next({ path: '/roles' })
     if (to.query.redirect) {
       return next({ path: to.query.redirect })
     }
     return next({ path: '/' })
   }
+
   next()
 })
 

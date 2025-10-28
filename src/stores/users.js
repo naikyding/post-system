@@ -1,13 +1,14 @@
-import { ref, watchEffect, computed } from 'vue'
+import { ref, watchEffect, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { loginAPI, refreshTokenAPI, gerUserBaseInfoAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
-
-import { isDev } from '../utils/devTool'
+import Swal from 'sweetalert2'
+import { useRouterStore } from '@/stores/router'
 
 export const useUserStore = defineStore('user', () => {
+  const routerStore = useRouterStore()
   const adminCustomer = ref('6476f4088940f49853aa062e')
   const token = ref({
     type: localStorage.getItem('type') || null,
@@ -19,12 +20,33 @@ export const useUserStore = defineStore('user', () => {
   // 使用者基本資料
   const baseInfo = ref([])
 
+  // user routes
+  const routes = ref([])
+
   const agents = computed(() => {
     return localStorage.getItem('agentsId')
   })
 
   const roles = computed(() => {
-    return baseInfo.value.agentRoles[0].roles[0]
+    return baseInfo?.value?.agentRoles[0].roles[0]
+  })
+
+  function initActiveAgentId() {
+    return localStorage.getItem('activeAgentId')
+  }
+  function initActiveRoleId() {
+    return localStorage.getItem('activeRoleId')
+  }
+
+  const activeAgentId = ref(initActiveAgentId() || null)
+  const activeRoleId = ref(initActiveRoleId() || null)
+
+  watch(activeRoleId, (newValue) => {
+    if (newValue) routerStore.generateRoutes()
+  })
+
+  watch(activeAgentId, (newVal) => {
+    if (newVal) localStorage.setItem('activeAgentId', newVal)
   })
 
   watchEffect(() => {
@@ -39,13 +61,6 @@ export const useUserStore = defineStore('user', () => {
       token.value[key] = tokenData[key]
       localStorage.setItem(key, tokenData[key])
     })
-  }
-
-  function saveUserAgentsId(agentsId) {
-    // 開發商家
-    // if (isDev()) return localStorage.setItem('agentsId', '64e59b234803348644b99706')
-
-    localStorage.setItem('agentsId', agentsId)
   }
 
   function checkLocalTokenAndReturnAccessToken() {
@@ -98,12 +113,14 @@ export const useUserStore = defineStore('user', () => {
     return false
   })
 
+  function saveActiveAgentId(id) {
+    activeAgentId.value = id
+    localStorage.setItem('activeAgentId', id)
+  }
+
   const getUserBaseInfo = catchAsync(
     async () => {
       const { data } = await gerUserBaseInfoAPI()
-      const agent = data.agentRoles[0]['agent']
-      await saveUserAgentsId(agent._id)
-
       baseInfo.value = data
     },
     () => {
@@ -117,10 +134,16 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const logoutFunc = async (path) => {
+    const routerStore = useRouterStore()
+    routerStore.generateRoutesStatus = false
+    activeAgentId.value = null
+    activeRoleId.value = null
     localStorage.removeItem('type')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('agentsId')
+    localStorage.removeItem('activeRoleId')
+    localStorage.removeItem('activeAgentId')
     ;(token.value.type = null),
       (token.value.accessToken = null),
       (token.value.refreshToken = null),
@@ -170,6 +193,7 @@ export const useUserStore = defineStore('user', () => {
     token,
     isLogin,
     baseInfo,
+    routes,
 
     login,
     checkPassword,
@@ -177,5 +201,8 @@ export const useUserStore = defineStore('user', () => {
     refreshToken,
     getUserBaseInfo,
     checkLocalTokenAndReturnAccessToken,
+    activeRoleId,
+    activeAgentId,
+    saveActiveAgentId,
   }
 })

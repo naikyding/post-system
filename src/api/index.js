@@ -11,7 +11,14 @@ import { login, refreshToken, gerUserBaseInfo } from './auth'
 import { getDashboardBaseData } from './dashboard'
 import { getMarkers, createMarker, deleteMarker, editMarker } from './markers.js'
 import { getExtras, createExtras, deleteExtra, updateExtra } from './extras.js'
-import { getMenus, getMenusAndOperations, createMenu, deleteMenu, updateMenu } from './menus.js'
+import {
+  getMenus,
+  getMenusAndOperations,
+  createMenu,
+  deleteMenu,
+  updateMenu,
+  getRoutes,
+} from './menus.js'
 import { deleteOperation, createOperation, updateOperation } from './operations.js'
 import { getRoles, getRolesByAgent, createRole, deleteRole, updateRole } from './roles.js'
 
@@ -50,6 +57,7 @@ export const getMenusAndOperationsAPI = getMenusAndOperations
 export const createMenuAPI = createMenu
 export const deleteMenuAPI = deleteMenu
 export const updateMenuAPI = updateMenu
+export const getRoutesAPI = getRoutes
 
 export const deleteOperationAPI = deleteOperation
 export const createOperationAPI = createOperation

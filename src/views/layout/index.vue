@@ -1,5 +1,7 @@
 <script setup>
 import { useLayout } from './useLayout'
+import Toolbar from './toolbar/index.vue'
+
 const {
   state,
   dialog,
@@ -12,142 +14,145 @@ const {
   passwordInput,
   passwordForm,
   userStore,
+  transformMenus,
 } = useLayout()
 </script>
 
 <template>
   <!-- <img src="@/assets/images/ci/monster-crepes-ci.jpeg" /> -->
-  <v-card>
-    <v-layout>
-      <!-- sidebar 側邊欄 -->
-      <v-navigation-drawer
-        width="220"
-        v-model="state.drawer"
-        :rail="state.rail"
-        permanent
-        @click="state.rail = false"
+  <v-layout :style="{ height: '100dvh' }">
+    <!-- sidebar 側邊欄 -->
+    <v-navigation-drawer
+      width="220"
+      v-model="state.drawer"
+      :rail="state.rail"
+      permanent
+      @click="state.rail = false"
+    >
+      <v-list-item
+        @click.stop="state.rail = !state.rail"
+        prepend-avatar="null"
+        title="Monster Crepes"
+        nav
       >
-        <v-list-item
-          @click.stop="state.rail = !state.rail"
-          prepend-avatar="null"
-          title="Monster Crepes"
-          nav
-        >
-          <template v-slot:append>
-            <v-btn
-              variant="text"
-              icon="mdi-chevron-left"
-              @click.stop="state.rail = !state.rail"
-            ></v-btn>
-          </template>
-        </v-list-item>
+        <template v-slot:append>
+          <v-btn
+            variant="text"
+            icon="mdi-chevron-left"
+            @click.stop="state.rail = !state.rail"
+          ></v-btn>
+        </template>
+      </v-list-item>
 
-        <v-divider></v-divider>
+      <v-divider></v-divider>
 
-        <v-list density="compact" nav>
-          <!-- 首頁 -->
+      <v-list density="compact" nav>
+        <template v-for="(route, index) in transformMenus">
+          <v-list-group
+            v-if="route.children && route.children.length > 0"
+            prepend-icon="mdi-cog"
+            value="setting"
+            :key="route.name + index"
+          >
+            <template v-slot:activator="{ props }">
+              <v-list-item
+                v-bind="props"
+                :prepend-icon="route.icon"
+                :title="route.name"
+              ></v-list-item>
+            </template>
+
+            <!-- 子層 -->
+            <v-list-item
+              v-for="(child, cIndex) in route.children"
+              :key="child.name + cIndex"
+              :title="child.name"
+              :to="route.path + child.path"
+              :prepend-icon="child.icon"
+            />
+          </v-list-group>
+
           <v-list-item
-            @click="goDashboard"
-            prepend-icon="mdi-chart-box-outline"
-            title="Home"
-            value="home"
-          ></v-list-item>
-          <!-- 點餐 -->
-          <v-list-item to="/order" prepend-icon="mdi-plus-box-outline" title="Order" value="order">
-          </v-list-item>
-          <!-- 訂單狀態 -->
-          <v-list-item to="/order-status" title="List" value="list">
-            <!-- 圖示 -->
-            <template v-slot:prepend>
+            v-else
+            :key="route + index"
+            :title="route.name"
+            :to="route.name === 'Dashboard' ? null : route.path"
+            :prepend-icon="route.icon"
+            @click="route.name === 'Dashboard' ? goDashboard() : null"
+          >
+            <template v-slot:prepend v-if="route.name === 'Order-status'">
               <v-badge
-                v-show="systemOrderStore.pendingQuantity > 0"
-                offset-x="-5"
-                offset-y="-8"
-                color="red"
+                v-if="systemOrderStore.pendingQuantity > 0"
+                bordered
+                location="top right"
+                color="pink"
+                :offset-x="-3"
+                :offset-y="-3"
                 :content="systemOrderStore.pendingQuantity"
-                class="mr-8"
               >
-                <v-icon class="">mdi-list-status</v-icon>
+                <v-icon :icon="route.icon"></v-icon>
               </v-badge>
 
-              <v-icon v-show="systemOrderStore.pendingQuantity < 1">mdi-list-status</v-icon>
+              <v-icon v-else :icon="route.icon"></v-icon>
             </template>
           </v-list-item>
-
-          <v-list-group prepend-icon="mdi-cog" value="setting">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" title="Setting"></v-list-item>
-            </template>
-            <v-list-item prepend-icon="mdi-food-fork-drink" title="Products" to="/setting/products">
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-sitemap" title="Menus" to="/setting/menus"></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-shield-account"
-              title="Roles"
-              to="/setting/roles"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-account-group"
-              title="User"
-              to="/setting/user"
-            ></v-list-item>
-          </v-list-group>
-        </v-list>
-
-        <!-- 登出 -->
-        <template v-slot:append>
-          <div>
-            <v-list-item
-              @click="userStore.logoutFunc('/login')"
-              prepend-icon="mdi-logout"
-              title="Logout"
-              value="logout"
-            >
-            </v-list-item>
-          </div>
         </template>
-      </v-navigation-drawer>
+      </v-list>
 
-      <!-- 請輸入密碼 -->
-      <template>
-        <div class="text-center">
-          <v-btn color="primary" @click="dialog = true"> Open Dialog </v-btn>
-
-          <v-dialog v-model="dialog" width="360">
-            <v-card class="py-2 rounded-lg">
-              <v-card-title class="px-6">登錄密碼</v-card-title>
-              <v-card-text>
-                <v-form ref="passwordForm" @submit.prevent>
-                  <v-text-field
-                    type="password"
-                    @keyup.enter="dialogSubmit"
-                    v-model="passwordInput"
-                    label="請輸入密碼"
-                    variant="outlined"
-                    :rules="rules.password"
-                  ></v-text-field>
-                </v-form>
-
-                <div class="d-flex flex-column">
-                  <v-btn size="large" color="success" class="mt-2" block @click="dialogSubmit"
-                    >送出</v-btn
-                  >
-                  <v-btn size="large" color="error" class="mt-4" block @click="dialogCancel">
-                    取消
-                  </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
+      <!-- 登出 -->
+      <template v-slot:append>
+        <div>
+          <v-list-item
+            @click="userStore.logoutFunc('/login')"
+            prepend-icon="mdi-logout"
+            title="Logout"
+            value="logout"
+          >
+          </v-list-item>
         </div>
       </template>
+    </v-navigation-drawer>
 
-      <!-- 內容 (右) -->
-      <v-main @click="sidebarClose">
-        <RouterView />
-      </v-main>
-    </v-layout>
-  </v-card>
+    <!-- 請輸入密碼 -->
+    <template>
+      <div class="text-center">
+        <v-btn color="primary" @click="dialog = true"> Open Dialog </v-btn>
+
+        <v-dialog v-model="dialog" width="360">
+          <v-card class="py-2 rounded-lg">
+            <v-card-title class="px-6">登錄密碼</v-card-title>
+            <v-card-text>
+              <v-form ref="passwordForm" @submit.prevent>
+                <v-text-field
+                  type="password"
+                  @keyup.enter="dialogSubmit"
+                  v-model="passwordInput"
+                  label="請輸入密碼"
+                  variant="outlined"
+                  :rules="rules.password"
+                ></v-text-field>
+              </v-form>
+
+              <div class="d-flex flex-column">
+                <v-btn size="large" color="success" class="mt-2" block @click="dialogSubmit"
+                  >送出</v-btn
+                >
+                <v-btn size="large" color="error" class="mt-4" block @click="dialogCancel">
+                  取消
+                </v-btn>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+      </div>
+    </template>
+
+    <!-- 內容 (右) -->
+    <v-main class="d-flex flex-column" @click="sidebarClose" :style="{ height: '100dvh' }">
+      <Toolbar />
+      <RouterView class="flex-grow-1 router-view overflow-y-hidden" />
+    </v-main>
+  </v-layout>
 </template>
 
 <style>
