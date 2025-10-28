@@ -20,8 +20,8 @@ const {
 </script>
 
 <template>
-  <div class="h-screen overflow-x-hidden overflow-y-auto">
-    <v-container fluid>
+  <div>
+    <v-container fluid class="overflow-y-auto" :style="{ height: 'calc(100dvh - 48px)' }">
       <v-row>
         <v-col>
           <!-- 日期選擇器 -->
