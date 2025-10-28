@@ -30,7 +30,7 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
       <v-tab value="cancelled">取消</v-tab>
     </v-tabs>
 
-    <v-window class="bg-red" disabled v-model="systemOrderStore.activeListTab">
+    <v-window disabled v-model="systemOrderStore.activeListTab">
       <!-- 待處理 -->
       <v-window-item value="pending">
         <DataTable />
