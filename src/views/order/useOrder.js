@@ -4,6 +4,7 @@ import { useDisplay } from 'vuetify'
 import { useProductsStore, useMarkersStore } from '@/stores/products'
 import { useOrdersStore } from '@/stores/orders'
 import dayjs from 'dayjs'
+import { onBeforeRouteLeave } from 'vue-router'
 
 export function useOrder() {
   // order page 邏輯
@@ -119,6 +120,7 @@ export function useOrder() {
     // 取得產品最表
     await productsStore.getProducts()
     await markerStore.getMarkers()
+    tabActiveId.value = 0
   })
 
   // 篩選 "上架" 商品
