@@ -27,7 +27,6 @@ export function useProducts() {
   }
 
   async function saveEditProduct(form) {
-    form.agent = userStore.agents
     const defaultMsg = {
       status: false,
       message: '發生錯誤',
@@ -142,7 +141,6 @@ export function useProducts() {
   }
   async function addProductItemSubmit(form) {
     let res
-    form.agent = userStore.agents
 
     active.value.index === 1
       ? (res = await extrasStore.createExtrasItem(form))

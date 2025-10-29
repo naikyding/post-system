@@ -50,7 +50,7 @@ const {
             <!-- 點單項目 -->
             <div class="flex-grow-1 h-0 overflow-y-auto">
               <!-- new -->
-              <v-container v-show="ordersStore.ordersList.items.length > 0">
+              <v-container v-show="ordersStore.ordersList.items.length > 0" class="bg-black">
                 <v-row
                   v-for="(item, index) in ordersStore.ordersList.items"
                   :key="index"
@@ -320,9 +320,7 @@ const {
     >
       <v-card>
         <v-toolbar dark prominent>
-          <v-toolbar-title>
-            {{ ordersStore.activeProductItem.product.name }}
-          </v-toolbar-title>
+          <v-toolbar-title> {{ ordersStore.activeProductItem.product.name }} </v-toolbar-title>
 
           <v-spacer></v-spacer>
 
@@ -463,38 +461,37 @@ const {
                 </v-expansion-panel>
               </v-expansion-panels>
             </div>
+          </div>
+          <div class="markers mt-4 mb-1">
+            <v-select
+              v-model="ordersStore.activeProductItem.markers"
+              :items="markerStore.markerList"
+              chips
+              label="特製"
+              multiple
+              variant="outlined"
+              closable-chips
+              clearable
+            >
+              <template v-slot:chip="{ props, item }">
+                <v-chip
+                  v-bind="props"
+                  :prepend-avatar="item.raw.avatar"
+                  :text="item.raw.name"
+                ></v-chip>
+              </template>
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
+              </template>
+            </v-select>
+          </div>
 
-            <div class="markers mt-4 mb-1">
-              <v-select
-                v-model="ordersStore.activeProductItem.markers"
-                :items="markerStore.markerList"
-                chips
-                label="特製"
-                multiple
-                variant="outlined"
-                closable-chips
-                clearable
-              >
-                <template v-slot:chip="{ props, item }">
-                  <v-chip
-                    v-bind="props"
-                    :prepend-avatar="item.raw.avatar"
-                    :text="item.raw.name"
-                  ></v-chip>
-                </template>
-                <template v-slot:item="{ props, item }">
-                  <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
-                </template>
-              </v-select>
-            </div>
-
-            <div class="notes">
-              <v-textarea
-                v-model="ordersStore.activeProductItem.notes"
-                label="備註"
-                variant="outlined"
-              ></v-textarea>
-            </div>
+          <div class="notes">
+            <v-textarea
+              v-model="ordersStore.activeProductItem.notes"
+              label="備註"
+              variant="outlined"
+            ></v-textarea>
           </div>
         </v-card-text>
 
