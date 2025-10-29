@@ -14,12 +14,14 @@ const { menuStore } = useMenus({ formDialogRef, confirmDialogRef, menuTableRef }
 </script>
 
 <template>
-  <div style="height: 100dvh">
-    <h3 class="pa-4 pb-0">選單設定</h3>
-    <menuTable :menus="menuStore.menus" ref="menuTableRef" />
+  <div>
+    <div style="height: 100dvh">
+      <h3 class="pa-4 pb-0">選單設定</h3>
+      <menuTable :menus="menuStore.menus" ref="menuTableRef" />
+    </div>
+    <formDialog ref="formDialogRef" />
+    <confirmDialog ref="confirmDialogRef" />
   </div>
-  <formDialog ref="formDialogRef" />
-  <confirmDialog ref="confirmDialogRef" />
 </template>
 
 <style lang="scss" scoped></style>
