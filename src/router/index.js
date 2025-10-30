@@ -27,7 +27,9 @@ router.beforeEach(async (to, from, next) => {
   if (userStore.isLogin && !routerStore.generateRoutesStatus && to.name !== 'Roles') {
     const routes = await routerStore.generateRoutes()
     routes.forEach((route) => {
-      router.addRoute('root', route)
+      if (!router.hasRoute(route.name)) {
+        router.addRoute('root', route)
+      }
     })
     routerStore.generateRoutesStatus = true
     return next({ ...to, replace: true }) // 確保刷新後能正確匹配
