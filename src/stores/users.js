@@ -31,6 +31,12 @@ export const useUserStore = defineStore('user', () => {
     return baseInfo?.value?.agentRoles[0].roles[0]
   })
 
+  const activeAgentData = computed(() =>
+    baseInfo.value.agentRoles.find(
+      (item) => String(item.agent._id) === String(activeAgentId.value),
+    ),
+  )
+
   function initActiveAgentId() {
     return localStorage.getItem('activeAgentId')
   }
@@ -204,5 +210,6 @@ export const useUserStore = defineStore('user', () => {
     activeRoleId,
     activeAgentId,
     saveActiveAgentId,
+    activeAgentData,
   }
 })
