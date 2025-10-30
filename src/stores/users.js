@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', () => {
   })
 
   const activeAgentData = computed(() =>
-    baseInfo.value.agentRoles.find(
+    baseInfo.value?.agentRoles.find(
       (item) => String(item.agent._id) === String(activeAgentId.value),
     ),
   )
