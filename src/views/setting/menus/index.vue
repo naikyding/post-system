@@ -15,7 +15,7 @@ const { menuStore } = useMenus({ formDialogRef, confirmDialogRef, menuTableRef }
 
 <template>
   <div>
-    <div style="height: 100dvh">
+    <div class="bg-grey-darken-4" style="height: 100dvh">
       <h3 class="pa-4 pb-0">選單設定</h3>
       <menuTable :menus="menuStore.menus" ref="menuTableRef" />
     </div>
