@@ -22,30 +22,30 @@ const {
 </script>
 
 <template>
-  <!-- <img src="@/assets/images/ci/monster-crepes-ci.jpeg" /> -->
   <v-layout :style="{ height: '100dvh' }">
     <!-- sidebar 側邊欄 -->
     <v-navigation-drawer
-      width="220"
       v-model="state.drawer"
       :rail="state.rail"
       permanent
       @click="state.rail = false"
     >
-      <v-list-item
-        @click.stop="state.rail = !state.rail"
-        prepend-avatar="null"
-        title="Monster Crepes"
-        nav
-      >
-        <template v-slot:append>
-          <v-btn
-            variant="text"
-            icon="mdi-chevron-left"
-            @click.stop="state.rail = !state.rail"
-          ></v-btn>
-        </template>
-      </v-list-item>
+      <v-list nav>
+        <v-list-item
+          :prepend-avatar="userStore.activeAgentData?.agent?.image"
+          :title="userStore.activeAgentData?.agent.name"
+          @click.stop="state.rail = !state.rail"
+          nav
+        >
+          <template v-slot:append>
+            <v-btn
+              variant="text"
+              icon="mdi-chevron-left"
+              @click.stop="state.rail = !state.rail"
+            ></v-btn>
+          </template>
+        </v-list-item>
+      </v-list>
 
       <v-divider></v-divider>
 

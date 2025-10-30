@@ -6,8 +6,8 @@ const { userData, userStore } = useToolbar()
 <template>
   <v-toolbar density="compact" color="grey-darken-4">
     <template v-slot:prepend>
-      <v-btn icon="mdi-menu"></v-btn>
-      <span>{{ userStore.activeAgentData?.agent?.name }}</span>
+      <!-- <v-btn icon="mdi-menu"></v-btn> -->
+      <span class="px-2">{{ userStore.activeAgentData?.agent?.name }}</span>
     </template>
     <template v-slot:append>
       <v-btn size="small" icon="mdi-bell"> </v-btn>
