@@ -1,6 +1,9 @@
 <script setup>
 import { useLayout } from './useLayout'
 import Toolbar from './toolbar/index.vue'
+import { useRouterStore } from '@/stores/router'
+
+const routerStore = useRouterStore()
 
 const {
   state,
@@ -47,55 +50,57 @@ const {
       <v-divider></v-divider>
 
       <v-list density="compact" nav>
-        <template v-for="(route, index) in transformMenus">
+        <template v-for="route in transformMenus">
           <v-list-group
             v-if="route.children && route.children.length > 0"
             prepend-icon="mdi-cog"
             value="setting"
-            :key="route.name + index"
+            :key="route._id"
           >
             <template v-slot:activator="{ props }">
               <v-list-item
                 v-bind="props"
                 :prepend-icon="route.icon"
                 :title="route.name"
+                :key="route._id"
               ></v-list-item>
             </template>
 
             <!-- 子層 -->
             <v-list-item
-              v-for="(child, cIndex) in route.children"
-              :key="child.name + cIndex"
+              v-for="child in route.children"
               :title="child.name"
               :to="route.path + child.path"
               :prepend-icon="child.icon"
+              :key="child._id"
             />
           </v-list-group>
 
-          <v-list-item
-            v-else
-            :key="route + index"
-            :title="route.name"
-            :to="route.name === 'Dashboard' ? null : route.path"
-            :prepend-icon="route.icon"
-            @click="route.name === 'Dashboard' ? goDashboard() : null"
-          >
-            <template v-slot:prepend v-if="route.name === 'Order-status'">
-              <v-badge
-                v-if="systemOrderStore.pendingQuantity > 0"
-                bordered
-                location="top right"
-                color="pink"
-                :offset-x="-3"
-                :offset-y="-3"
-                :content="systemOrderStore.pendingQuantity"
-              >
-                <v-icon :icon="route.icon"></v-icon>
-              </v-badge>
+          <template v-else>
+            <v-list-item
+              :key="route._id + routerStore.refreshKey"
+              :title="route.name"
+              :to="route.name === 'Dashboard' ? null : route.path"
+              :prepend-icon="route.icon"
+              @click="route.name === 'Dashboard' ? goDashboard() : null"
+            >
+              <template v-slot:prepend v-if="route.name === 'Order-status'">
+                <v-badge
+                  v-if="systemOrderStore.pendingQuantity > 0"
+                  bordered
+                  location="top right"
+                  color="pink"
+                  :offset-x="-3"
+                  :offset-y="-3"
+                  :content="systemOrderStore.pendingQuantity"
+                >
+                  <v-icon :icon="route.icon"></v-icon>
+                </v-badge>
 
-              <v-icon v-else :icon="route.icon"></v-icon>
-            </template>
-          </v-list-item>
+                <v-icon v-else :icon="route.icon"></v-icon>
+              </template>
+            </v-list-item>
+          </template>
         </template>
       </v-list>
 
