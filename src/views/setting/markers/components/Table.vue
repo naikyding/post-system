@@ -1,7 +1,6 @@
 <script setup>
 import { useMarkersStore } from '@/stores/products'
 import { inject, ref } from 'vue'
-import { dateFormat } from '@/utils/day'
 import { useTable } from './useTable'
 
 const { getRoles, headers } = useTable()
@@ -11,8 +10,8 @@ const markers = inject('markers')
 </script>
 
 <template>
-  <v-card>
-    <v-card-text>
+  <div class="d-flex flex-column" :style="{ height: 'calc(100dvh - 48px - 65px)' }">
+    <div>
       <v-text-field
         v-model="search"
         class="mb-4"
@@ -26,7 +25,9 @@ const markers = inject('markers')
       <v-btn block color="success" @click="markers.openFormDialog({ model: 'create' })">
         <v-icon size="30">mdi-plus</v-icon>
       </v-btn>
+    </div>
 
+    <v-expand-transition class="content-height">
       <v-data-table
         :headers="headers"
         :items="markersStore.markerList"
@@ -51,7 +52,7 @@ const markers = inject('markers')
             size="40"
             variant="plain"
             color="warning"
-            @click="markers.openFormDialog({ model: 'update', userItem: item })"
+            @click="markers.openFormDialog({ model: 'update', id: item._id, data: item })"
           ></v-btn>
           <!-- 刪除 -->
           <v-btn
@@ -63,6 +64,14 @@ const markers = inject('markers')
           ></v-btn>
         </template>
       </v-data-table>
-    </v-card-text>
-  </v-card>
+    </v-expand-transition>
+  </div>
 </template>
+
+<style scoped>
+.content-height {
+  flex: 1; /* 撐滿剩餘空間 */
+  overflow: auto; /* 可捲動 */
+  min-height: 0; /* 避免 flex 捲軸失效 */
+}
+</style>

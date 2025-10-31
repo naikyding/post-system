@@ -12,7 +12,7 @@ defineExpose({
   <v-dialog v-model="status" max-width="400">
     <v-card prepend-icon="mdi-alert" title="警告">
       <v-card-text>
-        {{ `確定刪除 ${markers.active.value?.data?.nickname} 這個項目嗎 ?` }}
+        {{ `確定刪除 ${markers.active.value?.data?.name} 這個項目嗎 ?` }}
       </v-card-text>
       <template v-slot:actions>
         <v-spacer></v-spacer>
