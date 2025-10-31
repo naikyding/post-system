@@ -1,16 +1,12 @@
 <script setup>
-import { useRolesStore } from '@/stores/roles'
+import { useMarkersStore } from '@/stores/products'
 import { inject, ref } from 'vue'
-const rolesStore = useRolesStore()
-const search = ref('')
-const headers = [
-  { title: '角色名稱', key: 'name' },
-  { title: '代碼', key: 'code' },
-  { title: '狀態', key: 'status', align: 'center' },
-  { title: '操作', key: 'actions', align: 'center' },
-]
+import { useTable } from './useTable'
 
-const role = inject('role')
+const { getRoles, headers } = useTable()
+const markersStore = useMarkersStore()
+const search = ref('')
+const markers = inject('markers')
 </script>
 
 <template>
@@ -26,7 +22,7 @@ const role = inject('role')
         single-line
       ></v-text-field>
 
-      <v-btn block color="success" @click="role.openFormDialog({ model: 'create' })">
+      <v-btn block color="success" @click="markers.openFormDialog({ model: 'create' })">
         <v-icon size="30">mdi-plus</v-icon>
       </v-btn>
     </div>
@@ -34,7 +30,7 @@ const role = inject('role')
     <v-expand-transition class="content-height">
       <v-data-table
         :headers="headers"
-        :items="rolesStore.list"
+        :items="markersStore.markerList"
         :search="search"
         density="compact"
         fixed-header
@@ -42,38 +38,25 @@ const role = inject('role')
         :items-per-page="-1"
         hover
       >
-        <template v-slot:item.status="{ value }">
-          <div class="d-flex justify-center">
-            <v-switch
-              readonly
-              hide-details
-              density="compact"
-              color="success"
-              :model-value="value"
-              inset
-            ></v-switch>
-          </div>
+        <template v-slot:item.name="{ value }">
+          <span class="font-weight-black">{{ value }}</span>
+        </template>
+        <template v-slot:item.description="{ value }">
+          <span class="font-weight-black">{{ value }}</span>
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-btn
-            @click="role.openMenuAndOperationDrawer({ model: 'menus', roleItem: item })"
-            icon="mdi-sitemap"
-            size="40"
-            variant="plain"
-            color="success"
-          ></v-btn>
           <!-- 修改 -->
           <v-btn
             icon="mdi-pencil"
             size="40"
             variant="plain"
             color="warning"
-            @click="role.openFormDialog({ model: 'update', roleItem: item })"
+            @click="markers.openFormDialog({ model: 'update', id: item._id, data: item })"
           ></v-btn>
           <!-- 刪除 -->
           <v-btn
-            @click="role.openConfirmDialog({ model: 'delete', id: item._id })"
+            @click="markers.openConfirmDialog({ model: 'delete', id: item._id, data: item })"
             icon="mdi-delete"
             size="40"
             variant="plain"

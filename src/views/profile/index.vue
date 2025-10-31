@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 const userStore = useUserStore()
 const ConfirmDialogRef = ref(null)
 const user = computed(() => userStore.baseInfo)
-const userRoles = computed(() => user.value.agentRoles[0]['roles'] || [])
+const userRoles = computed(() => userStore.activeAgentData?.roles || [])
 
 const cardKey = ref(0)
 const activeRoleId = ref(null)
@@ -23,6 +23,8 @@ async function saveDialog() {
 }
 
 function showConfirmDialog(id) {
+  if (userStore.activeRoleId === id) return false
+
   activeRoleId.value = id
   ConfirmDialogRef.value.status = true
 }

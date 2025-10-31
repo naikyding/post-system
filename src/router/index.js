@@ -14,10 +14,11 @@ router.beforeEach(async (to, from, next) => {
 
   // 尚未登入
   if (!userStore.isLogin) {
-    if (to.name !== 'Login') {
+    if (to.name === 'Login' || to.name === 'Roles') {
+      return next()
+    } else {
       return next({ path: '/login' })
     }
-    return next()
   }
 
   if (Array.isArray(userStore.baseInfo) && userStore.baseInfo.length < 1)
@@ -27,7 +28,9 @@ router.beforeEach(async (to, from, next) => {
   if (userStore.isLogin && !routerStore.generateRoutesStatus && to.name !== 'Roles') {
     const routes = await routerStore.generateRoutes()
     routes.forEach((route) => {
-      router.addRoute('root', route)
+      if (!router.hasRoute(route.name)) {
+        router.addRoute('root', route)
+      }
     })
     routerStore.generateRoutesStatus = true
     return next({ ...to, replace: true }) // 確保刷新後能正確匹配

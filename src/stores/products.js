@@ -69,14 +69,19 @@ export const useMarkersStore = defineStore('Markers', () => {
   const getMarkers = catchAsync(async () => {
     const { data } = await getMarkersAPI()
     if (data) {
-      markerList.value.length = 0
-      markerList.value = data.items
+      saveMarkerList(data)
     }
   })
+
+  function saveMarkerList(data) {
+    markerList.value.length = 0
+    markerList.value = data.items
+  }
 
   return {
     markerList,
 
     getMarkers,
+    saveMarkerList,
   }
 })

@@ -7,7 +7,10 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
 </script>
 
 <template>
-  <div class="ma-4 mb-0 overflow-y-hidden" :style="{ height: 'calc(100dvh-48px)' }">
+  <div
+    class="pa-4 mb-0 overflow-y-hidden bg-grey-darken-4"
+    :style="{ height: 'calc(100dvh-48px)' }"
+  >
     <DatePicker
       :active-date="systemOrderStore.activeListDate.from"
       @search-list="datePickerEvent"
