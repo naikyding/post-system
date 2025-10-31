@@ -21,7 +21,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 已經登入
-  if (Array.isArray(userStore.baseInfo) && userStore.baseInfo.length < 1)
+  if (!userStore.baseInfo?._id && userStore.baseInfo?.agentRoles.length < 1)
     userStore.getUserBaseInfo()
 
   if (to.name === 'Login') {
@@ -40,8 +40,10 @@ router.beforeEach(async (to, from, next) => {
 
   if (userStore.isLogin && !routerStore.generateRoutesStatus) {
     const routes = await routerStore.generateRoutes()
+    console.log(router.getRoutes())
     routes.forEach((route) => {
       if (!router.hasRoute(route.name)) {
+        console.log(route.name, '這是不存在的路由，現在加入')
         router.addRoute('root', route)
       }
     })

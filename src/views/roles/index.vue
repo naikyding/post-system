@@ -14,7 +14,7 @@ async function saveActiveRoleId(id) {
 }
 
 const activeRoles = computed(() => {
-  if (Array.isArray(userStore.baseInfo)) return []
+  if (!userStore.baseInfo?._id) return []
   return user.value.agentRoles.find((item) => item.agent._id === userStore.activeAgentId)
 })
 </script>

@@ -18,7 +18,9 @@ export const useUserStore = defineStore('user', () => {
   // 登入狀態
   const isLogin = ref(false)
   // 使用者基本資料
-  const baseInfo = ref([])
+  const baseInfo = ref({
+    agentRoles: [],
+  })
 
   // user routes
   const routes = ref([])
@@ -33,7 +35,7 @@ export const useUserStore = defineStore('user', () => {
 
   const activeAgentData = computed(() =>
     baseInfo.value?.agentRoles.find(
-      (item) => String(item.agent._id) === String(activeAgentId.value),
+      (item) => String(item.agent._id) === String(activeAgentId.value) || null,
     ),
   )
 

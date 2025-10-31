@@ -32,8 +32,8 @@ const {
     >
       <v-list nav>
         <v-list-item
-          :prepend-avatar="userStore.activeAgentData?.agent?.image"
-          :title="userStore.activeAgentData?.agent.name"
+          :prepend-avatar="userStore?.activeAgentData?.agent?.image"
+          :title="userStore?.activeAgentData?.agent.name"
           @click.stop="state.rail = !state.rail"
           nav
         >
