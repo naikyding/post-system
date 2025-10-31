@@ -14,10 +14,11 @@ router.beforeEach(async (to, from, next) => {
 
   // 尚未登入
   if (!userStore.isLogin) {
-    if (to.name !== 'Login') {
+    if (to.name === 'Login' || to.name === 'Roles') {
+      return next()
+    } else {
       return next({ path: '/login' })
     }
-    return next()
   }
 
   if (Array.isArray(userStore.baseInfo) && userStore.baseInfo.length < 1)
