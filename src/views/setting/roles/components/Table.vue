@@ -14,8 +14,8 @@ const role = inject('role')
 </script>
 
 <template>
-  <v-card>
-    <v-card-text>
+  <div class="d-flex flex-column" :style="{ height: 'calc(100dvh - 48px - 65px)' }">
+    <div>
       <v-text-field
         v-model="search"
         class="mb-4"
@@ -29,7 +29,9 @@ const role = inject('role')
       <v-btn block color="success" @click="role.openFormDialog({ model: 'create' })">
         <v-icon size="30">mdi-plus</v-icon>
       </v-btn>
+    </div>
 
+    <v-expand-transition class="content-height">
       <v-data-table
         :headers="headers"
         :items="rolesStore.list"
@@ -37,6 +39,7 @@ const role = inject('role')
         density="compact"
         fixed-header
         hide-default-footer
+        :items-per-page="-1"
         hover
       >
         <template v-slot:item.status="{ value }">
@@ -78,6 +81,14 @@ const role = inject('role')
           ></v-btn>
         </template>
       </v-data-table>
-    </v-card-text>
-  </v-card>
+    </v-expand-transition>
+  </div>
 </template>
+
+<style scoped>
+.content-height {
+  flex: 1; /* 撐滿剩餘空間 */
+  overflow: auto; /* 可捲動 */
+  min-height: 0; /* 避免 flex 捲軸失效 */
+}
+</style>
