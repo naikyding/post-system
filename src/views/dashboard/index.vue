@@ -219,6 +219,7 @@ const {
             :headers="dataTable.headers"
             :mobile="false"
             fixed-header
+            hide-default-footer
             items-per-page="-1"
             :items="dataTable.list"
           ></v-data-table>
