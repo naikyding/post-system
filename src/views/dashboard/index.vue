@@ -1,6 +1,7 @@
 <script setup>
 import DatePicker from '@/components/DatePicker.vue'
 import MainChart from '@/components/chart/MainChart.vue'
+import dayJs from 'dayjs'
 
 import { useDashboard } from './useDashboard'
 const {

@@ -6,7 +6,7 @@ const routes = [
   },
   {
     path: '/roles',
-    name: 'Roles',
+    name: 'RolesMain',
     component: () => import('@/views/roles/index.vue'),
   },
 

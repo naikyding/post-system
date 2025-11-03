@@ -10,8 +10,10 @@ import {
   deleteMenuAPI,
 } from '@/api'
 import catchAsync from '../../../utils/catchAsync'
+import { useRouterStore } from '@/stores/router.js'
 
 const menuStore = useMenusStore()
+const routerStore = useRouterStore()
 
 export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
   const initOperationForm = (item = {}) => {
@@ -85,6 +87,7 @@ export function useMenus({ formDialogRef, confirmDialogRef, menuTableRef }) {
     if (status) {
       cancelDialogForm()
       menuStore.getMenusAndOperations()
+      routerStore.generateRoutes()
     }
   }
 

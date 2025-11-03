@@ -320,9 +320,11 @@ export const useOrdersStore = defineStore('orders', () => {
       },
     )
 
-    formatData.customer =
-      userStore.roles.name === 'admin' ? userStore.adminCustomer : userStore.baseInfo._id
-    formatData.agent = userStore.agents
+    // 紀錄操作人員
+    const userId = userStore.baseInfo._id
+    if (userId) {
+      formatData.operator = userId
+    }
 
     dialog.confirmOrderList = false
     const { status } = await createOrderAPI(formatData)

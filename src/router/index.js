@@ -14,18 +14,31 @@ router.beforeEach(async (to, from, next) => {
 
   // 尚未登入
   if (!userStore.isLogin) {
-    if (to.name === 'Login' || to.name === 'Roles') {
-      return next()
-    } else {
-      return next({ path: '/login' })
+    if (to.name !== 'Login') {
+      return next({ name: 'Login' })
     }
+    return next()
   }
 
-  if (Array.isArray(userStore.baseInfo) && userStore.baseInfo.length < 1)
+  // 已經登入
+  if (!userStore.baseInfo?._id && userStore.baseInfo?.agentRoles.length < 1)
     userStore.getUserBaseInfo()
 
-  // 已經登入
-  if (userStore.isLogin && !routerStore.generateRoutesStatus && to.name !== 'Roles') {
+  if (to.name === 'Login') {
+    if (localStorage.getItem('activeRoleId') === null) return next({ name: 'RolesMain' })
+    if (to.query.redirect) {
+      return next({ path: to.query.redirect })
+    }
+    return next({ path: '/' })
+  }
+
+  if (localStorage.getItem('activeAgentId') === null) {
+    if (to.name !== 'RolesMain') {
+      return next({ name: 'RolesMain' })
+    } else return next()
+  }
+
+  if (userStore.isLogin && !routerStore.generateRoutesStatus) {
     const routes = await routerStore.generateRoutes()
     routes.forEach((route) => {
       if (!router.hasRoute(route.name)) {
@@ -33,17 +46,8 @@ router.beforeEach(async (to, from, next) => {
       }
     })
     routerStore.generateRoutesStatus = true
-    return next({ ...to, replace: true }) // 確保刷新後能正確匹配
+    return next(to.fullPath)
   }
-
-  if (to.name === 'Login') {
-    if (!localStorage.getItem('activeRoleId')) return next({ path: '/roles' })
-    if (to.query.redirect) {
-      return next({ path: to.query.redirect })
-    }
-    return next({ path: '/' })
-  }
-
   next()
 })
 

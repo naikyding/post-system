@@ -32,8 +32,8 @@ const {
     >
       <v-list nav>
         <v-list-item
-          :prepend-avatar="userStore.activeAgentData?.agent?.image"
-          :title="userStore.activeAgentData?.agent.name"
+          :prepend-avatar="userStore?.activeAgentData?.agent?.image"
+          :title="userStore?.activeAgentData?.agent.name"
           @click.stop="state.rail = !state.rail"
           nav
         >
@@ -80,11 +80,11 @@ const {
             <v-list-item
               :key="route._id + routerStore.refreshKey"
               :title="route.name"
-              :to="route.name === 'Dashboard' ? null : route.path"
+              :to="route.routeName === 'Dashboard' ? null : route.path"
               :prepend-icon="route.icon"
-              @click="route.name === 'Dashboard' ? goDashboard() : null"
+              @click="route.routeName === 'Dashboard' ? goDashboard() : null"
             >
-              <template v-slot:prepend v-if="route.name === 'Order-status'">
+              <template v-slot:prepend v-if="route.routeName === 'Order-status'">
                 <v-badge
                   v-if="systemOrderStore.pendingQuantity > 0"
                   bordered
@@ -155,6 +155,7 @@ const {
     <!-- 內容 (右) -->
     <v-main class="d-flex flex-column" @click="sidebarClose" :style="{ height: '100dvh' }">
       <Toolbar />
+
       <RouterView class="flex-grow-1 router-view overflow-y-hidden" />
     </v-main>
   </v-layout>

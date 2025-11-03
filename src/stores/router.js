@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import catchAsync from '../utils/catchAsync'
 import { getRoutesAPI } from '@/api'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 
 const modules = import.meta.glob('../../src/views/**/*.vue')
 
@@ -42,7 +42,10 @@ export const useRouterStore = defineStore('router-store', () => {
   const generateRoutes = catchAsync(async () => {
     const { data } = await getRoutesAPI()
     routes.value.length = 0
-    routes.value = data.items
+    nextTick(() => {
+      routes.value = data.items
+    })
+
     refreshKey.value++
     return transformMenusToRoutes(data.items)
   })
