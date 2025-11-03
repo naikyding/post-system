@@ -40,10 +40,8 @@ router.beforeEach(async (to, from, next) => {
 
   if (userStore.isLogin && !routerStore.generateRoutesStatus) {
     const routes = await routerStore.generateRoutes()
-    console.log(router.getRoutes())
     routes.forEach((route) => {
       if (!router.hasRoute(route.name)) {
-        console.log(route.name, '這是不存在的路由，現在加入')
         router.addRoute('root', route)
       }
     })
