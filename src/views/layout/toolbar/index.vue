@@ -33,7 +33,7 @@ const { userData, userStore } = useToolbar()
       <v-btn size="small" icon="mdi-dots-vertical"></v-btn
     ></template>
   </v-toolbar>
-  <v-divider />
+  <v-divider color="white"></v-divider>
 </template>
 
 <style lang="scss" scoped></style>
