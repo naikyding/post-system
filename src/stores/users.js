@@ -6,9 +6,11 @@ import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
 import Swal from 'sweetalert2'
 import { useRouterStore } from '@/stores/router'
+import { useOrdersStore } from '@/stores/orders'
 
 export const useUserStore = defineStore('user', () => {
   const routerStore = useRouterStore()
+  const orderStore = useOrdersStore()
   const adminCustomer = ref('6476f4088940f49853aa062e')
   const token = ref({
     type: localStorage.getItem('type') || null,
@@ -146,12 +148,14 @@ export const useUserStore = defineStore('user', () => {
     routerStore.generateRoutesStatus = false
     activeAgentId.value = null
     activeRoleId.value = null
+    orderStore.removeLocalOrderList()
     localStorage.removeItem('type')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('agentsId')
     localStorage.removeItem('activeRoleId')
     localStorage.removeItem('activeAgentId')
+    localStorage.removeItem('stashOrderList')
     ;(token.value.type = null),
       (token.value.accessToken = null),
       (token.value.refreshToken = null),

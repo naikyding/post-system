@@ -5,5 +5,6 @@ export function useToolbar() {
   const userStore = useUserStore()
 
   const userData = computed(() => userStore.baseInfo)
+
   return { userData, userStore }
 }

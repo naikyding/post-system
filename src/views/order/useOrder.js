@@ -4,7 +4,6 @@ import { useDisplay } from 'vuetify'
 import { useProductsStore, useMarkersStore } from '@/stores/products'
 import { useOrdersStore } from '@/stores/orders'
 import dayjs from 'dayjs'
-import { onBeforeRouteLeave } from 'vue-router'
 
 export function useOrder() {
   // order page 邏輯
@@ -134,6 +133,19 @@ export function useOrder() {
     })
   }
 
+  const stashOrderList = () => {
+    dialog.confirmOrderList = false
+    const stashOrderList = JSON.parse(localStorage.getItem('stashOrderList'))
+    localStorage.setItem(
+      'stashOrderList',
+      stashOrderList
+        ? JSON.stringify([...stashOrderList, ordersStore.ordersList])
+        : JSON.stringify([ordersStore.ordersList]),
+    )
+
+    ordersStore.resetOrderList()
+  }
+
   return {
     display,
     tabActiveId,
@@ -152,5 +164,6 @@ export function useOrder() {
     parseDate,
     schedule,
     cancelSettingDateAndTime,
+    stashOrderList,
   }
 }
