@@ -20,6 +20,11 @@ const {
   schedule,
   cancelSettingDateAndTime,
 } = useOrder()
+
+function stashOrderList() {
+  ordersStore.stashLocalOrderList()
+  dialog.confirmOrderList = false
+}
 </script>
 
 <template>
@@ -35,9 +40,27 @@ const {
           <!-- 操作 -->
           <v-container class="py-0 px-2">
             <v-row dense>
-              <v-col cols="12">
+              <v-col cols="6">
+                <!-- 暫存 -->
+                <v-btn
+                  :disabled="ordersStore.ordersList.items.length < 1"
+                  block
+                  class="mx-1"
+                  variant="tonal"
+                  @click="stashOrderList"
+                >
+                  <v-icon icon="mdi-tray-arrow-down" />
+                </v-btn>
+              </v-col>
+              <v-col cols="6">
                 <!-- 清空購物車 -->
-                <v-btn block color="error" @click="ordersStore.ordersList.items.length = 0">
+                <v-btn
+                  :disabled="ordersStore.ordersList.items.length < 1"
+                  block
+                  color="error"
+                  variant="flat"
+                  @click="ordersStore.ordersList.items.length = 0"
+                >
                   <v-icon icon="mdi-delete-empty" />
                 </v-btn>
               </v-col>
@@ -552,15 +575,17 @@ const {
     >
       <v-card>
         <v-card-item class="text-primary text-center pb-2 p-relative" title="訂單明細">
-          <!-- 客製訂單時間 -->
-          <v-btn
-            class="customSchedule-btn"
-            color="warning"
-            icon="mdi-clock-outline"
-            variant="plain"
-            @click="showScheduleDialog"
-          >
-          </v-btn>
+          <div class="operation-area">
+            <!-- 客製訂單時間 -->
+            <v-btn
+              class="mx-1"
+              size="small"
+              icon="mdi-clock-outline"
+              variant="tonal"
+              @click="showScheduleDialog"
+            >
+            </v-btn>
+          </div>
 
           <!-- 客製訂單時間 dialog -->
           <v-dialog v-model="dialog.scheduleAt" width="400">
@@ -895,7 +920,7 @@ table {
   top: 4px;
   right: 1rem;
 }
-.customSchedule-btn {
+.operation-area {
   position: absolute;
   top: 4px;
   left: 1rem;

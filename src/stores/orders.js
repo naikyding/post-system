@@ -14,8 +14,34 @@ import { useAppStore } from '../stores/app'
 import { resFunc } from '../utils/resFunc'
 import dayJS from 'dayjs'
 import { errorFunction } from '../utils/catchAsync'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useOrdersStore = defineStore('orders', () => {
+  // 暫存訂單
+  const localOrderList = useLocalStorage('stashOrderList', [])
+
+  function stashLocalOrderList() {
+    if (ordersList.items.length < 1) return false
+    const cloneItem = JSON.parse(JSON.stringify(ordersList))
+    localOrderList.value = [...localOrderList.value, cloneItem]
+    resetOrderList()
+  }
+
+  function deleteLocalOrderListItem(item) {
+    localOrderList.value = localOrderList.value.filter((listItem) => listItem !== item)
+  }
+
+  function removeLocalOrderList() {
+    localOrderList.value = null
+  }
+
+  function popOrderListItem(item) {
+    const { items, note, mobileNoThreeDigits, isPaid } = item
+    Object.assign(ordersList, { items, note, mobileNoThreeDigits, isPaid })
+
+    deleteLocalOrderListItem(item)
+  }
+
   // 產品彈窗 dialog
   const selectorDialog = ref(false)
 
@@ -337,6 +363,7 @@ export const useOrdersStore = defineStore('orders', () => {
   })
 
   return {
+    resetOrderList,
     ordersList,
     addActiveProductItemToOrdersList,
 
@@ -352,6 +379,12 @@ export const useOrdersStore = defineStore('orders', () => {
     submitOrderList,
 
     orderItemQuantityPlusOrMinus,
+
+    localOrderList,
+    stashLocalOrderList,
+    deleteLocalOrderListItem,
+    popOrderListItem,
+    removeLocalOrderList,
   }
 })
 
