@@ -1,12 +1,14 @@
 <script setup>
 import { useUserStore } from '@/stores/user'
+import { useUserStore as useUsersStore } from '@/stores/users'
 import { inject, ref } from 'vue'
 import { dateFormat } from '@/utils/day'
 import { useTable } from './useTable'
 
 const user = inject('user')
-const { getRoles, headers } = useTable()
+const { getRoles, headers, getAgents } = useTable()
 const userStore = useUserStore()
+const usersStore = useUsersStore()
 const search = ref('')
 </script>
 
@@ -37,57 +39,73 @@ const search = ref('')
         :items-per-page="-1"
         hover
       >
-        <template v-slot:item.nickname="{ value }">
-          <span class="font-weight-black">{{ value }}</span>
-        </template>
+        <template v-slot:item="{ item }">
+          <tr>
+            <td>
+              <span class="font-weight-black">{{ item.nickname }}</span>
+            </td>
+            <td>
+              <v-chip variant="tonal" size="x-small"> {{ item.email }} </v-chip>
+            </td>
+            <td>
+              <v-chip
+                :style="{ marginRight: '2px' }"
+                variant="outlined"
+                color="cyan"
+                size="small"
+                v-for="agentAndRolesItem in getRoles(item.agentRoles)"
+                :key="agentAndRolesItem._id"
+              >
+                {{ agentAndRolesItem.name }}
+              </v-chip>
+            </td>
+            <td>
+              <v-chip
+                class="ma-1"
+                v-for="agent in getAgents(item.agentRoles)"
+                :key="agent._id"
+                density="compact"
+              >
+                <v-icon
+                  v-show="agent._id === usersStore.activeAgentId"
+                  icon="mdi-check-circle-outline"
+                  start
+                  color="success"
+                ></v-icon>
+                {{ agent.name }}
+              </v-chip>
+            </td>
+            <td>
+              <span class="text-caption">{{ dateFormat(item.createAt) }}</span>
+            </td>
+            <td>
+              <!-- 修改密碼 -->
+              <v-btn
+                icon="mdi-lock-reset"
+                size="40"
+                variant="plain"
+                color="pink"
+                @click="user.openFormDialog({ model: 'password', userItem: item })"
+              ></v-btn>
 
-        <template v-slot:item.email="{ value }">
-          <v-chip variant="tonal" size="x-small"> {{ value }} </v-chip>
-        </template>
-
-        <template v-slot:item.agentRoles="{ value }">
-          <v-chip
-            :style="{ marginRight: '2px' }"
-            variant="outlined"
-            color="cyan"
-            size="small"
-            v-for="item in getRoles(value)"
-            :key="item._id"
-          >
-            {{ item.name }}
-          </v-chip>
-        </template>
-
-        <template v-slot:item.createdAt="{ value }">
-          <span class="text-caption">{{ dateFormat(value) }}</span>
-        </template>
-
-        <template v-slot:item.actions="{ item }">
-          <!-- 修改密碼 -->
-          <v-btn
-            icon="mdi-lock-reset"
-            size="40"
-            variant="plain"
-            color="pink"
-            @click="user.openFormDialog({ model: 'password', userItem: item })"
-          ></v-btn>
-
-          <!-- 修改 -->
-          <v-btn
-            icon="mdi-pencil"
-            size="40"
-            variant="plain"
-            color="warning"
-            @click="user.openFormDialog({ model: 'update', userItem: item })"
-          ></v-btn>
-          <!-- 刪除 -->
-          <v-btn
-            @click="user.openConfirmDialog({ model: 'delete', id: item._id, data: item })"
-            icon="mdi-delete"
-            size="40"
-            variant="plain"
-            color="error"
-          ></v-btn>
+              <!-- 修改 -->
+              <v-btn
+                icon="mdi-pencil"
+                size="40"
+                variant="plain"
+                color="warning"
+                @click="user.openFormDialog({ model: 'update', userItem: item })"
+              ></v-btn>
+              <!-- 刪除 -->
+              <v-btn
+                @click="user.openConfirmDialog({ model: 'delete', id: item._id, data: item })"
+                icon="mdi-delete"
+                size="40"
+                variant="plain"
+                color="error"
+              ></v-btn>
+            </td>
+          </tr>
         </template>
       </v-data-table>
     </v-card-text>
