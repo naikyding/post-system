@@ -28,7 +28,7 @@ function save() {
 </script>
 
 <template>
-  <div class="text-center pa-4">
+  <div>
     <v-dialog v-model="status" max-width="400" persistent>
       <v-card
         prepend-icon="mdi-alert"
