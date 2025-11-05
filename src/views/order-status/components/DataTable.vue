@@ -520,7 +520,7 @@ async function removeProductItemBagS(bagSizeId) {
               更新時間
             </span>
 
-            <span v-else> 建立時間 </span>
+            <span v-else> 建立時間</span>
           </th>
           <th class="text-left">商品名稱</th>
           <th class="text-left">數量</th>
@@ -597,7 +597,14 @@ async function removeProductItemBagS(bagSizeId) {
                 </span>
 
                 <!-- 支付方式 -->
-                <v-chip class="ma-2" :color="items.paymentType === 'cash' ? 'yellow' : 'success'">
+                <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
+                  >尚未付款</span
+                >
+                <v-chip
+                  v-show="items.paymentType"
+                  class="ma-2"
+                  :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
+                >
                   {{ items.paymentType }}
                 </v-chip>
               </td>
@@ -741,6 +748,9 @@ async function removeProductItemBagS(bagSizeId) {
                 </v-btn>
 
                 <!-- 支付方式 -->
+                <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
+                  >尚未付款</span
+                >
                 <v-chip
                   v-show="items.paymentType"
                   class="ma-2"
@@ -859,7 +869,14 @@ async function removeProductItemBagS(bagSizeId) {
               </span>
 
               <!-- 支付方式 -->
-              <v-chip class="ma-2" :color="items.paymentType === 'cash' ? 'yellow' : 'success'">
+              <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
+                >尚未付款</span
+              >
+              <v-chip
+                v-show="items.paymentType"
+                class="ma-2"
+                :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
+              >
                 {{ items.paymentType }}
               </v-chip>
             </td>
