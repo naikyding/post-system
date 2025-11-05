@@ -48,6 +48,8 @@ const {
                     <p>角色切換</p>
 
                     <v-btn-toggle
+                      class="mt-2"
+                      density="compact"
                       border
                       mandatory
                       divided
