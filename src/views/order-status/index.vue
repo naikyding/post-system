@@ -7,10 +7,7 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
 </script>
 
 <template>
-  <div
-    class="pa-4 mb-0 overflow-y-hidden bg-grey-darken-4"
-    :style="{ height: 'calc(100dvh-48px)' }"
-  >
+  <div class="pa-4 pb-0 mb-0 bg-grey-darken-4 d-flex flex-column">
     <DatePicker
       :active-date="systemOrderStore.activeListDate.from"
       @search-list="datePickerEvent"
@@ -19,7 +16,7 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
       fixed-tabs
       v-model="systemOrderStore.activeListTab"
       color="primary"
-      class="rounded-t-lg mt-2"
+      class="rounded-t-lg my-2"
     >
       <v-tab value="pending"
         >待處理
@@ -33,7 +30,7 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
       <v-tab value="cancelled">取消</v-tab>
     </v-tabs>
 
-    <v-window disabled v-model="systemOrderStore.activeListTab">
+    <v-window class="flex-grow-1 overflow-auto" disabled v-model="systemOrderStore.activeListTab">
       <!-- 待處理 -->
       <v-window-item value="pending">
         <DataTable />

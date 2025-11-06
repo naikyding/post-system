@@ -85,7 +85,13 @@ function searchData(searchDate) {
 </script>
 
 <template>
-  <v-btn block variant="outlined" class="overflow-hidden text-left" @click="showDatePicker">
+  <v-btn
+    max-height="46"
+    block
+    variant="outlined"
+    class="overflow-hidden text-left"
+    @click="showDatePicker"
+  >
     <template v-slot:prepend>
       <v-icon icon="mdi-tune-variant"></v-icon>
     </template>
