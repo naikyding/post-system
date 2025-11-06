@@ -14,8 +14,34 @@ import { useAppStore } from '../stores/app'
 import { resFunc } from '../utils/resFunc'
 import dayJS from 'dayjs'
 import { errorFunction } from '../utils/catchAsync'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useOrdersStore = defineStore('orders', () => {
+  // 暫存訂單
+  const localOrderList = useLocalStorage('stashOrderList', [])
+
+  function stashLocalOrderList() {
+    if (ordersList.items.length < 1) return false
+    const cloneItem = JSON.parse(JSON.stringify(ordersList))
+    localOrderList.value = [...localOrderList.value, cloneItem]
+    resetOrderList()
+  }
+
+  function deleteLocalOrderListItem(item) {
+    localOrderList.value = localOrderList.value.filter((listItem) => listItem !== item)
+  }
+
+  function removeLocalOrderList() {
+    localOrderList.value = null
+  }
+
+  function popOrderListItem(item) {
+    const { items, note, mobileNoThreeDigits, isPaid } = item
+    Object.assign(ordersList, { items, note, mobileNoThreeDigits, isPaid })
+
+    deleteLocalOrderListItem(item)
+  }
+
   // 產品彈窗 dialog
   const selectorDialog = ref(false)
 
@@ -320,12 +346,13 @@ export const useOrdersStore = defineStore('orders', () => {
       },
     )
 
-    formatData.customer =
-      userStore.roles.name === 'admin' ? userStore.adminCustomer : userStore.baseInfo._id
-    formatData.agent = userStore.agents
+    // 紀錄操作人員
+    const userId = userStore.baseInfo._id
+    if (userId) {
+      formatData.operator = userId
+    }
 
     dialog.confirmOrderList = false
-    console.log('formatData', formatData)
     const { status } = await createOrderAPI(formatData)
     appStore.resStatusDialog({ status: status, text: '新增訂單' })
     resFunc(status, () => {
@@ -336,6 +363,7 @@ export const useOrdersStore = defineStore('orders', () => {
   })
 
   return {
+    resetOrderList,
     ordersList,
     addActiveProductItemToOrdersList,
 
@@ -351,6 +379,12 @@ export const useOrdersStore = defineStore('orders', () => {
     submitOrderList,
 
     orderItemQuantityPlusOrMinus,
+
+    localOrderList,
+    stashLocalOrderList,
+    deleteLocalOrderListItem,
+    popOrderListItem,
+    removeLocalOrderList,
   }
 })
 
@@ -400,8 +434,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
 
   function getOrderListFilter(activeTab) {
     let urlQueryString = '?limit=0&offset=0'
-    if (localStorage.getItem('agentsId'))
-      urlQueryString += `&agent=${localStorage.getItem('agentsId')}`
+    if (localStorage.getItem('activeAgentId'))
+      urlQueryString += `&agent=${localStorage.getItem('activeAgentId')}`
     if (activeListDate.from && activeListDate.to)
       urlQueryString += `&from=${activeListDate.from}&to=${activeListDate.to}`
 

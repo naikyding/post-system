@@ -1,22 +1,16 @@
 <script setup>
 import DataTable from './components/DataTable.vue'
-import { useSystemOrderList } from '../../stores/orders'
 import DatePicker from '@/components/DatePicker.vue'
 
-const systemOrderStore = useSystemOrderList()
-
-systemOrderStore.getOrderList('today')
-
-function datePickerEvent(searchDate) {
-  systemOrderStore.activeListDate.from = searchDate
-  systemOrderStore.activeListDate.to = searchDate
-
-  systemOrderStore.getOrderList()
-}
+import { useOrderStatus } from './useOrderStatus'
+const { datePickerEvent, systemOrderStore } = useOrderStatus()
 </script>
 
 <template>
-  <div class="ma-4 mb-0">
+  <div
+    class="pa-4 mb-0 overflow-y-hidden bg-grey-darken-4"
+    :style="{ height: 'calc(100dvh-48px)' }"
+  >
     <DatePicker
       :active-date="systemOrderStore.activeListDate.from"
       @search-list="datePickerEvent"
@@ -29,8 +23,8 @@ function datePickerEvent(searchDate) {
     >
       <v-tab value="pending"
         >待處理
-        <span class="text-error" v-show="systemOrderStore.pendingQuantity > 0"
-          >({{ systemOrderStore.pendingQuantity }})</span
+        <span class="text-error" v-show="systemOrderStore.pendingQuantity > 0">
+          ({{ systemOrderStore.pendingQuantity }})</span
         >
       </v-tab>
       <v-tab value="completed">已完成</v-tab>

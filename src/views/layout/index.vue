@@ -1,88 +1,40 @@
 <script setup>
-import { ref } from 'vue'
-import monsterLogo from '@/assets/images/ci/monster-crepes-ci.jpeg'
-import { useUserStore } from '../../stores/users'
-import { useSystemOrderList } from '@/stores/orders'
-import { watch } from 'vue'
-import router from '../../router'
+import { useLayout } from './useLayout'
+import Toolbar from './toolbar/index.vue'
+import { useRouterStore } from '@/stores/router'
 
-const systemOrderStore = useSystemOrderList()
-systemOrderStore.getOrderList('getPendingQuantity')
+const routerStore = useRouterStore()
 
-const userStore = useUserStore()
-const state = ref({
-  drawer: true,
-  items: [
-    // { title: 'Home', icon: 'mdi-home-city' },
-    // { title: 'My Account', icon: 'mdi-account' },
-    // { title: 'Users', icon: 'mdi-account-group-outline' },
-  ],
-  rail: true,
-})
-
-const passwordForm = ref(null)
-const dialog = ref(false)
-const passwordInput = ref('')
-const rules = ref({
-  password: [(password) => !!password || '密碼必填'],
-})
-
-watch(dialog, (status) => {
-  if (!status) resetForm()
-})
-
-function goDashboard() {
-  dialog.value = true
-  // to="/dashboard"
-}
-
-function sidebarClose() {
-  if (state.value.rail) return false
-  state.value.rail = true
-}
-
-async function dialogSubmit() {
-  const check = await validateForm()
-  if (!check) return false
-  dialog.value = false
-  const res = await userStore.checkPassword({
-    email: userStore.baseInfo.email,
-    password: passwordInput.value,
-  })
-  if (res) router.push('/dashboard')
-}
-
-function dialogCancel() {
-  dialog.value = false
-}
-
-async function validateForm() {
-  const { valid } = await passwordForm.value.validate()
-  if (!valid) return false
-  return true
-}
-
-function resetForm() {
-  passwordForm.value.reset()
-}
+const {
+  state,
+  dialog,
+  rules,
+  goDashboard,
+  sidebarClose,
+  dialogCancel,
+  dialogSubmit,
+  systemOrderStore,
+  passwordInput,
+  passwordForm,
+  userStore,
+  transformMenus,
+} = useLayout()
 </script>
 
 <template>
-  <!-- <img src="@/assets/images/ci/monster-crepes-ci.jpeg" /> -->
-  <v-card>
-    <v-layout>
-      <!-- sidebar 側邊欄 -->
-      <v-navigation-drawer
-        width="220"
-        v-model="state.drawer"
-        :rail="state.rail"
-        permanent
-        @click="state.rail = false"
-      >
+  <v-layout :style="{ height: '100dvh' }">
+    <!-- sidebar 側邊欄 -->
+    <v-navigation-drawer
+      v-model="state.drawer"
+      :rail="state.rail"
+      permanent
+      @click="state.rail = false"
+    >
+      <v-list nav>
         <v-list-item
+          :prepend-avatar="userStore?.activeAgentData?.agent?.image"
+          :title="userStore?.activeAgentData?.agent.name"
           @click.stop="state.rail = !state.rail"
-          prepend-avatar="null"
-          title="Monster Crepes"
           nav
         >
           <template v-slot:append>
@@ -93,96 +45,120 @@ function resetForm() {
             ></v-btn>
           </template>
         </v-list-item>
+      </v-list>
 
-        <v-divider></v-divider>
+      <v-divider></v-divider>
 
-        <v-list density="compact" nav>
-          <!-- 首頁 -->
-          <v-list-item
-            @click="goDashboard"
-            prepend-icon="mdi-chart-box-outline"
-            title="Home"
-            value="home"
-          ></v-list-item>
-          <!-- 點餐 -->
-          <v-list-item to="/post" prepend-icon="mdi-plus-box-outline" title="Order" value="order">
-          </v-list-item>
-          <!-- 訂單狀態 -->
-          <v-list-item to="/list-status" title="List" value="list">
-            <!-- 圖示 -->
-            <template v-slot:prepend>
-              <v-badge
-                v-show="systemOrderStore.pendingQuantity > 0"
-                offset-x="-5"
-                offset-y="-8"
-                color="red"
-                :content="systemOrderStore.pendingQuantity"
-                class="mr-8"
-              >
-                <v-icon class="">mdi-list-status</v-icon>
-              </v-badge>
-
-              <v-icon v-show="systemOrderStore.pendingQuantity < 1">mdi-list-status</v-icon>
+      <v-list density="compact" nav>
+        <template v-for="route in transformMenus">
+          <v-list-group
+            v-if="route.children && route.children.length > 0"
+            prepend-icon="mdi-cog"
+            value="setting"
+            :key="route._id"
+          >
+            <template v-slot:activator="{ props }">
+              <v-list-item
+                v-bind="props"
+                :prepend-icon="route.icon"
+                :title="route.name"
+                :key="route._id"
+              ></v-list-item>
             </template>
-          </v-list-item>
 
-          <v-list-item to="/setting" prepend-icon="mdi-cog" title="Setting" value="setting" />
-        </v-list>
-
-        <!-- 登出 -->
-        <template v-slot:append>
-          <div>
+            <!-- 子層 -->
             <v-list-item
-              @click="userStore.logoutFunc('/login')"
-              prepend-icon="mdi-logout"
-              title="Logout"
-              value="logout"
+              v-for="child in route.children"
+              :title="child.name"
+              :to="route.path + child.path"
+              :prepend-icon="child.icon"
+              :key="child._id"
+            />
+          </v-list-group>
+
+          <template v-else>
+            <v-list-item
+              :key="route._id + routerStore.refreshKey"
+              :title="route.name"
+              :to="route.routeName === 'Dashboard' ? null : route.path"
+              :prepend-icon="route.icon"
+              @click="route.routeName === 'Dashboard' ? goDashboard() : null"
             >
+              <template v-slot:prepend v-if="route.routeName === 'Order-status'">
+                <v-badge
+                  v-if="systemOrderStore.pendingQuantity > 0"
+                  bordered
+                  location="top right"
+                  color="pink"
+                  :offset-x="-3"
+                  :offset-y="-3"
+                  :content="systemOrderStore.pendingQuantity"
+                >
+                  <v-icon :icon="route.icon"></v-icon>
+                </v-badge>
+
+                <v-icon v-else :icon="route.icon"></v-icon>
+              </template>
             </v-list-item>
-          </div>
+          </template>
         </template>
-      </v-navigation-drawer>
+      </v-list>
 
-      <!-- 請輸入密碼 -->
-      <template>
-        <div class="text-center">
-          <v-btn color="primary" @click="dialog = true"> Open Dialog </v-btn>
-
-          <v-dialog v-model="dialog" width="360">
-            <v-card class="py-2 rounded-lg">
-              <v-card-title class="px-6">登錄密碼</v-card-title>
-              <v-card-text>
-                <v-form ref="passwordForm" @submit.prevent>
-                  <v-text-field
-                    type="password"
-                    @keyup.enter="dialogSubmit"
-                    v-model="passwordInput"
-                    label="請輸入密碼"
-                    variant="outlined"
-                    :rules="rules.password"
-                  ></v-text-field>
-                </v-form>
-
-                <div class="d-flex flex-column">
-                  <v-btn size="large" color="success" class="mt-2" block @click="dialogSubmit"
-                    >送出</v-btn
-                  >
-                  <v-btn size="large" color="error" class="mt-4" block @click="dialogCancel">
-                    取消
-                  </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
+      <!-- 登出 -->
+      <template v-slot:append>
+        <div>
+          <v-list-item
+            @click="userStore.logoutFunc('/login')"
+            prepend-icon="mdi-logout"
+            title="Logout"
+            value="logout"
+          >
+          </v-list-item>
         </div>
       </template>
+    </v-navigation-drawer>
 
-      <!-- 內容 (右) -->
-      <v-main @click="sidebarClose">
-        <RouterView />
-      </v-main>
-    </v-layout>
-  </v-card>
+    <!-- 請輸入密碼 -->
+    <template>
+      <div class="text-center">
+        <v-btn color="primary" @click="dialog = true"> Open Dialog </v-btn>
+
+        <v-dialog v-model="dialog" width="360">
+          <v-card class="py-2 rounded-lg">
+            <v-card-title class="px-6">登錄密碼</v-card-title>
+            <v-card-text>
+              <v-form ref="passwordForm" @submit.prevent>
+                <v-text-field
+                  type="password"
+                  @keyup.enter="dialogSubmit"
+                  v-model="passwordInput"
+                  label="請輸入密碼"
+                  variant="outlined"
+                  :rules="rules.password"
+                ></v-text-field>
+              </v-form>
+
+              <div class="d-flex flex-column">
+                <v-btn size="large" color="success" class="mt-2" block @click="dialogSubmit"
+                  >送出</v-btn
+                >
+                <v-btn size="large" color="error" class="mt-4" block @click="dialogCancel">
+                  取消
+                </v-btn>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+      </div>
+    </template>
+
+    <!-- 內容 (右) -->
+    <v-main class="d-flex flex-column" @click="sidebarClose" :style="{ height: '100dvh' }">
+      <Toolbar />
+
+      <RouterView class="flex-grow-1 router-view overflow-y-hidden" />
+    </v-main>
+  </v-layout>
 </template>
 
 <style>

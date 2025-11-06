@@ -1,13 +1,16 @@
-import { ref, watchEffect, computed } from 'vue'
+import { ref, watchEffect, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { loginAPI, refreshTokenAPI, gerUserBaseInfoAPI } from '@/api'
 import catchAsync from '../utils/catchAsync'
 import { errorFunction } from '../utils/catchAsync'
 import router from '../router'
 import Swal from 'sweetalert2'
-import { isDev } from '../utils/devTool'
+import { useRouterStore } from '@/stores/router'
+import { useOrdersStore } from '@/stores/orders'
 
 export const useUserStore = defineStore('user', () => {
+  const routerStore = useRouterStore()
+  const orderStore = useOrdersStore()
   const adminCustomer = ref('6476f4088940f49853aa062e')
   const token = ref({
     type: localStorage.getItem('type') || null,
@@ -17,14 +20,43 @@ export const useUserStore = defineStore('user', () => {
   // 登入狀態
   const isLogin = ref(false)
   // 使用者基本資料
-  const baseInfo = ref([])
+  const baseInfo = ref({
+    agentRoles: [],
+  })
+
+  // user routes
+  const routes = ref([])
 
   const agents = computed(() => {
     return localStorage.getItem('agentsId')
   })
 
   const roles = computed(() => {
-    return baseInfo.value.agentRoles[0].roles[0]
+    return baseInfo?.value?.agentRoles[0].roles[0]
+  })
+
+  const activeAgentData = computed(() =>
+    baseInfo.value?.agentRoles.find(
+      (item) => String(item.agent._id) === String(activeAgentId.value) || null,
+    ),
+  )
+
+  function initActiveAgentId() {
+    return localStorage.getItem('activeAgentId')
+  }
+  function initActiveRoleId() {
+    return localStorage.getItem('activeRoleId')
+  }
+
+  const activeAgentId = ref(initActiveAgentId() || null)
+  const activeRoleId = ref(initActiveRoleId() || null)
+
+  watch(activeRoleId, (newValue) => {
+    if (newValue) routerStore.generateRoutes()
+  })
+
+  watch(activeAgentId, (newVal) => {
+    if (newVal) localStorage.setItem('activeAgentId', newVal)
   })
 
   watchEffect(() => {
@@ -39,13 +71,6 @@ export const useUserStore = defineStore('user', () => {
       token.value[key] = tokenData[key]
       localStorage.setItem(key, tokenData[key])
     })
-  }
-
-  function saveUserAgentsId(agentsId) {
-    // 開發商家
-    // if (isDev()) return localStorage.setItem('agentsId', '64e59b234803348644b99706')
-
-    localStorage.setItem('agentsId', agentsId)
   }
 
   function checkLocalTokenAndReturnAccessToken() {
@@ -87,7 +112,7 @@ export const useUserStore = defineStore('user', () => {
 
   const login = catchAsync(async (emailNPassword) => {
     const { data } = await loginAPI(emailNPassword)
-    if (data) loginFunc(data)
+    if (data) await loginFunc(data)
     return true
   })
 
@@ -98,12 +123,14 @@ export const useUserStore = defineStore('user', () => {
     return false
   })
 
+  function saveActiveAgentId(id) {
+    activeAgentId.value = id
+    localStorage.setItem('activeAgentId', id)
+  }
+
   const getUserBaseInfo = catchAsync(
     async () => {
       const { data } = await gerUserBaseInfoAPI()
-      const agent = data.agentRoles[0]['agent']
-      await saveUserAgentsId(agent._id)
-
       baseInfo.value = data
     },
     () => {
@@ -114,23 +141,21 @@ export const useUserStore = defineStore('user', () => {
   const loginFunc = async (data) => {
     await saveUserToken(data)
     await getUserBaseInfo()
-
-    Swal.fire({
-      icon: 'success',
-      title: '登入成功',
-      width: '400px',
-      timer: 1500,
-      showConfirmButton: false,
-    })
-
-    router.push('/')
   }
 
   const logoutFunc = async (path) => {
+    const routerStore = useRouterStore()
+    routerStore.generateRoutesStatus = false
+    activeAgentId.value = null
+    activeRoleId.value = null
+    orderStore.removeLocalOrderList()
     localStorage.removeItem('type')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('agentsId')
+    localStorage.removeItem('activeRoleId')
+    localStorage.removeItem('activeAgentId')
+    localStorage.removeItem('stashOrderList')
     ;(token.value.type = null),
       (token.value.accessToken = null),
       (token.value.refreshToken = null),
@@ -180,6 +205,7 @@ export const useUserStore = defineStore('user', () => {
     token,
     isLogin,
     baseInfo,
+    routes,
 
     login,
     checkPassword,
@@ -187,5 +213,9 @@ export const useUserStore = defineStore('user', () => {
     refreshToken,
     getUserBaseInfo,
     checkLocalTokenAndReturnAccessToken,
+    activeRoleId,
+    activeAgentId,
+    saveActiveAgentId,
+    activeAgentData,
   }
 })

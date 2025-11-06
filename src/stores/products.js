@@ -19,6 +19,7 @@ export const useProductsStore = defineStore('products', () => {
 
   // 取得產品列表
   const getProducts = catchAsync(async () => {
+    products.value.length = 0
     const { data } = await getProductsAPI()
     if (data) products.value = data.items
   })
@@ -68,14 +69,19 @@ export const useMarkersStore = defineStore('Markers', () => {
   const getMarkers = catchAsync(async () => {
     const { data } = await getMarkersAPI()
     if (data) {
-      markerList.value.length = 0
-      markerList.value = data.items
+      saveMarkerList(data)
     }
   })
+
+  function saveMarkerList(data) {
+    markerList.value.length = 0
+    markerList.value = data.items
+  }
 
   return {
     markerList,
 
     getMarkers,
+    saveMarkerList,
   }
 })

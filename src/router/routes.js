@@ -1,42 +1,32 @@
-import { components } from 'vuetify/dist/vuetify-labs.js'
-
 const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/user/Login.vue'),
+    component: () => import('@/views/login/index.vue'),
   },
   {
-    path: '/',
-    component: () => import('@/views/layout/index.vue'),
-    redirect: '/post',
-    children: [
-      {
-        path: 'dashboard',
-        name: 'Dashboard',
-        component: () => import('@/views/HomeView.vue'),
-      },
-      {
-        path: 'post',
-        name: 'Order',
-        component: () => import('@/views/PostView.vue'),
-      },
-      {
-        path: 'list-status',
-        name: 'ListStatus',
-        component: () => import('@/views/statusList/index.vue'),
-      },
-      {
-        path: 'setting',
-        name: 'Setting',
-        component: () => import('@/views/setting/index.vue'),
-      },
-    ],
+    path: '/roles',
+    name: 'RolesMain',
+    component: () => import('@/views/roles/index.vue'),
   },
 
   {
-    path: '/dash',
-    component: () => import('@/views/user/Login.vue'),
+    path: '/',
+    name: 'root',
+    component: () => import('@/views/layout/index.vue'),
+    redirect: '/order',
+    children: [
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/profile/index.vue'),
+      },
+    ],
+  },
+  // 避免 addRoute 重刷頁面，首次失效
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('@/views/error-page/404.vue'),
   },
 ]
 

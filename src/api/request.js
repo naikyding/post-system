@@ -25,8 +25,16 @@ request.interceptors.request.use(
     }
 
     if (localStorage.getItem('agentsId')) {
-      config.headers['Mc-Agents-Id'] = userStore.agents
       config.headers['mc-agent-id'] = userStore.agents
+      config.headers['mc-agents-id'] = userStore.agents
+    }
+    if (localStorage.getItem('activeAgentId')) {
+      config.headers['Mc-Active-Agent-Id'] = userStore.activeAgentId
+    }
+
+    const activeRoleId = localStorage.getItem('activeRoleId')
+    if (activeRoleId) {
+      config.headers['Mc-Active-Role-Id'] = activeRoleId
     }
 
     return config

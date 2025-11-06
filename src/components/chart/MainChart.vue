@@ -14,7 +14,7 @@ const searchData = ref({
   // from: dashboardStore.searchData.from,
   // to: dashboardStore.searchData.to,
   status: 'completed',
-  agent: localStorage.getItem('agentsId'),
+  agent: localStorage.getItem('activeAgentId'),
 })
 
 watchEffect(() => {
