@@ -5,6 +5,7 @@ import { useProfile } from './useProfile'
 import { ref } from 'vue'
 
 const passwordFormRef = ref(null)
+const ConfirmDialogRef = ref(null)
 const {
   user,
   userRoles,
@@ -20,7 +21,7 @@ const {
   cancelResetPassword,
   resetPasswordSubmit,
   resetResetPassword,
-} = useProfile({ passwordFormRef })
+} = useProfile({ passwordFormRef, ConfirmDialogRef })
 </script>
 
 <template>

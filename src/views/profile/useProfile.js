@@ -4,9 +4,9 @@ import { validatePasswordType2 } from '@/utils/validate'
 import { updateUserPasswordAPI } from '@/api'
 import catchAsync from '../../utils/catchAsync'
 
-export const useProfile = ({ passwordFormRef }) => {
+export const useProfile = ({ passwordFormRef, ConfirmDialogRef }) => {
   const userStore = useUserStore()
-  const ConfirmDialogRef = ref(null)
+
   const user = computed(() => userStore.baseInfo)
   const userRoles = computed(() => userStore.activeAgentData?.roles || [])
 
