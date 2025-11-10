@@ -73,7 +73,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
   onMounted(() => {
     userStore.getUserList()
-    roleStore.getList('all')
+    roleStore.getList('agent')
   })
 
   watch(
