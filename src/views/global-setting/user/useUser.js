@@ -199,6 +199,12 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
     if (valid) {
       const { status } = await updateUserPasswordAPI(userId, pwdForm.value)
+      if (status)
+        dialogController.setStatusBar({
+          status: true,
+          text: '修改完成!',
+          color: 'success',
+        })
       createAndUpdateSuccess(status)
     }
 
