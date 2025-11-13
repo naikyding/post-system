@@ -133,16 +133,24 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
   const openFormDialog = ({ model, userItem }) => {
     active.value.model = model
-
     if (userItem) {
       active.value.data = userItem
       active.value.id = userItem._id
-
-      form.value = initForm()
-      form.value = initForm(userItem)
     }
 
-    formDialogRef.value.status = true
+    if (model === 'delete') {
+      confirmDialogRef.value.status = true
+    } else {
+      form.value = initForm()
+      form.value = initForm(userItem)
+      formDialogRef.value.status = true
+    }
+  }
+
+  function openConfirmDialog({ model, id, data }) {
+    active.value.id = id
+    active.value.model = model
+    active.value.data = data
   }
 
   const roleList = computed(() => roleStore.list)
@@ -236,13 +244,6 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
     openFormDialog,
   })
-
-  function openConfirmDialog({ model, id, data }) {
-    active.value.id = id
-    active.value.model = model
-    active.value.data = data
-    confirmDialogRef.value.status = true
-  }
 
   function cancelConfirmDialog() {
     confirmDialogRef.value.status = false

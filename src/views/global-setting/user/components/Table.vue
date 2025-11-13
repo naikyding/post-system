@@ -10,6 +10,14 @@ const { getRoles, headers, getAgents } = useTable()
 const usersStore = useUsersStore()
 const userStore = useUserStore()
 const search = ref('')
+
+const menuItems = [
+  { title: '修改密碼', icon: 'mdi-plus-circle', code: 'password' },
+  { type: 'divider' },
+  { title: '修改使用者', icon: 'mdi-pencil', code: 'update' },
+  { type: 'divider' },
+  { title: '刪除使用者', icon: 'mdi-trash-can', code: 'delete' },
+]
 </script>
 
 <template>
@@ -99,31 +107,39 @@ const search = ref('')
               <span class="text-caption">{{ dateFormat(item.createAt) }}</span>
             </td>
             <td>
-              <!-- 修改密碼 -->
-              <v-btn
-                icon="mdi-lock-reset"
-                size="40"
-                variant="plain"
-                color="pink"
-                @click="user.openFormDialog({ model: 'password', userItem: item })"
-              ></v-btn>
-
-              <!-- 修改 -->
-              <v-btn
-                icon="mdi-pencil"
-                size="40"
-                variant="plain"
-                color="warning"
-                @click="user.openFormDialog({ model: 'update', userItem: item })"
-              ></v-btn>
-              <!-- 刪除 -->
-              <v-btn
-                @click="user.openConfirmDialog({ model: 'delete', id: item._id, data: item })"
-                icon="mdi-delete"
-                size="40"
-                variant="plain"
-                color="error"
-              ></v-btn>
+              <div>
+                <v-btn
+                  icon="mdi-dots-vertical"
+                  size="x-small"
+                  variant="outlined"
+                  :id="`menu-activator${item._id}`"
+                >
+                </v-btn>
+                <v-menu :activator="`#menu-activator${item._id}`">
+                  <v-list class="py-0" density="compact" slim>
+                    <template v-for="menuItem in menuItems" :key="menuItem.type">
+                      <v-divider v-if="menuItem.type === 'divider'" />
+                      <v-list-item
+                        v-else
+                        @click="
+                          user.openFormDialog({
+                            model: menuItem.code,
+                            id: item._id,
+                            userItem: item,
+                          })
+                        "
+                      >
+                        <v-list-item-title>
+                          <span class="text-subtitle-2">{{ menuItem.title }} </span>
+                        </v-list-item-title>
+                        <template v-slot:prepend>
+                          <v-icon size="small" :icon="menuItem.icon"></v-icon>
+                        </template>
+                      </v-list-item>
+                    </template>
+                  </v-list>
+                </v-menu>
+              </div>
             </td>
           </tr>
         </template>
