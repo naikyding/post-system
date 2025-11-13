@@ -15,7 +15,7 @@ const {} = useUser({ tableRef, formDialogRef, confirmDialogRef })
 <template>
   <div class="d-flex flex-column">
     <div class="bg-grey-darken-4 flex-grow-1 overflow-auto">
-      <h3 class="pa-4 pb-0">使用者設定</h3>
+      <h3 class="pa-4 pb-0">Global 使用者設定</h3>
       <Table ref="tableRef" />
       <FormDialog ref="formDialogRef" />
       <ConfirmDialog ref="confirmDialogRef" />

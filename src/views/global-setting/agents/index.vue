@@ -21,7 +21,7 @@ const { headers, items, formDialog, form, cancelConfirmDialog, saveConfirmDialog
 <template>
   <div class="bg-grey-darken-4 d-flex flex-column">
     <div class="flex-grow-1 overflow-auto">
-      <h3 class="pa-4 pb-0">商家設定</h3>
+      <h3 class="pa-4 pb-0">Global 商家設定</h3>
 
       <Table class="d-flex flex-column flex-grow-1" :headers="headers" :items="items" />
     </div>

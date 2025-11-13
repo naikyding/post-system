@@ -25,7 +25,6 @@ const agent = inject('agent')
 
 <template>
   <div class="px-4 pb-4">
-    {{ agent.activeModel }} / {{ agent.activeId }}
     <v-text-field
       v-model="search"
       class="mb-4"

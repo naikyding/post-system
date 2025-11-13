@@ -5,8 +5,10 @@ import { useRolesStore } from '@/stores/roles'
 import { isLength, isEmail } from 'validator'
 import { useAgentStore } from '@/stores/agents'
 import { createUserAPI, deleteUserAPI, updateUserAPI, updateUserPasswordAPI } from '@/api'
+import { useDialogController } from '@/stores/dialogController'
 
 export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
+  const dialogController = useDialogController()
   const userStore = useUserStore()
   const userList = computed(() => userStore.list)
   const agentStore = useAgentStore()
@@ -44,21 +46,24 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
     // 定義允許的欄位
     const allowedKeys = Object.keys(defaultForm)
+    const formatData = {}
 
-    // 過濾 data，只保留允許的欄位
-    const filteredData = Object.fromEntries(
-      Object.entries(data).filter(([key]) => allowedKeys.includes(key)),
-    )
+    data.agentRoles
+      ? allowedKeys.forEach((key) => {
+          if (key === 'agentRoles') {
+            formatData[key] = data['agentRoles'].map((item) => {
+              return {
+                agent: item.agent._id,
+                roles: item.roles.map((role) => role._id),
+              }
+            })
+          } else formatData[key] = data[key]
+        })
+      : defaultForm
 
     return {
       ...defaultForm,
-      ...filteredData,
-      agentRoles: filteredData.agentRoles
-        ? filteredData.agentRoles.map((item) => ({
-            agent: item.agent ? item.agent._id : '',
-            roles: item.roles ? item.roles.map((role) => role._id) : [],
-          }))
-        : defaultForm.agentRoles,
+      ...formatData,
     }
   }
 
@@ -102,12 +107,29 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     },
   )
 
-  watch(
-    () => form.value.agentRoles[0]['agent'],
-    () => {
-      form.value.agentRoles[0]['roles'].length = 0
-    },
-  )
+  function agentSelectDynamicDisableCheck(agentId, index) {
+    return form.value.agentRoles.some((item, i) => {
+      return item.agent === agentId && i !== index
+    })
+  }
+
+  function addAgentRolesItem() {
+    form.value.agentRoles.push({
+      agent: null,
+      roles: [],
+    })
+  }
+
+  function agentChange(agentRoles, index) {
+    if (
+      agentRoles.find(
+        (item, itemIndex) => item.agent === agentRoles[index].agent && itemIndex !== index,
+      )
+    )
+      console.log('有相同商家')
+
+    agentRoles[index]['roles'].length = 0
+  }
 
   const openFormDialog = ({ model, userItem }) => {
     active.value.model = model
@@ -115,6 +137,8 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     if (userItem) {
       active.value.data = userItem
       active.value.id = userItem._id
+
+      form.value = initForm()
       form.value = initForm(userItem)
     }
 
@@ -146,7 +170,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
   function createAndUpdateSuccess(status) {
     if (status) {
       cancelFormDialog()
-      userStore.getUserList()
+      userStore.getUserList('all')
     }
   }
 
@@ -157,7 +181,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     const { status } = await deleteUserAPI(userId)
     if (status) {
       cancelConfirmDialog()
-      userStore.getUserList()
+      userStore.getUserList('all')
     }
   })
 
@@ -173,9 +197,23 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     //
   })
 
+  function deleteFormAgentRolesItem(agentRolesItem) {
+    if (form.value.agentRoles.length <= 1)
+      return dialogController.setStatusBar({
+        status: true,
+        text: '至少選擇一個角色',
+        color: 'pink',
+      })
+    form.value.agentRoles = form.value.agentRoles.filter((item) => item !== agentRolesItem)
+  }
+
   provide('user', {
+    agentSelectDynamicDisableCheck,
+    agentChange,
     active,
     roleList,
+    addAgentRolesItem,
+    deleteFormAgentRolesItem,
 
     filterRolesByAgent,
 

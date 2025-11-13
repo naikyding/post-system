@@ -5,15 +5,13 @@ export function useTable() {
   const headers = [
     { title: '綽號', key: 'nickname' },
     { title: 'email', key: 'email' },
-    { title: '角色', key: 'agentRoles' },
-    { title: '商家', key: 'agentRoles' },
+    { title: '商家 / 角色', key: 'agentRoles' },
     { title: '創建時間', key: 'createdAt' },
     { title: '操作', key: 'actions', align: 'center' },
   ]
 
-  const getRoles = (agentRoles) => {
-    const activeAgentId = userStore.activeAgentId
-    return agentRoles.find((item) => item.agent._id === activeAgentId)?.roles || []
+  const getRoles = (agentRoles, agentId) => {
+    return agentRoles.find((item) => item.agent._id === agentId)?.roles || []
   }
 
   const getAgents = (agentRoles) => {

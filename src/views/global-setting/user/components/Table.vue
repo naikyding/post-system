@@ -7,8 +7,8 @@ import { useTable } from './useTable'
 
 const user = inject('user')
 const { getRoles, headers, getAgents } = useTable()
-const userStore = useUserStore()
 const usersStore = useUsersStore()
+const userStore = useUserStore()
 const search = ref('')
 </script>
 
@@ -47,20 +47,40 @@ const search = ref('')
             <td>
               <v-chip variant="tonal" size="x-small"> {{ item.email }} </v-chip>
             </td>
+
             <td>
-              <v-chip
-                :style="{ marginRight: '2px' }"
-                variant="outlined"
-                color="cyan"
-                size="small"
-                v-for="agentAndRolesItem in getRoles(item.agentRoles)"
-                :key="agentAndRolesItem._id"
-              >
-                {{ agentAndRolesItem.name }}
-              </v-chip>
-            </td>
-            <td>
-              <v-chip
+              <v-expansion-panels class="my-2" color="grey-darken-3" variant="accordion" multiple>
+                <v-expansion-panel
+                  bg-color="grey-darken-4"
+                  v-for="agent in getAgents(item.agentRoles)"
+                  :key="agent._id"
+                  :value="agent._id"
+                >
+                  <v-expansion-panel-title class="text-caption">
+                    <v-icon
+                      color="success"
+                      class="mr-1"
+                      :icon="
+                        usersStore.activeAgentId === agent._id ? 'mdi-check-circle-outline' : ''
+                      "
+                    ></v-icon>
+                    {{ agent.name }}
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <v-chip
+                      :style="{ marginRight: '2px' }"
+                      variant="outlined"
+                      color="cyan"
+                      size="small"
+                      v-for="agentAndRolesItem in getRoles(item.agentRoles, agent._id)"
+                      :key="agentAndRolesItem._id"
+                    >
+                      {{ agentAndRolesItem.name }}
+                    </v-chip>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+              <!-- <v-chip
                 class="ma-1"
                 v-for="agent in getAgents(item.agentRoles)"
                 :key="agent._id"
@@ -73,7 +93,7 @@ const search = ref('')
                   color="success"
                 ></v-icon>
                 {{ agent.name }}
-              </v-chip>
+              </v-chip> -->
             </td>
             <td>
               <span class="text-caption">{{ dateFormat(item.createAt) }}</span>
