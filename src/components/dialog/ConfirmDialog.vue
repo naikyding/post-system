@@ -19,7 +19,7 @@ function closeDialog() {
 
 function cancel() {
   emit('cancel-event')
-  // closeDialog()
+  closeDialog()
 }
 function save() {
   emit('save-event')

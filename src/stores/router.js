@@ -8,7 +8,6 @@ const modules = import.meta.glob('../../src/views/**/*.vue')
 export const useRouterStore = defineStore('router-store', () => {
   const generateRoutesStatus = ref(false)
   const routes = ref([])
-  const refreshKey = ref(0)
 
   function resolveComponent(path) {
     const fullPath = `../views/${path}.vue`
@@ -46,7 +45,6 @@ export const useRouterStore = defineStore('router-store', () => {
       routes.value = data.items
     })
 
-    refreshKey.value++
     return transformMenusToRoutes(data.items)
   })
 
@@ -55,6 +53,5 @@ export const useRouterStore = defineStore('router-store', () => {
     generateRoutes,
     generateRoutesStatus,
     routes,
-    refreshKey,
   }
 })

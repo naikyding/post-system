@@ -1,9 +1,6 @@
 <script setup>
 import { useLayout } from './useLayout'
 import Toolbar from './toolbar/index.vue'
-import { useRouterStore } from '@/stores/router'
-
-const routerStore = useRouterStore()
 
 const {
   state,
@@ -54,7 +51,7 @@ const {
           <v-list-group
             v-if="route.children && route.children.length > 0"
             prepend-icon="mdi-cog"
-            value="setting"
+            :value="route.routeName"
             :key="route._id"
           >
             <template v-slot:activator="{ props }">
@@ -78,7 +75,7 @@ const {
 
           <template v-else>
             <v-list-item
-              :key="route._id + routerStore.refreshKey"
+              :key="route._id"
               :title="route.name"
               :to="route.routeName === 'Dashboard' ? null : route.path"
               :prepend-icon="route.icon"

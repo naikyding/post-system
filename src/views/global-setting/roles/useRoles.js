@@ -61,7 +61,7 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
     const { status } = await deleteRoleAPI(id)
 
     if (status) {
-      rolesStore.getList('agent')
+      rolesStore.getList()
     }
   })
 
@@ -71,7 +71,7 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
 
     const { status } = await updateRoleAPI(id, payload)
     if (status) {
-      rolesStore.getList('agent')
+      rolesStore.getList()
     }
     closeMenuAndOperationDrawer()
   })
@@ -159,7 +159,7 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
 
   function resToDo(status) {
     if (status) {
-      rolesStore.getList('agent')
+      rolesStore.getList()
       cancelFormDialog()
     }
   }
@@ -192,7 +192,7 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
   }
 
   onMounted(() => {
-    rolesStore.getList('agent')
+    rolesStore.getList()
     menusStore.getMenusAndOperations()
   })
 
