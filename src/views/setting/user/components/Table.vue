@@ -4,12 +4,37 @@ import { useUserStore as useUsersStore } from '@/stores/users'
 import { inject, ref } from 'vue'
 import { dateFormat } from '@/utils/day'
 import { useTable } from './useTable'
+import DotsActionMenu from '@/components/DotsActionMenu.vue'
 
 const user = inject('user')
 const { getRoles, headers, getAgents } = useTable()
 const userStore = useUserStore()
 const usersStore = useUsersStore()
 const search = ref('')
+
+const menuItems = [
+  {
+    title: '修改密碼',
+    icon: 'mdi-plus-circle',
+    code: 'password',
+    event: ({ model, itemData }) => user.openFormDialog({ model, userItem: itemData }),
+  },
+  { type: 'divider' },
+  {
+    title: '修改使用者',
+    icon: 'mdi-pencil',
+    code: 'update',
+    event: ({ model, itemData }) => user.openFormDialog({ model, userItem: itemData }),
+  },
+  { type: 'divider' },
+  {
+    title: '刪除使用者',
+    icon: 'mdi-trash-can',
+    code: 'delete',
+    event: ({ model, itemData }) =>
+      user.openConfirmDialog({ model, id: itemData._id, data: itemData }),
+  },
+]
 </script>
 
 <template>
@@ -79,31 +104,7 @@ const search = ref('')
               <span class="text-caption">{{ dateFormat(item.createAt) }}</span>
             </td>
             <td>
-              <!-- 修改密碼 -->
-              <v-btn
-                icon="mdi-lock-reset"
-                size="40"
-                variant="plain"
-                color="pink"
-                @click="user.openFormDialog({ model: 'password', userItem: item })"
-              ></v-btn>
-
-              <!-- 修改 -->
-              <v-btn
-                icon="mdi-pencil"
-                size="40"
-                variant="plain"
-                color="warning"
-                @click="user.openFormDialog({ model: 'update', userItem: item })"
-              ></v-btn>
-              <!-- 刪除 -->
-              <v-btn
-                @click="user.openConfirmDialog({ model: 'delete', id: item._id, data: item })"
-                icon="mdi-delete"
-                size="40"
-                variant="plain"
-                color="error"
-              ></v-btn>
+              <DotsActionMenu :items="menuItems" :id="item._id" :data="item" />
             </td>
           </tr>
         </template>

@@ -1,6 +1,8 @@
 <script setup>
 import { useRolesStore } from '@/stores/roles'
 import { inject, ref } from 'vue'
+import DotsActionMenu from '@/components/DotsActionMenu.vue'
+
 const rolesStore = useRolesStore()
 const search = ref('')
 const headers = [
@@ -11,6 +13,29 @@ const headers = [
 ]
 
 const role = inject('role')
+
+const menuItems = [
+  {
+    title: '選單管理',
+    icon: 'mdi-sitemap',
+    code: 'menus',
+    event: ({ model, itemData }) => role.openMenuAndOperationDrawer({ model, roleItem: itemData }),
+  },
+  { type: 'divider' },
+  {
+    title: '修改角色',
+    icon: 'mdi-pencil',
+    code: 'update',
+    event: ({ model, itemData }) => role.openFormDialog({ model, roleItem: itemData }),
+  },
+  { type: 'divider' },
+  {
+    title: '刪除角色',
+    icon: 'mdi-delete',
+    code: 'delete',
+    event: ({ model, itemData }) => role.openConfirmDialog({ model, id: itemData._id }),
+  },
+]
 </script>
 
 <template>
@@ -56,29 +81,7 @@ const role = inject('role')
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-btn
-            @click="role.openMenuAndOperationDrawer({ model: 'menus', roleItem: item })"
-            icon="mdi-sitemap"
-            size="40"
-            variant="plain"
-            color="success"
-          ></v-btn>
-          <!-- 修改 -->
-          <v-btn
-            icon="mdi-pencil"
-            size="40"
-            variant="plain"
-            color="warning"
-            @click="role.openFormDialog({ model: 'update', roleItem: item })"
-          ></v-btn>
-          <!-- 刪除 -->
-          <v-btn
-            @click="role.openConfirmDialog({ model: 'delete', id: item._id })"
-            icon="mdi-delete"
-            size="40"
-            variant="plain"
-            color="error"
-          ></v-btn>
+          <DotsActionMenu :items="menuItems" :data="item" :id="item._id" />
         </template>
       </v-data-table>
     </v-expand-transition>
