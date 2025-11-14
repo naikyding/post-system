@@ -91,6 +91,7 @@ const menuItems = [
         :search="search"
         fixed-header
         items-per-page="-1"
+        hide-default-footer
       >
         <!-- 狀態 -->
         <template v-slot:item.status="{ item }">
