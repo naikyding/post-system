@@ -30,7 +30,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
       password: '',
       agentRoles: [
         {
-          agent: localStorage.getItem('agentsId'),
+          agent: localStorage.getItem('activeAgentId'),
           roles: [],
         },
       ],

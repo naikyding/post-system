@@ -2,11 +2,30 @@
 import { useMarkersStore } from '@/stores/products'
 import { inject, ref } from 'vue'
 import { useTable } from './useTable'
+import DotsActionMenu from '@/components/DotsActionMenu.vue'
 
 const { getRoles, headers } = useTable()
 const markersStore = useMarkersStore()
 const search = ref('')
 const markers = inject('markers')
+
+const menuItems = [
+  {
+    title: '修改標籤',
+    icon: 'mdi-pencil',
+    code: 'update',
+    event: ({ model, itemData }) =>
+      markers.openFormDialog({ model, id: itemData._id, data: itemData }),
+  },
+  { type: 'divider' },
+  {
+    title: '刪除標籤',
+    icon: 'mdi-delete',
+    code: 'delete',
+    event: ({ model, itemData }) =>
+      markers.openConfirmDialog({ model, id: itemData._id, data: itemData }),
+  },
+]
 </script>
 
 <template>
@@ -46,22 +65,7 @@ const markers = inject('markers')
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <!-- 修改 -->
-          <v-btn
-            icon="mdi-pencil"
-            size="40"
-            variant="plain"
-            color="warning"
-            @click="markers.openFormDialog({ model: 'update', id: item._id, data: item })"
-          ></v-btn>
-          <!-- 刪除 -->
-          <v-btn
-            @click="markers.openConfirmDialog({ model: 'delete', id: item._id, data: item })"
-            icon="mdi-delete"
-            size="40"
-            variant="plain"
-            color="error"
-          ></v-btn>
+          <DotsActionMenu :items="menuItems" :data="item" :id="item._id" />
         </template>
       </v-data-table>
     </v-expand-transition>
