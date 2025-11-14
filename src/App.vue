@@ -3,6 +3,7 @@ import { watch } from 'vue'
 import ProgressAlert from './components/dialog/progressAlert.vue'
 import { RouterView, useRoute } from 'vue-router'
 import VConsole from 'vconsole'
+import Snackbar from './components/dialog/Snackbar.vue'
 
 const route = useRoute()
 
@@ -18,6 +19,7 @@ watch(
   <!-- progress alert -->
   <ProgressAlert />
   <RouterView />
+  <Snackbar />
 </template>
 
 <style scoped></style>

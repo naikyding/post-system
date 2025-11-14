@@ -22,7 +22,16 @@ import {
 import { deleteOperation, createOperation, updateOperation } from './operations.js'
 import { getRoles, getRolesByAgent, createRole, deleteRole, updateRole } from './roles.js'
 
-import { getUsers, createUser, deleteUser, updateUser, updateUserPassword } from './user.js'
+import {
+  getUsers,
+  createUser,
+  deleteUser,
+  updateUser,
+  updateUserPassword,
+  getUsersAll,
+} from './user.js'
+
+import { getAgents, createAgent, deleteAgent, updateAgent } from './agents.js'
 
 export const getProductsAPI = getProducts
 export const createProductAPI = createProduct
@@ -70,7 +79,13 @@ export const deleteRoleAPI = deleteRole
 export const updateRoleAPI = updateRole
 
 export const getUsersAPI = getUsers
+export const getUsersAllAPI = getUsersAll
 export const createUserAPI = createUser
 export const deleteUserAPI = deleteUser
 export const updateUserAPI = updateUser
 export const updateUserPasswordAPI = updateUserPassword
+
+export const getAgentsAPI = getAgents
+export const createAgentAPI = createAgent
+export const deleteAgentAPI = deleteAgent
+export const updateAgentAPI = updateAgent
