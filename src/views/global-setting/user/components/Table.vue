@@ -4,6 +4,7 @@ import { useUserStore as useUsersStore } from '@/stores/users'
 import { inject, ref } from 'vue'
 import { dateFormat } from '@/utils/day'
 import { useTable } from './useTable'
+import DotsActionMenu from '@/components/DotsActionMenu.vue'
 
 const user = inject('user')
 const { getRoles, headers, getAgents } = useTable()
@@ -12,12 +13,38 @@ const userStore = useUserStore()
 const search = ref('')
 
 const menuItems = [
-  { title: '修改密碼', icon: 'mdi-plus-circle', code: 'password' },
+  {
+    title: '修改密碼',
+    icon: 'mdi-plus-circle',
+    code: 'password',
+    event: menuItemEvent,
+  },
   { type: 'divider' },
-  { title: '修改使用者', icon: 'mdi-pencil', code: 'update' },
+  {
+    title: '修改使用者',
+    icon: 'mdi-pencil',
+    code: 'update',
+    event: menuItemEvent,
+  },
   { type: 'divider' },
-  { title: '刪除使用者', icon: 'mdi-trash-can', code: 'delete' },
+  {
+    title: '刪除使用者',
+    icon: 'mdi-trash-can',
+    code: 'delete',
+    event: menuItemEvent,
+  },
 ]
+
+function menuItemEvent({ model, itemData }) {
+  const id = itemData._id
+  const userItem = itemData
+
+  user.openFormDialog({
+    model,
+    id,
+    userItem,
+  })
+}
 </script>
 
 <template>
@@ -88,58 +115,12 @@ const menuItems = [
                   </v-expansion-panel-text>
                 </v-expansion-panel>
               </v-expansion-panels>
-              <!-- <v-chip
-                class="ma-1"
-                v-for="agent in getAgents(item.agentRoles)"
-                :key="agent._id"
-                density="compact"
-              >
-                <v-icon
-                  v-show="agent._id === usersStore.activeAgentId"
-                  icon="mdi-check-circle-outline"
-                  start
-                  color="success"
-                ></v-icon>
-                {{ agent.name }}
-              </v-chip> -->
             </td>
             <td>
               <span class="text-caption">{{ dateFormat(item.createAt) }}</span>
             </td>
             <td>
-              <div>
-                <v-btn
-                  icon="mdi-dots-vertical"
-                  size="x-small"
-                  variant="outlined"
-                  :id="`menu-activator${item._id}`"
-                >
-                </v-btn>
-                <v-menu :activator="`#menu-activator${item._id}`">
-                  <v-list class="py-0" density="compact" slim>
-                    <template v-for="menuItem in menuItems" :key="menuItem.type">
-                      <v-divider v-if="menuItem.type === 'divider'" />
-                      <v-list-item
-                        v-else
-                        @click="
-                          user.openFormDialog({
-                            model: menuItem.code,
-                            id: item._id,
-                            userItem: item,
-                          })
-                        "
-                      >
-                        <v-list-item-title>
-                          <span class="text-subtitle-2">{{ menuItem.title }} </span>
-                        </v-list-item-title>
-                        <template v-slot:prepend>
-                          <v-icon size="small" :icon="menuItem.icon"></v-icon>
-                        </template>
-                      </v-list-item>
-                    </template>
-                  </v-list>
-                </v-menu>
-              </div>
+              <DotsActionMenu :items="menuItems" :id="item._id" :data="item" />
             </td>
           </tr>
         </template>
