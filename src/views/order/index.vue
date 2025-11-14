@@ -745,13 +745,13 @@ function stashOrderList() {
 
             <!-- 備註 -->
             <div class="note-area">
-              <v-textarea
+              <v-combobox
                 v-model="ordersStore.ordersList.note"
-                rows="2"
-                hide-details="true"
+                :items="['LINE']"
                 label="備註"
                 variant="outlined"
-              ></v-textarea>
+                clearable
+              />
             </div>
 
             <div class="order-list-total d-flex my-4 font-weight-bold">
