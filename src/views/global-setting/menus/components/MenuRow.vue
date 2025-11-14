@@ -1,5 +1,6 @@
 <script setup>
 import { inject } from 'vue'
+import DotsActionMenu from '@/components/DotsActionMenu.vue'
 
 defineProps({
   item: {
@@ -13,6 +14,52 @@ const openChildrenId = inject('openChildrenId')
 const getColor = inject('getColor')
 const operation = inject('operation')
 const confirmDialog = inject('confirmDialog')
+
+const menuItems = [
+  {
+    title: '新增子選單',
+    icon: 'mdi-sticker-plus',
+    code: 'createMenu',
+    event: ({ model, itemData }) => menu.openFormDialog({ model, parentId: itemData._id }),
+  },
+  { type: 'divider' },
+  {
+    title: '新增操作權',
+    icon: 'mdi-toy-brick-plus',
+    code: 'createOperation',
+    event: ({ model, itemData }) => operation.openOperationForm({ model, menuId: itemData._id }),
+  },
+  { type: 'divider' },
+  {
+    title: '修改選單',
+    icon: 'mdi-pencil',
+    code: 'updateMenu',
+    event: ({ model, itemData }) => menu.openFormDialog({ model, menuItem: itemData }),
+  },
+  { type: 'divider' },
+  {
+    title: '刪除選單',
+    icon: 'mdi-delete',
+    code: 'deleteMenu',
+    event: ({ model, itemData }) => confirmDialog.open(model, itemData._id),
+  },
+]
+
+const menuItems2 = [
+  {
+    title: '修改權限',
+    icon: 'mdi-pencil',
+    code: 'updateOperation',
+    event: ({ model, itemData }) => operation.openOperationForm({ model, operationItem: itemData }),
+  },
+  { type: 'divider' },
+  {
+    title: '刪除權限',
+    icon: 'mdi-delete',
+    code: 'deleteOperation',
+    event: ({ model, itemData }) => menu.openConfirmDialog(model, itemData._id),
+  },
+]
 </script>
 
 <template>
@@ -34,56 +81,8 @@ const confirmDialog = inject('confirmDialog')
     <td>{{ item.path }}</td>
     <td>{{ item.component }}</td>
 
-    <td class="text-right" :style="{ minWidth: '200px' }">
-      <!-- 新增 menu btn -->
-      <v-btn
-        @click="
-          menu.openFormDialog({
-            model: 'createMenu',
-            parentId: item._id,
-          })
-        "
-        icon="mdi-sticker-plus"
-        size="40"
-        variant="plain"
-        color="success"
-      ></v-btn>
-
-      <!-- 新增 operation btn -->
-      <v-btn
-        icon="mdi-toy-brick-plus"
-        @click="
-          operation.openOperationForm({
-            menuId: item._id,
-            model: 'createOperation',
-          })
-        "
-        size="40"
-        variant="plain"
-        color="success"
-      ></v-btn>
-
-      <!-- 修改 menu -->
-      <v-btn
-        icon="mdi-pencil"
-        size="40"
-        variant="plain"
-        color="warning"
-        @click="
-          menu.openFormDialog({
-            model: 'updateMenu',
-            menuItem: item,
-          })
-        "
-      ></v-btn>
-      <!-- 刪除 -->
-      <v-btn
-        icon="mdi-delete"
-        size="40"
-        variant="plain"
-        color="error"
-        @click="confirmDialog.open('deleteMenu', item._id)"
-      ></v-btn>
+    <td class="text-center py-1" :style="{ minWidth: '200px' }">
+      <DotsActionMenu :items="menuItems" :id="item._id" :data="item" />
     </td>
   </tr>
 
@@ -102,29 +101,8 @@ const confirmDialog = inject('confirmDialog')
       <td></td>
       <td></td>
       <td></td>
-      <td class="text-right">
-        <!-- 修改 -->
-        <v-btn
-          @click="
-            operation.openOperationForm({
-              operationItem: operationItem,
-              model: 'updateOperation',
-            })
-          "
-          icon="mdi-pencil"
-          size="40"
-          variant="plain"
-          color="warning"
-        ></v-btn>
-
-        <!-- 刪除 -->
-        <v-btn
-          @click="menu.openConfirmDialog('deleteOperation', operationItem._id)"
-          icon="mdi-delete"
-          size="40"
-          variant="plain"
-          color="error"
-        ></v-btn>
+      <td class="text-center py-1">
+        <DotsActionMenu :items="menuItems2" :id="operationItem._id" :data="operationItem" />
       </td>
     </tr>
   </template>

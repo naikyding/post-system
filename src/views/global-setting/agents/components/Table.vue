@@ -1,5 +1,6 @@
 <script setup>
 import { inject, ref } from 'vue'
+import DotsActionMenu from '@/components/DotsActionMenu.vue'
 
 const search = ref('')
 const props = defineProps({
@@ -11,16 +12,22 @@ const props = defineProps({
   },
 })
 
+const agent = inject('agent')
+
 // MENU
 const menuItems = [
-  { title: '新增用戶', icon: 'mdi-plus-circle', code: 'createUser' },
+  { title: '新增用戶', icon: 'mdi-plus-circle', code: 'createUser', event: menuItemEvent },
   { type: 'divider' },
-  { title: '修改商家', icon: 'mdi-pencil', code: 'editAgent' },
+  { title: '修改商家', icon: 'mdi-pencil', code: 'editAgent', event: menuItemEvent },
   { type: 'divider' },
-  { title: '刪除商家', icon: 'mdi-trash-can', code: 'deleteAgent' },
+  { title: '刪除商家', icon: 'mdi-trash-can', code: 'deleteAgent', event: menuItemEvent },
 ]
 
-const agent = inject('agent')
+function menuItemEvent({ model, itemData }) {
+  const id = itemData._id
+  const item = itemData
+  agent.openDialog({ model, id, item })
+}
 </script>
 
 <template>
@@ -73,33 +80,7 @@ const agent = inject('agent')
       </template>
 
       <template v-slot:item.actions="{ item }">
-        <div>
-          <v-btn
-            icon="mdi-dots-vertical"
-            size="x-small"
-            variant="outlined"
-            :id="`menu-activator${item._id}`"
-          >
-          </v-btn>
-          <v-menu :activator="`#menu-activator${item._id}`">
-            <v-list class="py-0" density="compact" slim>
-              <template v-for="menuItem in menuItems" :key="menuItem.type">
-                <v-divider v-if="menuItem.type === 'divider'" />
-                <v-list-item
-                  v-else
-                  @click="agent.openDialog({ model: menuItem.code, id: item._id, item })"
-                >
-                  <v-list-item-title>
-                    <span class="text-subtitle-2">{{ menuItem.title }} </span>
-                  </v-list-item-title>
-                  <template v-slot:prepend>
-                    <v-icon size="small" :icon="menuItem.icon"></v-icon>
-                  </template>
-                </v-list-item>
-              </template>
-            </v-list>
-          </v-menu>
-        </div>
+        <DotsActionMenu :items="menuItems" :data="item" :id="item._id" />
       </template>
     </v-data-table>
   </div>
