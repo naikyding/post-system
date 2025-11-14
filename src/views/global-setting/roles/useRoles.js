@@ -2,7 +2,9 @@ import { onMounted, provide, ref, watch } from 'vue'
 import { useRolesStore } from '@/stores/roles'
 import { useMenusStore } from '@/stores/menus'
 import { createRoleAPI, deleteRoleAPI, updateRoleAPI } from '@/api'
+import { useRouterStore } from '../../../stores/router'
 import catchAsync from '@/utils/catchAsync'
+import router from '@/router'
 
 export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOperationDrawerRef }) {
   const rolesStore = useRolesStore()
@@ -66,12 +68,19 @@ export function useRoles({ tableRef, formDialogRef, confirmDialogRef, menuAndOpe
   })
 
   const updateMenusAndOperations = catchAsync(async () => {
+    const routerStore = useRouterStore()
     const id = active.value.id
     const payload = { menus: [...menusForm.value], operations: [...operationsForm.value] }
 
     const { status } = await updateRoleAPI(id, payload)
     if (status) {
       rolesStore.getList()
+      const routes = await routerStore.generateRoutes()
+      routes.forEach((route) => {
+        router.addRoute('root', route)
+      })
+      // 重新進入當前路由，觸發匹配
+      router.replace(router.currentRoute.value.fullPath)
     }
     closeMenuAndOperationDrawer()
   })

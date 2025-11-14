@@ -60,13 +60,11 @@ export const useProfile = ({ passwordFormRef, ConfirmDialogRef }) => {
   }
 
   function cancelResetPassword() {
-    console.log('CANCEL')
     resetResetPassword()
     formDialogStatus.value = false
   }
 
   function resetResetPassword() {
-    console.log('RESET')
     passwordFormRef.value.reset()
   }
 
