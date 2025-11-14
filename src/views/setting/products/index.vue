@@ -1,5 +1,7 @@
 <script setup>
 import { useProducts } from './useProducts'
+import DotsActionMenu from '@/components/DotsActionMenu.vue'
+
 const {
   preEditSave,
   saveEditProduct,
@@ -24,6 +26,22 @@ const {
   priEditCancel,
   preDeleteContent,
 } = useProducts()
+
+const menuItems = [
+  {
+    title: '修改商品',
+    icon: 'mdi-pencil',
+    code: 'update',
+    event: ({ model, itemData }) => editItem(itemData),
+  },
+  { type: 'divider' },
+  {
+    title: '刪除商品',
+    icon: 'mdi-delete',
+    code: 'delete',
+    event: ({ model, itemData }) => proDeleteProductOrExtras(itemData),
+  },
+]
 </script>
 
 <template>
@@ -87,20 +105,7 @@ const {
         <!-- 操作 -->
         <template v-slot:item.actions="{ item }">
           <div class="d-flex">
-            <!-- 修改 -->
-            <v-btn
-              class="mr-2"
-              size="small"
-              color="warning"
-              icon="mdi-pencil"
-              @click="editItem(item)"
-            ></v-btn>
-            <v-btn
-              size="small"
-              color="error"
-              icon="mdi-delete"
-              @click="proDeleteProductOrExtras(item)"
-            ></v-btn>
+            <DotsActionMenu :items="menuItems" :data="item" :id="item._id" />
           </div>
         </template>
       </v-data-table>
