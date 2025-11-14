@@ -46,7 +46,7 @@ function event({ model, itemData, event }) {
     <v-btn
       icon="mdi-dots-vertical"
       size="x-small"
-      variant="outlined"
+      variant="flat"
       :id="`menu-activator-${props.id}`"
     >
     </v-btn>
