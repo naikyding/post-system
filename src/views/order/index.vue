@@ -751,7 +751,13 @@ function stashOrderList() {
                 label="備註"
                 variant="outlined"
                 clearable
-              />
+              >
+                <template v-slot:item="{ props, item }">
+                  <v-list-item @click="props.onClick">
+                    <v-chip color="green" variant="flat" label>{{ item.title }}</v-chip>
+                  </v-list-item>
+                </template>
+              </v-combobox>
             </div>
 
             <div class="order-list-total d-flex my-4 font-weight-bold">
