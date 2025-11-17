@@ -506,7 +506,7 @@ async function removeProductItemBagS(bagSizeId) {
 
   <!-- 有資料 -->
   <template v-else>
-    <v-table fixed-header>
+    <v-data-table fixed-header hide-default-footer :style="{ height: 'calc(100dvh - 146px)' }">
       <thead>
         <tr class="text-caption">
           <th class="text-left min-width-128px">執行狀態</th>
@@ -893,7 +893,7 @@ async function removeProductItemBagS(bagSizeId) {
           </tr>
         </template>
       </tbody>
-    </v-table>
+    </v-data-table>
   </template>
 
   <!-- confirm Dialog -->
