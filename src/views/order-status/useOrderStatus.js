@@ -1,7 +1,6 @@
 import { useSystemOrderList } from '@/stores/orders'
 
 export function useOrderStatus() {
-  console.log('useOrderStatus')
   const systemOrderStore = useSystemOrderList()
 
   systemOrderStore.getOrderList('today')

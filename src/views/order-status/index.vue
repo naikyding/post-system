@@ -15,8 +15,9 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
     <v-tabs
       fixed-tabs
       v-model="systemOrderStore.activeListTab"
+      density="compact"
       color="primary"
-      class="rounded-t-lg my-2"
+      class="rounded-t-lg"
     >
       <v-tab value="pending"
         >待處理
@@ -25,37 +26,38 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
         >
       </v-tab>
       <v-tab value="completed">已完成</v-tab>
-      <v-tab :value="false">未付款</v-tab>
+      <v-tab value="false">未付款</v-tab>
       <v-tab value="all">全部</v-tab>
       <v-tab value="cancelled">取消</v-tab>
     </v-tabs>
+    <v-divider></v-divider>
 
-    <v-window class="flex-grow-1 overflow-auto" disabled v-model="systemOrderStore.activeListTab">
+    <v-tabs-window v-model="systemOrderStore.activeListTab">
       <!-- 待處理 -->
-      <v-window-item value="pending">
+      <v-tabs-window-item value="pending">
         <DataTable />
-      </v-window-item>
+      </v-tabs-window-item>
 
       <!-- 已完成 -->
-      <v-window-item value="completed">
+      <v-tabs-window-item value="completed">
         <DataTable />
-      </v-window-item>
+      </v-tabs-window-item>
 
       <!-- 未付款 -->
-      <v-window-item :value="false">
+      <v-tabs-window-item value="false">
         <DataTable />
-      </v-window-item>
+      </v-tabs-window-item>
 
       <!-- 全部 -->
-      <v-window-item value="all">
+      <v-tabs-window-item value="all">
         <DataTable />
-      </v-window-item>
+      </v-tabs-window-item>
 
       <!-- 取消 -->
-      <v-window-item value="cancelled">
+      <v-tabs-window-item value="cancelled">
         <DataTable />
-      </v-window-item>
-    </v-window>
+      </v-tabs-window-item>
+    </v-tabs-window>
   </div>
 </template>
 
