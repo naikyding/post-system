@@ -146,7 +146,13 @@ export function useOrder() {
     ordersStore.resetOrderList()
   }
 
+  function resetCart() {
+    ordersStore.ordersList.items.length = 0
+    ordersStore.ordersList.note = null
+  }
+
   return {
+    resetCart,
     display,
     tabActiveId,
     submitList,

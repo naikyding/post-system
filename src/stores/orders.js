@@ -48,7 +48,7 @@ export const useOrdersStore = defineStore('orders', () => {
   // 購物車清單初始內容
   const ordersList = reactive({
     items: [],
-    note: '',
+    note: null,
     mobileNoThreeDigits: null,
     isPaid: false,
 
@@ -74,7 +74,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
   function resetOrderList() {
     ordersList.items = []
-    ordersList.note = ''
+    ordersList.note = null
     ordersList.isPaid = false
     ordersList.mobileNoThreeDigits = null
     delete ordersList.scheduledAt
@@ -332,7 +332,7 @@ export const useOrdersStore = defineStore('orders', () => {
           markers: curMarkers,
         })
 
-        if (!init.note) init.note = list.note
+        if (!init.note) init.note = typeof list.note === 'string' ? list.note : list.note.join()
         if (!init.mobileNoThreeDigits) init.mobileNoThreeDigits = list.mobileNoThreeDigits
         if (!init.isPaid) init.isPaid = list.isPaid || false
         if (!init.paymentType) init.paymentType = list.paymentType || null
