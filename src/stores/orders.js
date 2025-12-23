@@ -332,7 +332,9 @@ export const useOrdersStore = defineStore('orders', () => {
           markers: curMarkers,
         })
 
-        if (!init.note) init.note = typeof list.note === 'string' ? list.note : list.note.join()
+        if (!init.note)
+          init.note =
+            typeof list.note === 'string' ? list.note : list.note === null ? '' : list.note.join()
         if (!init.mobileNoThreeDigits) init.mobileNoThreeDigits = list.mobileNoThreeDigits
         if (!init.isPaid) init.isPaid = list.isPaid || false
         if (!init.paymentType) init.paymentType = list.paymentType || null
