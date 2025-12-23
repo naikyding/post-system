@@ -19,6 +19,7 @@ const {
   parseDate,
   schedule,
   cancelSettingDateAndTime,
+  resetCart,
 } = useOrder()
 
 function stashOrderList() {
@@ -59,7 +60,7 @@ function stashOrderList() {
                   block
                   color="error"
                   variant="flat"
-                  @click="ordersStore.ordersList.items.length = 0"
+                  @click="resetCart"
                 >
                   <v-icon icon="mdi-delete-empty" />
                 </v-btn>
@@ -751,6 +752,7 @@ function stashOrderList() {
                 label="備註"
                 variant="outlined"
                 clearable
+                multiple
               >
                 <template v-slot:item="{ props, item }">
                   <v-list-item @click="props.onClick">

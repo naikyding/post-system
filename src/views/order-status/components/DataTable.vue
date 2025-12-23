@@ -501,7 +501,7 @@ async function removeProductItemBagS(bagSizeId) {
 <template>
   <!-- 沒有資料 -->
   <template v-if="systemOrderStore.orderList.length < 1">
-    <EmptyBox />
+    <EmptyBox :style="{ height: 'calc(100dvh - 146px)' }" />
   </template>
 
   <!-- 有資料 -->
