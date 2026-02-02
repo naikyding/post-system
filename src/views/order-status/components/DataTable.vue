@@ -1708,37 +1708,41 @@ async function removeProductItemBagS(bagSizeId) {
                           <v-container>
                             <v-row>
                               <!-- 產品項目 -->
-                              <v-col
+                              <template
                                 v-for="(productItem, index) in productItems.items"
                                 :key="productItem + index"
-                                cols="12"
-                                sm="6"
-                                md="4"
-                                class="pa-1"
                               >
-                                <v-card
-                                  @click.stop="addProductItemInOrder(editOrderForm, productItem)"
+                                <v-col
+                                  v-show="productItem.status !== 'inactive'"
+                                  cols="12"
+                                  sm="6"
+                                  md="4"
+                                  class="pa-1"
                                 >
-                                  <template #title>
-                                    <div class="d-flex flex-column">
-                                      <div class="text-subtitle-1 font-weight-bold text-primary">
-                                        {{ productItem.name }}
+                                  <v-card
+                                    @click.stop="addProductItemInOrder(editOrderForm, productItem)"
+                                  >
+                                    <template #title>
+                                      <div class="d-flex flex-column">
+                                        <div class="text-subtitle-1 font-weight-bold text-primary">
+                                          {{ productItem.name }}
+                                        </div>
+                                        <div class="text-caption">
+                                          {{ productItem.description }}
+                                        </div>
                                       </div>
-                                      <div class="text-caption">
-                                        {{ productItem.description }}
+                                    </template>
+                                    <template #text>
+                                      <div>
+                                        $
+                                        <span class="text-h5 font-weight-bold">{{
+                                          productItem.price
+                                        }}</span>
                                       </div>
-                                    </div>
-                                  </template>
-                                  <template #text>
-                                    <div>
-                                      $
-                                      <span class="text-h5 font-weight-bold">{{
-                                        productItem.price
-                                      }}</span>
-                                    </div>
-                                  </template>
-                                </v-card>
-                              </v-col>
+                                    </template>
+                                  </v-card>
+                                </v-col>
+                              </template>
                             </v-row>
                           </v-container>
                         </v-window-item>
