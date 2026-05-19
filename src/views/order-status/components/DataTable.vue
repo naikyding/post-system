@@ -4,7 +4,7 @@ import { useSystemOrderList } from '@/stores/orders'
 import { useMarkersStore, useProductsStore } from '@/stores/products'
 import { useDisplay } from 'vuetify'
 import { encrypt, decrypt } from '@/utils/secret'
-import { speak } from '@/utils/speechSynthesis'
+import { createTSSAPI } from '@/api'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
@@ -16,7 +16,6 @@ import { useOrdersStore } from '@/stores/orders.js'
 const ordersStore = useOrdersStore()
 
 import dayjs from 'dayjs'
-import { dateFormat } from '../../../utils/day'
 const parseDate = ref(null)
 
 const schedule = reactive({
@@ -87,7 +86,17 @@ const showScheduleDialog = () => {
 }
 
 function formatSpeak(mobile) {
-  return `` + mobile.split('').join(' ') + '，，您的可麗餅好囉!'
+  return `末三碼` + mobile.split('').join(' ') + '，，您的可麗餅好囉!'
+}
+
+const speak = async (text) => {
+  const blob = await createTSSAPI({ text })
+  console.log(blob)
+  const audioUrl = URL.createObjectURL(blob)
+
+  const audio = new Audio(audioUrl)
+
+  audio.play()
 }
 
 const optionExtras = ref({

@@ -33,6 +33,10 @@ import {
 
 import { getAgents, createAgent, deleteAgent, updateAgent } from './agents.js'
 
+import { createTSS } from './tss.js'
+
+export const createTSSAPI = createTSS
+
 export const getProductsAPI = getProducts
 export const createProductAPI = createProduct
 export const deleteProductAPI = deleteProduct
