@@ -1,4 +1,5 @@
 const audioMap = {}
+let isPlaying = false
 
 /**
  * preload audio
@@ -33,14 +34,31 @@ export const playAudio = (name) => {
   })
 }
 
+/**
+ * 播放叫號
+ */
 export const speakMobile = async (mobile) => {
-  const numbers = mobile.slice(-3).split('')
+  // 已播放中
+  if (isPlaying) return
 
-  await playAudio('prefix')
+  isPlaying = true
 
-  for (const number of numbers) {
-    await playAudio(number)
+  try {
+    const numbers = mobile.slice(-3).split('')
+
+    // 開頭
+    await playAudio('prefix')
+
+    // 數字
+    for (const number of numbers) {
+      await playAudio(number)
+    }
+
+    // 結尾
+    await playAudio('suffix')
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isPlaying = false
   }
-
-  await playAudio('suffix')
 }
