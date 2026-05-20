@@ -5,6 +5,7 @@ import { useMarkersStore, useProductsStore } from '@/stores/products'
 import { useDisplay } from 'vuetify'
 import { encrypt, decrypt } from '@/utils/secret'
 import { createTSSAPI } from '@/api'
+import { speakMobile } from '@/utils/audio'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
@@ -85,18 +86,8 @@ const showScheduleDialog = () => {
   scheduleDialog.scheduleAt = true
 }
 
-function formatSpeak(mobile) {
-  return `末三碼` + mobile.split('').join(' ') + '，，您的可麗餅好囉!'
-}
-
-const speak = async (text) => {
-  const blob = await createTSSAPI({ text })
-  console.log(blob)
-  const audioUrl = URL.createObjectURL(blob)
-
-  const audio = new Audio(audioUrl)
-
-  audio.play()
+const speak = async (mobile) => {
+  speakMobile(mobile)
 }
 
 const optionExtras = ref({
@@ -811,7 +802,7 @@ async function removeProductItemBagS(bagSizeId) {
               <!-- 未三碼 -->
               <td>
                 <v-btn
-                  @click="speak(formatSpeak(items.mobileNoThreeDigits))"
+                  @click="speak(items.mobileNoThreeDigits)"
                   size="x-large"
                   density="compact"
                   color="success"
