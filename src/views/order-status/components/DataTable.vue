@@ -387,7 +387,8 @@ async function deleteDialog(orderListID, updateData, callback) {
   })
 
   if (isConfirmed) {
-    return callback(orderListID, updateData)
+    callback(orderListID, updateData)
+    return systemOrderStore.getOrderList('today', 'readyForPickup')
   }
 }
 
@@ -413,8 +414,16 @@ async function updateDialog(orderListID, updateData, callback) {
   })
 
   if (isConfirmed) {
-    return callback(orderListID, updateData)
+    callback(orderListID, updateData)
+    return systemOrderStore.getOrderList('today', 'readyForPickup')
   }
+}
+
+function readyForPickupEvent(id, data) {
+  systemOrderStore.updateOrderContent(id, data)
+
+  systemOrderStore.getOrderList('today', 'readyForPickup')
+  dialog.confirmOrderList = false
 }
 
 function addBag(bagExtrasId, orderItem) {
@@ -1225,6 +1234,23 @@ async function removeProductItemBagS(bagSizeId) {
                 color="success"
               >
                 所有項目完成，更新訂單狀態
+              </v-btn>
+            </v-col>
+
+            <!-- 完成訂單，待領取 -->
+            <v-col cols="12" class="pt-0 px-1">
+              <v-btn
+                @click="
+                  readyForPickupEvent(systemOrderStore.activeOrderList._id, {
+                    status: 'readyForPickup',
+                  })
+                "
+                size="x-large"
+                block
+                variant="flat"
+                color="warning"
+              >
+                完成，待領取
               </v-btn>
             </v-col>
 
