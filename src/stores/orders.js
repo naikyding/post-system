@@ -393,6 +393,7 @@ export const useOrdersStore = defineStore('orders', () => {
 export const useSystemOrderList = defineStore('systemOrder', () => {
   const activeListTab = ref('pending')
   const pendingQuantity = ref(0)
+  const readyForPickupQuantity = ref(0)
   const activeListDate = reactive({
     from: null,
     to: null,
@@ -455,14 +456,27 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   }
 
   const getOrderList = catchAsync(
-    async (type) => {
+    async (type, active) => {
       if (type === 'today') initTodayAndTab()
 
       orderList.value.length = 0
       const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
+
       if (type !== 'getPendingQuantity') {
         orderList.value = data.items
       }
+
+      if (active === 'readyForPickup') {
+        const { data } = await getOrderListAPI(getOrderListFilter('readyForPickup'))
+        readyForPickupQuantity.value = 0
+        readyForPickupQuantity.value = data.items.reduce((init, cur) => {
+          return (init += cur.items.reduce((init, cur) => {
+            if (cur.product && cur.product.type === '塑膠提袋') return init
+            return (init += cur.quantity)
+          }, 0))
+        }, 0)
+      }
+
       if (activeListTab.value === 'pending') {
         pendingQuantity.value = 0
         pendingQuantity.value = data.items.reduce((init, cur) => {
@@ -472,6 +486,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
           }, 0))
         }, 0)
       }
+
       return data
     },
     () => {
@@ -603,6 +618,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     activeListTab,
     activeListDate,
     pendingQuantity,
+    readyForPickupQuantity,
 
     selectDate,
     activeRange,

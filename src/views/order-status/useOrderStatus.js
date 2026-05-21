@@ -4,6 +4,7 @@ export function useOrderStatus() {
   const systemOrderStore = useSystemOrderList()
 
   systemOrderStore.getOrderList('today')
+  systemOrderStore.getOrderList('today', 'readyForPickup')
 
   function datePickerEvent(searchDate) {
     systemOrderStore.activeListDate.from = searchDate

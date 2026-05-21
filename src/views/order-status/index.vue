@@ -25,6 +25,11 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
           ({{ systemOrderStore.pendingQuantity }})</span
         >
       </v-tab>
+      <v-tab value="readyForPickup"
+        >待取餐<span class="text-error" v-show="systemOrderStore.readyForPickupQuantity > 0">
+          ({{ systemOrderStore.readyForPickupQuantity }})</span
+        ></v-tab
+      >
       <v-tab value="completed">已完成</v-tab>
       <v-tab value="false">未付款</v-tab>
       <v-tab value="all">全部</v-tab>
@@ -35,6 +40,11 @@ const { datePickerEvent, systemOrderStore } = useOrderStatus()
     <v-tabs-window v-model="systemOrderStore.activeListTab">
       <!-- 待處理 -->
       <v-tabs-window-item value="pending">
+        <DataTable />
+      </v-tabs-window-item>
+
+      <!-- 待取餐 -->
+      <v-tabs-window-item value="readyForPickup">
         <DataTable />
       </v-tabs-window-item>
 
