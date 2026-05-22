@@ -2,6 +2,7 @@ import { ref, watch, computed } from 'vue'
 import { useProductsStore } from '@/stores/products'
 import { useExtrasStore } from '@/stores/extras'
 import { useProductsCategoryStore } from '../../../stores/productCategories'
+import { formatNumber } from 'chart.js/helpers'
 
 export function useProducts() {
   const extrasStore = useExtrasStore()
@@ -14,6 +15,7 @@ export function useProducts() {
 
   const preEditSaveDialog = ref(false)
   async function preEditSave() {
+    productCategoriesStore.getProductCategories()
     const validation = await validationForm(editProductForm)
     if (validation) preEditSaveDialog.value = true
   }
@@ -33,15 +35,18 @@ export function useProducts() {
       message: '發生錯誤',
     }
 
+    const formatPayload = Object.fromEntries(
+      Object.entries(form).filter(([key, value]) => value !== ''),
+    )
+
     const actionMap = {
-      0: () => productsStore.updateProduct(form._id, form),
-      1: () => extrasStore.updateExtra(form._id, form),
-      2: () => productCategoriesStore.updateProductCategory(form._id, form),
+      0: () => productsStore.updateProduct(form._id, formatPayload),
+      1: () => extrasStore.updateExtra(form._id, formatPayload),
+      2: () => productCategoriesStore.updateProductCategory(form._id, formatPayload),
     }
 
     const res = await actionMap[active.value.index]?.()
 
-    console.log(res)
     const { status, message } = res || defaultMsg
     if (!status) return priEditCancel()
 
@@ -63,8 +68,8 @@ export function useProducts() {
   }
   async function deleteProductOrExtras(id) {
     const actionMap = {
-      0: () => extrasStore.deleteExtra(id),
-      1: () => productsStore.deleteProduct(id),
+      0: () => productsStore.deleteProduct(id),
+      1: () => extrasStore.deleteExtra(id),
       2: () => productCategoriesStore.deleteProductCategory(id),
     }
 
@@ -96,6 +101,7 @@ export function useProducts() {
 
   function addProduct() {
     getExtrasList()
+    productCategoriesStore.getProductCategories()
     addProductItem.value.status = true
   }
 
@@ -228,6 +234,7 @@ export function useProducts() {
     0: [
       { title: '狀態', key: 'status' },
       { title: '類型', key: 'type' },
+      { title: '類別', key: 'category.name' },
       { title: '名稱', key: 'name' },
       { title: '說明', key: 'description' },
       { title: '價錢', key: 'price', align: 'end', value: (item) => `$${item.price}` },
@@ -281,10 +288,14 @@ export function useProducts() {
   }
 
   function editItem(item) {
+    if (active.value.index === 0) {
+      productCategoriesStore.getProductCategories()
+    }
+
     if (active.value.index !== 2) {
       getExtrasList()
     }
-    editDialog.value.status = true
+
     editDialog.value.content = {}
 
     const cloneItem = JSON.parse(JSON.stringify(item))
@@ -293,14 +304,18 @@ export function useProducts() {
       cloneItem.extras = cloneItem.extras.reduce((acc, cur) => {
         return (acc = [...acc, ...cur.items.map((item) => item._id)])
       }, [])
+      cloneItem.category = cloneItem.category._id
     }
 
     editDialog.value.content = cloneItem
+
+    editDialog.value.status = true
   }
 
   getProductsList()
 
   return {
+    productCategoriesStore,
     category,
     tableHeaders,
     preEditSave,

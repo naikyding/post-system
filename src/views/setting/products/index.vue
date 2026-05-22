@@ -26,6 +26,7 @@ const {
   priEditCancel,
   preDeleteContent,
   category,
+  productCategoriesStore,
 } = useProducts()
 
 const menuItems = [
@@ -152,7 +153,6 @@ const statusMap = {
             <v-container>
               <v-row dense>
                 <template v-if="active['items'][active.index]['tabName'] === '類別'">
-                  <!-- 狀態 -->
                   <v-col cols="12">
                     <v-select
                       v-model="category.form.status"
@@ -226,7 +226,20 @@ const statusMap = {
                   </v-col>
 
                   <v-col cols="12" sm="6">
+                    <!-- NEW -->
+                    <v-select
+                      v-if="active.index === 0"
+                      v-model="addProductItem.form.category"
+                      label="類別"
+                      variant="outlined"
+                      :items="productCategoriesStore.list"
+                      item-title="name"
+                      item-value="_id"
+                      :rules="[addProductItem.rules.required]"
+                    ></v-select>
+                    <!-- OLD -->
                     <v-text-field
+                      v-else
                       v-model="addProductItem.form.type"
                       clearable
                       label="類別"
@@ -395,12 +408,23 @@ const statusMap = {
                   </v-col>
 
                   <v-col cols="12" sm="6">
+                    <!-- NEW -->
+                    <v-select
+                      v-if="active.index === 0"
+                      v-model="editDialog.content.category"
+                      label="類別"
+                      variant="outlined"
+                      :items="productCategoriesStore.list"
+                      item-title="name"
+                      item-value="_id"
+                      :rules="[addProductItem.rules.required]"
+                    ></v-select>
+
                     <v-text-field
                       v-model="editDialog.content.type"
                       clearable
                       label="類別"
                       variant="outlined"
-                      :rules="[addProductItem.rules.required]"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
