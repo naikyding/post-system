@@ -33,6 +33,13 @@ import {
 
 import { getAgents, createAgent, deleteAgent, updateAgent } from './agents.js'
 
+import {
+  getProductCategories,
+  createProductCategory,
+  deleteProductCategory,
+  updateProductCategory,
+} from './productCategories.js'
+
 import { createTSS } from './tss.js'
 
 export const createTSSAPI = createTSS
@@ -93,3 +100,8 @@ export const getAgentsAPI = getAgents
 export const createAgentAPI = createAgent
 export const deleteAgentAPI = deleteAgent
 export const updateAgentAPI = updateAgent
+
+export const getProductCategoriesAPI = getProductCategories
+export const createProductCategoryAPI = createProductCategory
+export const deleteProductCategoryAPI = deleteProductCategory
+export const updateProductCategoryAPI = updateProductCategory

@@ -1,12 +1,13 @@
 import { ref, watch, computed } from 'vue'
 import { useProductsStore } from '@/stores/products'
 import { useExtrasStore } from '@/stores/extras'
-import { useUserStore } from '@/stores/users'
+import { useProductsCategoryStore } from '../../../stores/productCategories'
 
 export function useProducts() {
   const extrasStore = useExtrasStore()
   const productsStore = useProductsStore()
-  const userStore = useUserStore()
+  const productCategoriesStore = useProductsCategoryStore()
+
   const search = ref('')
   const addProductForm = ref(null)
   const editProductForm = ref(null)
@@ -32,12 +33,15 @@ export function useProducts() {
       message: '發生錯誤',
     }
 
-    let res
+    const actionMap = {
+      0: () => productsStore.updateProduct(form._id, form),
+      1: () => extrasStore.updateExtra(form._id, form),
+      2: () => productCategoriesStore.updateProductCategory(form._id, form),
+    }
 
-    active.value.index === 0
-      ? (res = await productsStore.updateProduct(form._id, form))
-      : (res = await extrasStore.updateExtra(form._id, form))
+    const res = await actionMap[active.value.index]?.()
 
+    console.log(res)
     const { status, message } = res || defaultMsg
     if (!status) return priEditCancel()
 
@@ -58,12 +62,13 @@ export function useProducts() {
     preDeleteContent.value = data
   }
   async function deleteProductOrExtras(id) {
-    let res
+    const actionMap = {
+      0: () => extrasStore.deleteExtra(id),
+      1: () => productsStore.deleteProduct(id),
+      2: () => productCategoriesStore.deleteProductCategory(id),
+    }
 
-    // 如果是配料 tab
-    active.value.index === 1
-      ? (res = await extrasStore.deleteExtra(id))
-      : (res = await productsStore.deleteProduct(id))
+    const res = await actionMap[active.value.index]?.()
 
     preDeleteDialog.value = false
 
@@ -111,6 +116,21 @@ export function useProducts() {
     },
     preSubmit: preAddProductItemSubmit,
     submit: addProductItemSubmit,
+  })
+
+  const category = ref({
+    rules: {
+      required(v) {
+        return !!v || 'Field is required'
+      },
+    },
+    form: {
+      status: 'draft',
+      name: '',
+      slug: '',
+      sort: 0,
+      image: '',
+    },
   })
 
   async function validationForm(ref) {
@@ -179,6 +199,11 @@ export function useProducts() {
         list: computed(() => extrasStore.extras),
         getList: getExtrasList,
       },
+      {
+        tabName: '類別',
+        list: computed(() => productCategoriesStore.list),
+        getList: productCategoriesStore.getProductCategories,
+      },
     ],
   })
 
@@ -198,6 +223,33 @@ export function useProducts() {
       { title: '操作', key: 'actions', align: 'center' },
     ],
   })
+
+  const dynamicTableHeader = {
+    0: [
+      { title: '狀態', key: 'status' },
+      { title: '類型', key: 'type' },
+      { title: '名稱', key: 'name' },
+      { title: '說明', key: 'description' },
+      { title: '價錢', key: 'price', align: 'end', value: (item) => `$${item.price}` },
+      { title: '操作', key: 'actions', align: 'center' },
+    ],
+    1: [
+      { title: '狀態', key: 'status' },
+      { title: '類型', key: 'type' },
+      { title: '名稱', key: 'name' },
+      { title: '說明', key: 'description' },
+      { title: '價錢', key: 'price', align: 'end', value: (item) => `$${item.price}` },
+      { title: '操作', key: 'actions', align: 'center' },
+    ],
+    2: [
+      { title: '狀態', key: 'status' },
+      { title: '名稱', key: 'name' },
+      { title: '代號', key: 'slug' },
+      { title: '操作', key: 'actions', align: 'center' },
+    ],
+  }
+
+  const tableHeaders = (index) => dynamicTableHeader[index]
 
   const addExtrasTable = ref({
     headers: [
@@ -229,7 +281,9 @@ export function useProducts() {
   }
 
   function editItem(item) {
-    getExtrasList()
+    if (active.value.index !== 2) {
+      getExtrasList()
+    }
     editDialog.value.status = true
     editDialog.value.content = {}
 
@@ -247,6 +301,8 @@ export function useProducts() {
   getProductsList()
 
   return {
+    category,
+    tableHeaders,
     preEditSave,
     saveEditProduct,
     proDeleteProductOrExtras,
