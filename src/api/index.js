@@ -1,4 +1,10 @@
-import { getProducts, createProduct, deleteProduct, updateProduct } from './products'
+import {
+  getProducts,
+  getProductsForMenu,
+  createProduct,
+  deleteProduct,
+  updateProduct,
+} from './products'
 import {
   createOrder,
   getOrderList,
@@ -45,6 +51,7 @@ import { createTSS } from './tss.js'
 export const createTSSAPI = createTSS
 
 export const getProductsAPI = getProducts
+export const getProductsForMenuAPI = getProductsForMenu
 export const createProductAPI = createProduct
 export const deleteProductAPI = deleteProduct
 export const updateProductAPI = updateProduct
