@@ -128,7 +128,9 @@ export function useOrder() {
 
   const activeProducts = (allProducts) => {
     return allProducts.filter((productItem) => {
-      const activeProduct = productItem.items.filter((item) => item.status === 'active')
+      const activeProduct = productItem.items.filter(
+        (item) => item.status === 'active' && item.type !== '',
+      )
       if (activeProduct.length > 0) return productItem
     })
   }
