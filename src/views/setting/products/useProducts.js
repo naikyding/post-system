@@ -166,11 +166,13 @@ export function useProducts() {
     if (addProductForm.value) addProductForm.value.reset()
   }
   async function addProductItemSubmit(form) {
-    let res
+    const actionMap = {
+      0: () => productsStore.createProduct(form),
+      1: () => extrasStore.createExtrasItem(form),
+      2: () => productCategoriesStore.createProductCategory(category.value.form),
+    }
 
-    active.value.index === 1
-      ? (res = await extrasStore.createExtrasItem(form))
-      : (res = await productsStore.createProduct(form))
+    const res = await actionMap[active.value.index]?.()
 
     preSaveDialog.value = false
 

@@ -117,7 +117,7 @@ export function useOrder() {
 
   onMounted(async () => {
     // 取得產品最表
-    await productsStore.getProducts()
+    await productsStore.getProductsMenu()
     await markerStore.getMarkers()
     tabActiveId.value = 0
   })

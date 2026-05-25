@@ -249,7 +249,7 @@ function stashOrderList() {
               :value="index"
               class="text-subtitle-1"
             >
-              {{ productItems.type }}
+              {{ productItems.category?.name }}
             </v-tab>
           </v-tabs>
 

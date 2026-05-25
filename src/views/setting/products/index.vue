@@ -45,6 +45,26 @@ const menuItems = [
   },
 ]
 
+const FAST_SETTING_EXTRAS_2026_V2 = [
+  '679378d045469dcf2fbe59e5',
+  '6793787a45469dcf2fbe59d3',
+  '6793789e45469dcf2fbe59d9',
+  '679378b045469dcf2fbe59df',
+  '6981cb10cf2c1748a092c077',
+  '67937a1745469dcf2fbe59ec',
+  '67937a5345469dcf2fbe59f8',
+  '67937a6745469dcf2fbe59fe',
+  '64e853ec2acf48d6bfdf9187',
+  '67937f7c45469dcf2fbe5a3b',
+  '6793782645469dcf2fbe59cb',
+  '64cf45d1ee6af4dc14dcb456',
+  '64f009480b4da165c7eebddd',
+]
+
+const fastSettingExtrasGroup2026v2 = (form) => {
+  form.extras = [...form.extras, ...FAST_SETTING_EXTRAS_2026_V2]
+}
+
 const statusMap = {
   draft: {
     text: '草稿',
@@ -281,6 +301,13 @@ const statusMap = {
 
                   <v-col cols="12" v-show="active.index === 0">
                     配料
+                    <v-btn
+                      block
+                      color="warning"
+                      size="small"
+                      @click="fastSettingExtrasGroup2026v2(addProductItem.form)"
+                      >快速新增2026v2配料</v-btn
+                    >
                     <v-divider></v-divider>
                     <v-data-table
                       :headers="addExtrasTable.headers"
