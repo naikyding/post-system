@@ -65,6 +65,28 @@ const fastSettingExtrasGroup2026v2 = (form) => {
   form.extras = [...form.extras, ...FAST_SETTING_EXTRAS_2026_V2]
 }
 
+// product status
+const productStatusMap = {
+  active: {
+    text: '啟用中',
+    color: 'success',
+    icon: 'mdi-check-circle',
+  },
+
+  inactive: {
+    text: '下架',
+    color: 'error',
+    icon: 'mdi-eye-off',
+  },
+
+  deprecated: {
+    text: '棄用',
+    color: 'warning',
+    icon: 'mdi-eye-off',
+  },
+}
+
+// product category status
 const statusMap = {
   draft: {
     text: '草稿',
@@ -146,13 +168,15 @@ const statusMap = {
               {{ statusMap[item.status]?.text }}
             </v-chip>
           </template>
+
           <template v-else>
-            <v-switch
-              :model-value="item.status === 'active'"
-              color="success"
-              hide-details
-              readonly
-            ></v-switch>
+            <v-chip :color="productStatusMap[item.status]?.color" size="small" label>
+              <v-icon start size="14">
+                {{ productStatusMap[item.status]?.icon }}
+              </v-icon>
+
+              {{ productStatusMap[item.status]?.text }}
+            </v-chip>
           </template>
         </template>
 
@@ -234,19 +258,21 @@ const statusMap = {
 
                 <template v-else>
                   <v-col cols="12">
-                    <v-switch
+                    <v-select
                       v-model="addProductItem.form.status"
-                      color="green"
-                      :label="editDialog.content.status"
-                      true-value="active"
-                      false-value="inactive"
-                      hide-details
-                      inset
-                    ></v-switch>
+                      label="狀態"
+                      variant="outlined"
+                      :items="[
+                        { title: '上架', name: 'active' },
+                        { title: '下架', name: 'inactive' },
+                        { title: '棄用', name: 'deprecated' },
+                      ]"
+                      item-title="title"
+                      item-value="name"
+                    ></v-select>
                   </v-col>
 
                   <v-col cols="12" sm="6">
-                    <!-- NEW -->
                     <v-select
                       v-if="active.index === 0"
                       v-model="addProductItem.form.category"
@@ -257,16 +283,6 @@ const statusMap = {
                       item-value="_id"
                       :rules="[addProductItem.rules.required]"
                     ></v-select>
-                    <!-- OLD -->
-                    <v-text-field
-                      v-else
-                      v-model="addProductItem.form.type"
-                      clearable
-                      label="類別"
-                      variant="outlined"
-                      required
-                      :rules="[addProductItem.rules.required]"
-                    ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-text-field
@@ -423,19 +439,21 @@ const statusMap = {
 
                 <template v-else>
                   <v-col cols="12">
-                    <v-switch
+                    <v-select
                       v-model="editDialog.content.status"
-                      color="green"
-                      :label="editDialog.content.status"
-                      true-value="active"
-                      false-value="inactive"
-                      hide-details
-                      inset
-                    ></v-switch>
+                      label="狀態"
+                      variant="outlined"
+                      :items="[
+                        { title: '上架', name: 'active' },
+                        { title: '下架', name: 'inactive' },
+                        { title: '棄用', name: 'deprecated' },
+                      ]"
+                      item-title="title"
+                      item-value="name"
+                    ></v-select>
                   </v-col>
 
                   <v-col cols="12" sm="6">
-                    <!-- NEW -->
                     <v-select
                       v-if="active.index === 0"
                       v-model="editDialog.content.category"
@@ -446,13 +464,6 @@ const statusMap = {
                       item-value="_id"
                       :rules="[addProductItem.rules.required]"
                     ></v-select>
-
-                    <v-text-field
-                      v-model="editDialog.content.type"
-                      clearable
-                      label="類別"
-                      variant="outlined"
-                    ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-text-field

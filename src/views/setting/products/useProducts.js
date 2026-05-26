@@ -100,7 +100,7 @@ export function useProducts() {
   })
 
   function addProduct() {
-    getExtrasList()
+    getExtrasList({ status: 'active' })
     productCategoriesStore.getProductCategories()
     addProductItem.value.status = true
   }
@@ -116,7 +116,6 @@ export function useProducts() {
       status: 'active',
       name: '',
       description: '',
-      type: '',
       price: 0,
       extras: [],
     },
@@ -281,8 +280,8 @@ export function useProducts() {
     active.value.items[status]['getList']()
   }
 
-  function getExtrasList() {
-    extrasStore.getExtrasList()
+  function getExtrasList(query) {
+    extrasStore.getExtrasList(query)
   }
 
   function getProductsList() {
@@ -306,9 +305,9 @@ export function useProducts() {
       cloneItem.extras = cloneItem.extras.reduce((acc, cur) => {
         return (acc = [...acc, ...cur.items.map((item) => item._id)])
       }, [])
-      cloneItem.category = cloneItem.category._id
+      cloneItem.category = cloneItem.category?._id
     }
-
+    console.log(cloneItem)
     editDialog.value.content = cloneItem
 
     editDialog.value.status = true
