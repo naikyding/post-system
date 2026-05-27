@@ -196,7 +196,7 @@ export const useOrdersStore = defineStore('orders', () => {
   // 點擊產品功能
   function selectedProduct(productItem, dialog, dialogStatus) {
     activeProductItem.product = productItem
-    activeProductItem.extrasTypeOpen = productItem.extras.map((item) => item.type) || []
+    activeProductItem.extrasTypeOpen = productItem.extras.map((item) => item.category.name) || []
     dialog.activeProductItem = dialogStatus
   }
 
@@ -458,7 +458,10 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   const getOrderList = catchAsync(
     async (type, active) => {
       if (type === 'today') initTodayAndTab()
-
+      const bagIds = [
+        '6a13f75046635fb4a4232154', // 大袋
+        '6a13f73c46635fb4a4232148', // 小袋
+      ]
       orderList.value.length = 0
       const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
 
@@ -471,7 +474,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
         readyForPickupQuantity.value = 0
         readyForPickupQuantity.value = data.items.reduce((init, cur) => {
           return (init += cur.items.reduce((init, cur) => {
-            if (cur.product && cur.product.type === '塑膠提袋') return init
+            if (cur.product && bagIds.includes(cur.product._id)) return init
             return (init += cur.quantity)
           }, 0))
         }, 0)
@@ -481,7 +484,8 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
         pendingQuantity.value = 0
         pendingQuantity.value = data.items.reduce((init, cur) => {
           return (init += cur.items.reduce((init, cur) => {
-            if (cur.product && cur.product.type === '塑膠提袋') return init
+            console.log(cur.product.category._id)
+            if (cur.product && bagIds.includes(cur.product._id)) return init
             return (init += cur.quantity)
           }, 0))
         }, 0)

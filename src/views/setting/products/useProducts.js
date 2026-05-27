@@ -249,7 +249,7 @@ export function useProducts() {
 
   const addExtrasTable = ref({
     headers: [
-      { title: '類型', key: 'type' },
+      { title: '類別', key: 'category.name' },
       { title: '名稱', key: 'name' },
       { title: '說明', key: 'description' },
       { title: '價錢', key: 'price', align: 'end', value: (item) => `$${item.price}` },

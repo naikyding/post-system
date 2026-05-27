@@ -47,19 +47,17 @@ const menuItems = [
 ]
 
 const FAST_SETTING_EXTRAS_2026_V2 = [
-  '679378d045469dcf2fbe59e5',
-  '6793787a45469dcf2fbe59d3',
-  '6793789e45469dcf2fbe59d9',
-  '679378b045469dcf2fbe59df',
-  '6981cb10cf2c1748a092c077',
-  '67937a1745469dcf2fbe59ec',
-  '67937a5345469dcf2fbe59f8',
-  '67937a6745469dcf2fbe59fe',
-  '64e853ec2acf48d6bfdf9187',
-  '67937f7c45469dcf2fbe5a3b',
-  '6793782645469dcf2fbe59cb',
-  '64cf45d1ee6af4dc14dcb456',
-  '64f009480b4da165c7eebddd',
+  '6a1575dafdd9516c1ac4ce28',
+  '6a1578c01f9a5675effd2cf3',
+  '6a16551970d359cb6eb5d277',
+  '6a16552c70d359cb6eb5d27e',
+  '6a16556070d359cb6eb5d285',
+  '6a16557170d359cb6eb5d28c',
+  '6a16558b70d359cb6eb5d293',
+  '6a16559b70d359cb6eb5d29a',
+  '6a1655b870d359cb6eb5d2a1',
+  '6a1655cb70d359cb6eb5d2a8',
+  '6a1655e170d359cb6eb5d2af',
 ]
 
 const fastSettingExtrasGroup2026v2 = (form) => {
@@ -485,6 +483,13 @@ const dynamicStatusMap = {
 
                   <v-col cols="12" v-if="active.index === 0">
                     配料
+                    <v-btn
+                      block
+                      color="warning"
+                      size="small"
+                      @click="fastSettingExtrasGroup2026v2(editDialog.content)"
+                      >快速新增2026v2配料</v-btn
+                    >
                     <v-divider></v-divider>
                     <v-data-table
                       :headers="addExtrasTable.headers"
