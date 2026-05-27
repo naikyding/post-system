@@ -46,6 +46,13 @@ import {
   updateProductCategory,
 } from './productCategories.js'
 
+import {
+  getExtraCategories,
+  createExtraCategory,
+  deleteExtraCategory,
+  updateExtraCategory,
+} from './extraCategories.js'
+
 import { createTSS } from './tss.js'
 
 export const createTSSAPI = createTSS
@@ -112,3 +119,8 @@ export const getProductCategoriesAPI = getProductCategories
 export const createProductCategoryAPI = createProductCategory
 export const deleteProductCategoryAPI = deleteProductCategory
 export const updateProductCategoryAPI = updateProductCategory
+
+export const getExtraCategoriesAPI = getExtraCategories
+export const createExtraCategoryAPI = createExtraCategory
+export const deleteExtraCategoryAPI = deleteExtraCategory
+export const updateExtraCategoryAPI = updateExtraCategory
