@@ -1,16 +1,16 @@
 <script setup>
-import { useProducts } from './useProducts'
+import { useExtras } from './useExtras'
 import DotsActionMenu from '@/components/DotsActionMenu.vue'
 
 const {
   preEditSave,
-  saveEditProduct,
+  saveEditExtra,
   proDeleteProductOrExtras,
-  deleteProductOrExtras,
-  addProduct,
+  deleteExtraOrExtraCategory,
+  addExtra,
   tableHeaders,
   addExtrasTable,
-  addProductItem,
+  addExtraItem,
   editDialog,
   preEditSaveDialog,
   preDeleteDialog,
@@ -18,28 +18,27 @@ const {
   statusSnackbar,
   active,
   search,
-  addProductCancel,
-  editProductCancel,
+  addExtraCancel,
+  editExtraCancel,
   editItem,
-  addProductForm,
-  editProductForm,
+  addExtraForm,
+  editExtraForm,
   priEditCancel,
   preDeleteContent,
   category,
-  productCategoriesStore,
-  extrasList,
-} = useProducts()
+  extrasCategoryStore,
+} = useExtras()
 
 const menuItems = [
   {
-    title: '修改商品',
+    title: '修改配料',
     icon: 'mdi-pencil',
     code: 'update',
     event: ({ model, itemData }) => editItem(itemData),
   },
   { type: 'divider' },
   {
-    title: '刪除商品',
+    title: '刪除配料',
     icon: 'mdi-delete',
     code: 'delete',
     event: ({ model, itemData }) => proDeleteProductOrExtras(itemData),
@@ -66,14 +65,14 @@ const fastSettingExtrasGroup2026v2 = (form) => {
   form.extras = [...form.extras, ...FAST_SETTING_EXTRAS_2026_V2]
 }
 
-const dynamicStatusMap = {
+// product category status
+const statusMap = {
   0: {
     active: {
       text: '啟用中',
       color: 'success',
       icon: 'mdi-check-circle',
     },
-
     inactive: {
       text: '下架',
       color: 'error',
@@ -88,9 +87,9 @@ const dynamicStatusMap = {
   },
   1: {
     draft: {
-      text: '準備中',
-      color: 'warning',
-      icon: 'mdi-timer-sand',
+      text: '草稿',
+      color: 'grey',
+      icon: 'mdi-file-document-outline',
     },
 
     available: {
@@ -143,7 +142,7 @@ const dynamicStatusMap = {
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" class="py-1">
-          <v-btn @click="addProduct" block size="x-large" color="success">ADD</v-btn>
+          <v-btn @click="addExtra" block size="x-large" color="success">ADD</v-btn>
         </v-col>
       </v-row>
     </v-sheet>
@@ -159,12 +158,12 @@ const dynamicStatusMap = {
       >
         <!-- 狀態 -->
         <template v-slot:item.status="{ item }">
-          <v-chip :color="dynamicStatusMap[active.index][item.status]?.color" size="small" label>
+          <v-chip :color="statusMap[active.index][item.status]?.color" size="small" label>
             <v-icon start size="14">
-              {{ dynamicStatusMap[active.index][item.status]?.icon }}
+              {{ statusMap[active.index][item.status]?.icon }}
             </v-icon>
 
-            {{ dynamicStatusMap[active.index][item.status]?.text }}
+            {{ statusMap[active.index][item.status]?.text }}
           </v-chip>
         </template>
 
@@ -178,8 +177,8 @@ const dynamicStatusMap = {
     </v-expand-transition>
 
     <!-- 新增 dialog -->
-    <v-dialog v-model="addProductItem.status" max-width="600" scrollable>
-      <v-form ref="addProductForm" @submit.prevent>
+    <v-dialog v-model="addExtraItem.status" max-width="600" scrollable>
+      <v-form ref="addExtraForm" @submit.prevent>
         <v-card :title="`新增${active['items'][active.index]['tabName']}`">
           <v-card-text>
             <v-container>
@@ -246,7 +245,7 @@ const dynamicStatusMap = {
                 <template v-else>
                   <v-col cols="12">
                     <v-select
-                      v-model="addProductItem.form.status"
+                      v-model="addExtraItem.form.status"
                       label="狀態"
                       variant="outlined"
                       :items="[
@@ -262,18 +261,18 @@ const dynamicStatusMap = {
                   <v-col cols="12" sm="6">
                     <v-select
                       v-if="active.index === 0"
-                      v-model="addProductItem.form.category"
+                      v-model="addExtraItem.form.category"
                       label="類別"
                       variant="outlined"
-                      :items="productCategoriesStore.list"
+                      :items="extrasCategoryStore.list"
                       item-title="name"
                       item-value="_id"
-                      :rules="[addProductItem.rules.required]"
+                      :rules="[addExtraItem.rules.required]"
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-text-field
-                      v-model="addProductItem.form.price"
+                      v-model="addExtraItem.form.price"
                       type="number"
                       inputmode="numeric"
                       clearable
@@ -284,48 +283,22 @@ const dynamicStatusMap = {
 
                   <v-col cols="12">
                     <v-text-field
-                      v-model="addProductItem.form.name"
+                      v-model="addExtraItem.form.name"
                       clearable
                       label="名稱"
                       variant="outlined"
-                      :rules="[addProductItem.rules.required]"
+                      :rules="[addExtraItem.rules.required]"
                     ></v-text-field>
                   </v-col>
 
                   <v-col cols="12">
                     <v-text-field
-                      v-model="addProductItem.form.description"
+                      v-model="addExtraItem.form.description"
                       clearable
                       label="說明"
                       variant="outlined"
-                      :rules="[addProductItem.rules.required]"
+                      :rules="[addExtraItem.rules.required]"
                     ></v-text-field>
-                  </v-col>
-
-                  <v-col cols="12" v-show="active.index === 0">
-                    配料
-                    <v-btn
-                      block
-                      color="warning"
-                      size="small"
-                      @click="fastSettingExtrasGroup2026v2(addProductItem.form)"
-                      >快速新增2026v2配料</v-btn
-                    >
-                    <v-divider></v-divider>
-
-                    <v-data-table
-                      :headers="addExtrasTable.headers"
-                      :items="extrasList"
-                      v-model="addProductItem.form.extras"
-                      :item-value="(item) => item._id"
-                      :mobile="false"
-                      :search="search"
-                      fixed-header
-                      items-per-page="-1"
-                      show-select
-                    >
-                      <template #bottom></template>
-                    </v-data-table>
                   </v-col>
                 </template>
               </v-row>
@@ -341,7 +314,7 @@ const dynamicStatusMap = {
                 text="取消"
                 variant="outlined"
                 size="large"
-                @click="addProductCancel"
+                @click="addExtraCancel"
               ></v-btn>
 
               <v-btn
@@ -350,7 +323,7 @@ const dynamicStatusMap = {
                 text="保存"
                 variant="flat"
                 size="large"
-                @click="addProductItem.preSubmit(addProductItem.form)"
+                @click="addExtraItem.preSubmit(addExtraItem.form)"
               ></v-btn>
             </div>
           </v-card-actions>
@@ -360,7 +333,7 @@ const dynamicStatusMap = {
 
     <!-- 修改 DIALOG -->
     <v-dialog v-model="editDialog.status" max-width="600" scrollable>
-      <v-form ref="editProductForm" @submit.prevent>
+      <v-form ref="editExtraForm" @submit.prevent>
         <v-card :title="`修改${active.index === 1 ? '配料' : '產品'}`">
           <v-card-text>
             <v-container>
@@ -447,10 +420,10 @@ const dynamicStatusMap = {
                       v-model="editDialog.content.category"
                       label="類別"
                       variant="outlined"
-                      :items="productCategoriesStore.list"
+                      :items="extrasCategoryStore.list"
                       item-title="name"
                       item-value="_id"
-                      :rules="[addProductItem.rules.required]"
+                      :rules="[addExtraItem.rules.required]"
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="6">
@@ -459,7 +432,7 @@ const dynamicStatusMap = {
                       clearable
                       label="價錢"
                       variant="outlined"
-                      :rules="[addProductItem.rules.required]"
+                      :rules="[addExtraItem.rules.required]"
                     ></v-text-field>
                   </v-col>
 
@@ -469,7 +442,7 @@ const dynamicStatusMap = {
                       clearable
                       label="名稱"
                       variant="outlined"
-                      :rules="[addProductItem.rules.required]"
+                      :rules="[addExtraItem.rules.required]"
                     ></v-text-field>
                   </v-col>
 
@@ -479,26 +452,8 @@ const dynamicStatusMap = {
                       clearable
                       label="說明"
                       variant="outlined"
-                      :rules="[addProductItem.rules.required]"
+                      :rules="[addExtraItem.rules.required]"
                     ></v-text-field>
-                  </v-col>
-
-                  <v-col cols="12" v-if="active.index === 0">
-                    配料
-                    <v-divider></v-divider>
-                    <v-data-table
-                      :headers="addExtrasTable.headers"
-                      :items="extrasList"
-                      :item-value="(item) => item._id"
-                      v-model="editDialog.content.extras"
-                      :mobile="false"
-                      :search="search"
-                      fixed-header
-                      items-per-page="-1"
-                      show-select
-                    >
-                      <template #bottom></template>
-                    </v-data-table>
                   </v-col>
                 </template>
               </v-row>
@@ -514,7 +469,7 @@ const dynamicStatusMap = {
                 text="取消"
                 variant="outlined"
                 size="large"
-                @click="editProductCancel"
+                @click="editExtraCancel"
               ></v-btn>
 
               <v-btn
@@ -543,7 +498,7 @@ const dynamicStatusMap = {
             variant="flat"
             text="保存"
             color="success"
-            @click="saveEditProduct(editDialog.content)"
+            @click="saveEditExtra(editDialog.content)"
           />
         </template>
       </v-card>
@@ -566,7 +521,7 @@ const dynamicStatusMap = {
             variant="flat"
             text="保存"
             color="success"
-            @click="addProductItem.submit(addProductItem.form)"
+            @click="addExtraItem.submit(addExtraItem.form)"
           />
         </template>
       </v-card>
@@ -589,7 +544,7 @@ const dynamicStatusMap = {
             variant="flat"
             text="確認"
             color="success"
-            @click="deleteProductOrExtras(preDeleteContent._id)"
+            @click="deleteExtraOrExtraCategory(preDeleteContent._id)"
           />
         </template>
       </v-card>

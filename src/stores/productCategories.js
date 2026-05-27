@@ -33,10 +33,11 @@ export const useProductsCategoryStore = defineStore('ProductCategories', () => {
   })
 
   const deleteProductCategory = catchAsync(async (id) => {
-    const { data } = await deleteProductCategoryAPI(id)
-
+    const res = await deleteProductCategoryAPI(id)
+    const { data } = res
     list.value = data?.items || []
-    return data
+
+    return res
   })
 
   return {
