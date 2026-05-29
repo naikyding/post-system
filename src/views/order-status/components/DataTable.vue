@@ -260,6 +260,7 @@ function addProductItemInOrder(orderList, item) {
 const preSaveEditOrderDialog = ref(false)
 
 function editOrderList() {
+  productsStore.getProductsMenu()
   initEditForm(editOrderForm, systemOrderStore.activeOrderList)
   editSheetStatus.value = true
 }
@@ -1581,16 +1582,11 @@ const computedMarkers = (markers) => {
                             <v-row class="px-4 py-2">
                               <v-col
                                 ><v-btn
-                                  @click="
-                                    initEditForm(
-                                      ref(editOrderForm),
-                                      systemOrderStore.activeOrderList,
-                                    )
-                                  "
+                                  @click="optionExtras.dialog = false"
                                   variant="flat"
                                   size="large"
-                                  text="還原"
-                                  color="warning"
+                                  text="取消"
+                                  color="error"
                                   block
                                 ></v-btn
                               ></v-col>
@@ -1716,7 +1712,7 @@ const computedMarkers = (markers) => {
                         :value="index"
                         class="text-subtitle-1"
                       >
-                        {{ productItems.type }}
+                        {{ productItems.category.name }}
                       </v-tab>
                     </v-tabs>
 

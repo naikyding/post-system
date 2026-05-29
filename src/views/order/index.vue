@@ -19,6 +19,7 @@ const {
   parseDate,
   schedule,
   cancelSettingDateAndTime,
+  findBagProductItem,
   resetCart,
 } = useOrder()
 
@@ -315,7 +316,6 @@ const computedMarkers = (markers) => {
                         >
                         </v-btn>
                         <!-- 快捷新增按鈕 (含提袋) -->
-
                         <v-btn
                           v-show="productItem.type !== '塑膠提袋'"
                           class="fast-add-item-and-sack-btn"
@@ -324,7 +324,7 @@ const computedMarkers = (markers) => {
                               ordersStore.ordersList,
                               productItem,
                               dialog,
-                              '64cf45d1ee6af4dc14dcb456',
+                              '6a13f73c46635fb4a4232148',
                             )
                           "
                           icon="mdi-shopping"
@@ -370,10 +370,28 @@ const computedMarkers = (markers) => {
 
         <v-divider class="mt-4" />
 
-        <v-card-text class="py-6">
+        <v-card-text>
           <!-- 加料 -->
+          <h4 class="text-h6">特製</h4>
+          <v-chip-group
+            class="mb-1"
+            v-model="ordersStore.activeProductItem.markers"
+            column
+            multiple
+          >
+            <v-chip
+              v-for="mark in markerStore.markerList"
+              :text="mark.name"
+              :value="mark"
+              :key="mark._id"
+              variant="outlined"
+              size="large"
+              filter
+            ></v-chip>
+          </v-chip-group>
+
           <div v-if="ordersStore.activeProductItem.product?.extras?.length > 0">
-            <h4 class="mb-4">特製</h4>
+            <h4 class="text-h6">升級</h4>
 
             <div>
               <v-expansion-panels
@@ -494,29 +512,6 @@ const computedMarkers = (markers) => {
                 </v-expansion-panel>
               </v-expansion-panels>
             </div>
-          </div>
-          <div class="markers mt-4 mb-1">
-            <v-select
-              v-model="ordersStore.activeProductItem.markers"
-              :items="markerStore.markerList"
-              chips
-              label="特製"
-              multiple
-              variant="outlined"
-              closable-chips
-              clearable
-            >
-              <template v-slot:chip="{ props, item }">
-                <v-chip
-                  v-bind="props"
-                  :prepend-avatar="item.raw.avatar"
-                  :text="item.raw.name"
-                ></v-chip>
-              </template>
-              <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
-              </template>
-            </v-select>
           </div>
 
           <div class="notes">
@@ -741,6 +736,38 @@ const computedMarkers = (markers) => {
                 $
                 <span class="font-weight-bold"> {{ orderItem.total }} </span>
               </div>
+            </div>
+
+            <div class="mt-2">
+              <v-btn
+                @click.stop="
+                  ordersStore.fashAddActiveProductItemToOrdersList(
+                    ordersStore.ordersList,
+                    ordersStore.findBagProductItem(
+                      productsStore.products,
+                      '6a13f73c46635fb4a4232148',
+                    ),
+                    dialog,
+                  )
+                "
+                color="warning"
+                class="mr-2"
+                >加小提袋</v-btn
+              >
+              <v-btn
+                @click.stop="
+                  ordersStore.fashAddActiveProductItemToOrdersList(
+                    ordersStore.ordersList,
+                    ordersStore.findBagProductItem(
+                      productsStore.products,
+                      '6a13f75046635fb4a4232154',
+                    ),
+                    dialog,
+                  )
+                "
+                color="warning"
+                >加大提袋</v-btn
+              >
             </div>
 
             <!-- 手機未三碼 -->
