@@ -124,19 +124,22 @@ export function useProducts() {
     submit: addProductItemSubmit,
   })
 
+  const defaultCategoryForm = {
+    status: 'draft',
+    name: '',
+    slug: '',
+    sort: 0,
+    image: '',
+    includeInDashboard: true,
+  }
+
   const category = ref({
     rules: {
       required(v) {
         return !!v || 'Field is required'
       },
     },
-    form: {
-      status: 'draft',
-      name: '',
-      slug: '',
-      sort: 0,
-      image: '',
-    },
+    form: structuredClone(defaultCategoryForm),
   })
 
   async function validationForm(ref) {
@@ -163,7 +166,11 @@ export function useProducts() {
   }
   function addProductCancel() {
     addProductItem.value.status = false
-    if (addProductForm.value) addProductForm.value.reset()
+
+    if (addProductForm.value) {
+      addProductForm.value.reset()
+      category.value.form = structuredClone(defaultCategoryForm)
+    }
   }
   async function addProductItemSubmit(form) {
     const actionMap = {
