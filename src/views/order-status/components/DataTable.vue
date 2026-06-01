@@ -260,6 +260,7 @@ function addProductItemInOrder(orderList, item) {
 const preSaveEditOrderDialog = ref(false)
 
 function editOrderList() {
+  productsStore.getProductsMenu()
   initEditForm(editOrderForm, systemOrderStore.activeOrderList)
   editSheetStatus.value = true
 }
@@ -572,6 +573,15 @@ async function removeProductItemBagS(bagSizeId) {
     orderListProductEditForm.putExtrasContent.length = 0
   }
 }
+const computedExtrasItem = (extras) => {
+  if (!extras?.length) return ''
+
+  return '└ ' + extras.map((extra) => `${extra.extraItem.name} ×${extra.quantity}`).join(' / ')
+}
+
+const computedMarkers = (markers) => {
+  return '└ 特製：' + markers.map((marker) => `${marker.name}`).join(' / ')
+}
 </script>
 
 <template>
@@ -653,10 +663,9 @@ async function removeProductItemBagS(bagSizeId) {
                   <v-btn @click="toggleOrderItem(items._id)" variant="outlined">展開查看</v-btn>
                 </component>
 
-                <div class="notes">
-                  <v-chip v-show="items.note" color="warning" prepend-icon="mdi-lead-pencil">
-                    {{ items.note }}
-                  </v-chip>
+                <!-- 大備註 -->
+                <div v-show="items.note" class="note font-italic font-bold">
+                  {{ items.note }}
                 </div>
               </td>
               <td class="text-h3">
@@ -749,49 +758,35 @@ async function removeProductItemBagS(bagSizeId) {
                       : {}
                   "
                 >
-                  <a
-                    href="javascript:;"
-                    class="text-white font-weight-bold"
+                  <span
+                    class="text-h6 font-weight-bold text-white bg-grey-darken-3 rounded-lg px-2 cursor-pointer"
                     @click="showOrderListDetails(items)"
                   >
-                    {{ product.product?.name }}
-                  </a>
+                    {{ product.product?.name }} ›
+                  </span>
                 </component>
 
                 <!-- 加選配料 -->
-                <div>
-                  <v-chip
-                    class="ma-1 text-subtitle-1"
-                    v-for="extra in product.extras"
-                    :key="extra._id"
-                    color="error"
-                  >
-                    {{ extra.extraItem?.name || '--' }} x{{ extra.quantity }}
-                  </v-chip>
+                <div class="text-body-2 text-grey-lighten-2 mt-1">
+                  {{ computedExtrasItem(product.extras) }}
                 </div>
 
-                <div class="mark">
-                  <v-chip v-for="marker in product.markers" class="ma-1" :key="marker._id">
-                    {{ marker.name }}
-                  </v-chip>
-                </div>
-
-                <div class="notes">
-                  <v-chip v-show="product.notes" color="warning" prepend-icon="mdi-lead-pencil">
-                    {{ product.notes }}
-                  </v-chip>
+                <!-- 特製 -->
+                <div
+                  v-show="product.markers.length > 0"
+                  class="mark text-body-2 font-weight-bold text-orange-lighten-3 mt-1"
+                >
+                  <span>{{ computedMarkers(product.markers) }}</span>
                 </div>
 
                 <!-- 備註 -->
-                <div class="note">
-                  <v-chip
-                    v-show="items.note"
-                    class="my-1"
-                    prepend-icon="mdi-home-circle"
-                    color="teal"
-                  >
-                    {{ items.note }}
-                  </v-chip>
+                <div v-show="product.notes" class="notes text-caption text-grey mt-1">
+                  └ 備註：{{ product.notes }}
+                </div>
+
+                <!-- 大備註 -->
+                <div v-show="items.note" class="note font-italic">
+                  {{ items.note }}
                 </div>
               </td>
               <!-- 數量 -->
@@ -902,10 +897,12 @@ async function removeProductItemBagS(bagSizeId) {
                 </v-chip>
               </div>
 
-              <div class="mark">
-                <v-chip v-for="marker in product.markers" class="ma-1" :key="marker._id">
-                  {{ marker.name }}
-                </v-chip>
+              <!-- 特製 -->
+              <div
+                v-show="product.markers.length > 0"
+                class="mark text-body-2 font-weight-bold text-orange-lighten-3 mt-1"
+              >
+                <span>{{ computedMarkers(product.markers) }}</span>
               </div>
 
               <div class="notes">
@@ -1024,8 +1021,8 @@ async function removeProductItemBagS(bagSizeId) {
                 :key="extraItem._id"
                 class="text-caption d-flex align-center"
               >
-                <v-icon icon="mdi-plus-circle" class="mr-1" />
-                <span> {{ extraItem.extraItem.name }} x{{ extraItem.quantity }} </span>
+                <span class="mr-1">└</span>
+                <span class="mr-2"> {{ extraItem.extraItem.name }} ×{{ extraItem.quantity }} </span>
                 <span> (${{ extraItem.price }})</span>
 
                 <!-- 移除加購的提袋 -->
@@ -1039,16 +1036,17 @@ async function removeProductItemBagS(bagSizeId) {
                 ></v-btn>
               </div>
 
-              <div class="mark">
-                <v-chip v-for="marker in orderItem.markers" class="ma-1" :key="marker._id">
-                  {{ marker.name }}
-                </v-chip>
+              <!-- 特製 -->
+              <div
+                v-show="orderItem.markers.length > 0"
+                class="mark text-body-2 font-weight-bold text-orange-lighten-3 mt-1"
+              >
+                <span>{{ computedMarkers(orderItem.markers) }}</span>
               </div>
 
-              <div class="notes">
-                <v-chip v-show="orderItem.notes" color="warning" prepend-icon="mdi-lead-pencil">
-                  {{ orderItem.notes }}
-                </v-chip>
+              <!-- 備註 -->
+              <div v-show="orderItem.notes" class="notes text-caption text-grey mt-1">
+                └ 備註：{{ orderItem.notes }}
               </div>
             </div>
 
@@ -1584,16 +1582,11 @@ async function removeProductItemBagS(bagSizeId) {
                             <v-row class="px-4 py-2">
                               <v-col
                                 ><v-btn
-                                  @click="
-                                    initEditForm(
-                                      ref(editOrderForm),
-                                      systemOrderStore.activeOrderList,
-                                    )
-                                  "
+                                  @click="optionExtras.dialog = false"
                                   variant="flat"
                                   size="large"
-                                  text="還原"
-                                  color="warning"
+                                  text="取消"
+                                  color="error"
                                   block
                                 ></v-btn
                               ></v-col>
@@ -1719,7 +1712,7 @@ async function removeProductItemBagS(bagSizeId) {
                         :value="index"
                         class="text-subtitle-1"
                       >
-                        {{ productItems.type }}
+                        {{ productItems.category.name }}
                       </v-tab>
                     </v-tabs>
 

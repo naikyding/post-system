@@ -1,35 +1,35 @@
 import { ref, watch, computed } from 'vue'
 import { useProductsStore } from '@/stores/products'
 import { useExtrasStore } from '@/stores/extras'
-import { useProductsCategoryStore } from '../../../stores/productCategories'
+import { useExtrasCategoryStore } from '../../../stores/extraCategories'
 import { formatNumber } from 'chart.js/helpers'
 
-export function useProducts() {
+export function useExtras() {
   const extrasStore = useExtrasStore()
   const productsStore = useProductsStore()
-  const productCategoriesStore = useProductsCategoryStore()
+  const extrasCategoryStore = useExtrasCategoryStore()
 
   const search = ref('')
-  const addProductForm = ref(null)
-  const editProductForm = ref(null)
+  const addExtraForm = ref(null)
+  const editExtraForm = ref(null)
 
   const preEditSaveDialog = ref(false)
   async function preEditSave() {
-    productCategoriesStore.getProductCategories()
-    const validation = await validationForm(editProductForm)
+    extrasCategoryStore.getExtraCategories()
+    const validation = await validationForm(editExtraForm)
     if (validation) preEditSaveDialog.value = true
   }
   function priEditCancel() {
     preEditSaveDialog.value = false
   }
 
-  function editProductCancel() {
+  function editExtraCancel() {
     editDialog.value.content = {}
     editDialog.value.status = false
-    if (editProductForm.value) editProductForm.value.reset()
+    if (editExtraForm.value) editExtraForm.value.reset()
   }
 
-  async function saveEditProduct(form) {
+  async function saveEditExtra(form) {
     const defaultMsg = {
       status: false,
       message: '發生錯誤',
@@ -40,8 +40,8 @@ export function useProducts() {
     )
 
     const actionMap = {
-      0: () => productsStore.updateProduct(form._id, formatPayload),
-      1: () => productCategoriesStore.updateProductCategory(form._id, formatPayload),
+      0: () => extrasStore.updateExtra(form._id, formatPayload),
+      1: () => extrasCategoryStore.updateExtraCategory(form._id, formatPayload),
     }
 
     const res = await actionMap[active.value.index]?.()
@@ -50,7 +50,7 @@ export function useProducts() {
     if (!status) return priEditCancel()
 
     priEditCancel()
-    editProductCancel()
+    editExtraCancel()
 
     statusSnackbar.value.color = 'success'
     statusSnackbar.value.text = message
@@ -65,16 +65,16 @@ export function useProducts() {
     preDeleteDialog.value = true
     preDeleteContent.value = data
   }
-  async function deleteProductOrExtras(id) {
+  async function deleteExtraOrExtraCategory(id) {
     const actionMap = {
-      0: () => productsStore.deleteProduct(id),
-      1: () => productCategoriesStore.deleteProductCategory(id),
+      0: () => extrasStore.deleteExtra(id),
+      1: () => extrasCategoryStore.deleteExtraCategory(id),
     }
 
     const res = await actionMap[active.value.index]?.()
 
     preDeleteDialog.value = false
-    console.log(res)
+
     if (res) {
       const { message } = res
       preDeleteContent.value = {}
@@ -97,16 +97,12 @@ export function useProducts() {
     text: '--',
   })
 
-  async function addProduct() {
-    if (active.value.index === 0) {
-      await getExtrasList({ status: 'active' })
-    }
-
-    productCategoriesStore.getProductCategories()
-    addProductItem.value.status = true
+  function addExtra() {
+    if (active.value.index === 0) extrasCategoryStore.getExtraCategories()
+    addExtraItem.value.status = true
   }
 
-  const addProductItem = ref({
+  const addExtraItem = ref({
     status: false,
     rules: {
       required(v) {
@@ -121,7 +117,7 @@ export function useProducts() {
       extras: [],
     },
     preSubmit: preAddProductItemSubmit,
-    submit: addProductItemSubmit,
+    submit: addExtraItemSubmit,
   })
 
   const category = ref({
@@ -145,30 +141,33 @@ export function useProducts() {
   }
 
   watch(
-    () => addProductItem.value.status,
+    () => addExtraItem.value.status,
     (status) => {
       if (!status) {
-        addProductCancel()
-        addProductItem.value.form.extras.length = 0
-        addProductItem.value.form.status = 'active'
+        addExtraCancel()
+        addExtraItem.value.form.extras.length = 0
+        addExtraItem.value.form.status = 'active'
+
+        category.value.form.status = 'draft'
+        category.value.form.sort = 0
       }
     },
   )
 
   async function preAddProductItemSubmit() {
-    const valid = await validationForm(addProductForm)
+    const valid = await validationForm(addExtraForm)
     if (!valid) return false
 
     preSaveDialog.value = true
   }
-  function addProductCancel() {
-    addProductItem.value.status = false
-    if (addProductForm.value) addProductForm.value.reset()
+  function addExtraCancel() {
+    addExtraItem.value.status = false
+    if (addExtraForm.value) addExtraForm.value.reset()
   }
-  async function addProductItemSubmit(form) {
+  async function addExtraItemSubmit(form) {
     const actionMap = {
-      0: () => productsStore.createProduct(form),
-      1: () => productCategoriesStore.createProductCategory(category.value.form),
+      0: () => extrasStore.createExtrasItem(form),
+      1: () => extrasCategoryStore.createExtraCategory(category.value.form),
     }
 
     const res = await actionMap[active.value.index]?.()
@@ -180,9 +179,9 @@ export function useProducts() {
       statusSnackbar.value.color = 'success'
       statusSnackbar.value.text = message
 
-      addProductCancel()
+      addExtraCancel()
 
-      addProductItem.value.form.extras.length = 0
+      addExtraItem.value.form.extras.length = 0
 
       statusSnackbar.value.status = true
     }
@@ -197,14 +196,14 @@ export function useProducts() {
     index: 0,
     items: [
       {
-        tabName: '商品',
-        list: computed(() => formatProductList(productsStore.products)),
-        getList: getProductsList,
+        tabName: '配料',
+        list: computed(() => extrasStore.extras),
+        getList: getExtrasList,
       },
       {
         tabName: '類別',
-        list: computed(() => productCategoriesStore.list),
-        getList: () => productCategoriesStore.getProductCategories(),
+        list: computed(() => extrasCategoryStore.list),
+        getList: extrasCategoryStore.getExtraCategories,
       },
     ],
   })
@@ -236,7 +235,6 @@ export function useProducts() {
       { title: '價錢', key: 'price', align: 'end', value: (item) => `$${item.price}` },
       { title: '操作', key: 'actions', align: 'center' },
     ],
-
     1: [
       { title: '狀態', key: 'status' },
       { title: '名稱', key: 'name' },
@@ -249,7 +247,7 @@ export function useProducts() {
 
   const addExtrasTable = ref({
     headers: [
-      { title: '類別', key: 'category.name' },
+      { title: '類型', key: 'type' },
       { title: '名稱', key: 'name' },
       { title: '說明', key: 'description' },
       { title: '價錢', key: 'price', align: 'end', value: (item) => `$${item.price}` },
@@ -265,11 +263,8 @@ export function useProducts() {
 
   function reFetchData(status) {
     search.value = ''
-
     active.value.items[status]['getList']()
   }
-
-  const extrasList = computed(() => extrasStore.extras)
 
   function getExtrasList(query) {
     extrasStore.getExtrasList(query)
@@ -281,39 +276,35 @@ export function useProducts() {
 
   function editItem(item) {
     if (active.value.index === 0) {
-      productCategoriesStore.getProductCategories()
+      extrasCategoryStore.getExtraCategories()
       getExtrasList({ status: 'active' })
     }
 
     editDialog.value.content = {}
 
     const cloneItem = JSON.parse(JSON.stringify(item))
+    cloneItem.category = cloneItem.category?._id
 
-    if (active.value.index === 0) {
-      cloneItem.extras = cloneItem.extras.reduce((acc, cur) => {
-        return (acc = [...acc, ...cur.items.map((item) => item._id)])
-      }, [])
-      cloneItem.category = cloneItem.category?._id
-    }
+    console.log(cloneItem)
     editDialog.value.content = cloneItem
 
     editDialog.value.status = true
   }
 
-  getProductsList()
+  getExtrasList()
 
   return {
-    productCategoriesStore,
+    extrasCategoryStore,
     category,
     tableHeaders,
     preEditSave,
-    saveEditProduct,
+    saveEditExtra,
     proDeleteProductOrExtras,
-    deleteProductOrExtras,
-    addProduct,
+    deleteExtraOrExtraCategory,
+    addExtra,
     table,
     addExtrasTable,
-    addProductItem,
+    addExtraItem,
     editDialog,
     preEditSaveDialog,
     preDeleteDialog,
@@ -321,13 +312,12 @@ export function useProducts() {
     statusSnackbar,
     active,
     search,
-    addProductCancel,
-    editProductCancel,
+    addExtraCancel,
+    editExtraCancel,
     editItem,
-    addProductForm,
-    editProductForm,
+    addExtraForm,
+    editExtraForm,
     priEditCancel,
     preDeleteContent,
-    extrasList,
   }
 }

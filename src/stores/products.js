@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
   getProductsAPI,
+  getProductsForMenuAPI,
   getMarkersAPI,
   createProductAPI,
   deleteProductAPI,
@@ -16,6 +17,13 @@ export const useProductsStore = defineStore('products', () => {
     products.value.length = 0
     products.value = list
   }
+
+  // 取得產品列表 (菜單)
+  const getProductsMenu = catchAsync(async () => {
+    products.value.length = 0
+    const { data } = await getProductsForMenuAPI()
+    if (data) products.value = data.items
+  })
 
   // 取得產品列表
   const getProducts = catchAsync(async () => {
@@ -56,6 +64,7 @@ export const useProductsStore = defineStore('products', () => {
 
   return {
     products,
+    getProductsMenu,
     getProducts,
     createProduct,
     deleteProduct,

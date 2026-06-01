@@ -117,7 +117,7 @@ export function useOrder() {
 
   onMounted(async () => {
     // 取得產品最表
-    await productsStore.getProducts()
+    await productsStore.getProductsMenu()
     await markerStore.getMarkers()
     tabActiveId.value = 0
   })
@@ -128,9 +128,7 @@ export function useOrder() {
 
   const activeProducts = (allProducts) => {
     return allProducts.filter((productItem) => {
-      const activeProduct = productItem.items.filter(
-        (item) => item.status === 'active' && item.type !== '',
-      )
+      const activeProduct = productItem.items.filter((item) => item.status === 'active')
       if (activeProduct.length > 0) return productItem
     })
   }
