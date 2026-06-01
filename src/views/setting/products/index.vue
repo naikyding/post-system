@@ -183,7 +183,7 @@ const dynamicStatusMap = {
             <v-container>
               <v-row dense>
                 <template v-if="active['items'][active.index]['tabName'] === '類別'">
-                  <v-col cols="12">
+                  <v-col cols="6">
                     <v-select
                       v-model="category.form.status"
                       label="狀態"
@@ -196,6 +196,14 @@ const dynamicStatusMap = {
                       item-title="title"
                       item-value="name"
                     ></v-select>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-switch
+                      v-model="category.form.includeInDashboard"
+                      label="列入銷售統計"
+                      color="success"
+                      inset
+                    ></v-switch>
                   </v-col>
 
                   <!-- 排序 -->
@@ -365,7 +373,7 @@ const dynamicStatusMap = {
               <v-row dense>
                 <template v-if="active['items'][active.index]['tabName'] === '類別'">
                   <!-- 狀態 -->
-                  <v-col cols="12">
+                  <v-col cols="6">
                     <v-select
                       v-model="editDialog.content.status"
                       label="狀態"
@@ -378,6 +386,14 @@ const dynamicStatusMap = {
                       item-title="title"
                       item-value="name"
                     ></v-select>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-switch
+                      v-model="editDialog.content.includeInDashboard"
+                      label="列入銷售統計"
+                      color="success"
+                      inset
+                    ></v-switch>
                   </v-col>
 
                   <!-- 排序 -->
