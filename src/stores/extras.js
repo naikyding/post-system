@@ -6,8 +6,8 @@ import catchAsync from '../utils/catchAsync'
 export const useExtrasStore = defineStore('extras', () => {
   const extras = ref([])
 
-  const getExtrasList = catchAsync(async () => {
-    const { data } = await getExtrasAPI()
+  const getExtrasList = catchAsync(async (query) => {
+    const { data } = await getExtrasAPI(query || undefined)
     if (data) saveExtrasList(data)
   })
 

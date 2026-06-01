@@ -15,10 +15,13 @@ import { resFunc } from '../utils/resFunc'
 import dayJS from 'dayjs'
 import { errorFunction } from '../utils/catchAsync'
 import { useLocalStorage } from '@vueuse/core'
+import { useProductsStore } from '@/stores/products'
 
 export const useOrdersStore = defineStore('orders', () => {
   // 暫存訂單
   const localOrderList = useLocalStorage('stashOrderList', [])
+  const productsStore = useProductsStore()
+  const productList = computed(() => productsStore.products)
 
   function stashLocalOrderList() {
     if (ordersList.items.length < 1) return false
@@ -106,27 +109,38 @@ export const useOrdersStore = defineStore('orders', () => {
     resetActiveProductItem()
   }
 
+  function findBagProductItem(productList, bagId) {
+    return productList
+      .flatMap((productItem) => productItem.items)
+      .find((item) => item._id === bagId)
+  }
+
+  async function addActiveProductsToOrderList(productsAry, ordersList, dialog) {
+    const bagIds = ['6a13f73c46635fb4a4232148', '6a13f75046635fb4a4232154'] // 小袋 / 大袋
+    if (bagIds.includes(productsAry[0]._id))
+      return addActiveProductItemToOrderList(ordersList, productsAry[0], dialog)
+
+    for (const productItem of productsAry) {
+      await addActiveProductItemToOrderList(ordersList, productItem, dialog)
+    }
+  }
+
+  async function addActiveProductItemToOrderList(ordersList, productItem, dialog) {
+    await selectedProduct(productItem, dialog, false)
+    await addActiveProductItemToOrdersList(activeProductItem, ordersList, dialog)
+  }
+
   // 快速將 當前選擇產品項目 加入 購物車
   async function fashAddActiveProductItemToOrdersList(ordersList, productItem, dialog, bagId) {
-    await selectedProduct(productItem, dialog, false)
-
     if (bagId) {
-      // 產品是否有袋子
-      const bagExtrasIncludes = productItem.extras
-        .find((extrasItem) => extrasItem.type === '加購')
-        .items.find((item) => item._id === bagId)
+      const bagProductItem = productList.value
+        .flatMap((productItem) => productItem.items)
+        .find((item) => item._id === bagId)
 
-      if (bagExtrasIncludes)
-        activeProductItem.form.extras = [
-          {
-            extraItem: bagExtrasIncludes,
-            quantity: 1,
-            price: bagExtrasIncludes.price * 1,
-          },
-        ]
+      return addActiveProductsToOrderList([productItem, bagProductItem], ordersList, dialog)
     }
 
-    await addActiveProductItemToOrdersList(activeProductItem, ordersList, dialog)
+    addActiveProductItemToOrderList(ordersList, productItem, dialog)
   }
 
   // 點單項目是否存在清單中 (for 當前產品項目加入購物車)
@@ -196,7 +210,7 @@ export const useOrdersStore = defineStore('orders', () => {
   // 點擊產品功能
   function selectedProduct(productItem, dialog, dialogStatus) {
     activeProductItem.product = productItem
-    activeProductItem.extrasTypeOpen = productItem.extras.map((item) => item.type) || []
+    activeProductItem.extrasTypeOpen = productItem.extras.map((item) => item.category.name) || []
     dialog.activeProductItem = dialogStatus
   }
 
@@ -365,6 +379,7 @@ export const useOrdersStore = defineStore('orders', () => {
   })
 
   return {
+    findBagProductItem,
     resetOrderList,
     ordersList,
     addActiveProductItemToOrdersList,
@@ -458,7 +473,10 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   const getOrderList = catchAsync(
     async (type, active) => {
       if (type === 'today') initTodayAndTab()
-
+      const bagIds = [
+        '6a13f75046635fb4a4232154', // 大袋
+        '6a13f73c46635fb4a4232148', // 小袋
+      ]
       orderList.value.length = 0
       const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
 
@@ -471,7 +489,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
         readyForPickupQuantity.value = 0
         readyForPickupQuantity.value = data.items.reduce((init, cur) => {
           return (init += cur.items.reduce((init, cur) => {
-            if (cur.product && cur.product.type === '塑膠提袋') return init
+            if (cur.product && bagIds.includes(cur.product._id)) return init
             return (init += cur.quantity)
           }, 0))
         }, 0)
@@ -481,7 +499,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
         pendingQuantity.value = 0
         pendingQuantity.value = data.items.reduce((init, cur) => {
           return (init += cur.items.reduce((init, cur) => {
-            if (cur.product && cur.product.type === '塑膠提袋') return init
+            if (cur.product && bagIds.includes(cur.product._id)) return init
             return (init += cur.quantity)
           }, 0))
         }, 0)

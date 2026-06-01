@@ -1,4 +1,10 @@
-import { getProducts, createProduct, deleteProduct, updateProduct } from './products'
+import {
+  getProducts,
+  getProductsForMenu,
+  createProduct,
+  deleteProduct,
+  updateProduct,
+} from './products'
 import {
   createOrder,
   getOrderList,
@@ -33,11 +39,26 @@ import {
 
 import { getAgents, createAgent, deleteAgent, updateAgent } from './agents.js'
 
+import {
+  getProductCategories,
+  createProductCategory,
+  deleteProductCategory,
+  updateProductCategory,
+} from './productCategories.js'
+
+import {
+  getExtraCategories,
+  createExtraCategory,
+  deleteExtraCategory,
+  updateExtraCategory,
+} from './extraCategories.js'
+
 import { createTSS } from './tss.js'
 
 export const createTSSAPI = createTSS
 
 export const getProductsAPI = getProducts
+export const getProductsForMenuAPI = getProductsForMenu
 export const createProductAPI = createProduct
 export const deleteProductAPI = deleteProduct
 export const updateProductAPI = updateProduct
@@ -93,3 +114,13 @@ export const getAgentsAPI = getAgents
 export const createAgentAPI = createAgent
 export const deleteAgentAPI = deleteAgent
 export const updateAgentAPI = updateAgent
+
+export const getProductCategoriesAPI = getProductCategories
+export const createProductCategoryAPI = createProductCategory
+export const deleteProductCategoryAPI = deleteProductCategory
+export const updateProductCategoryAPI = updateProductCategory
+
+export const getExtraCategoriesAPI = getExtraCategories
+export const createExtraCategoryAPI = createExtraCategory
+export const deleteExtraCategoryAPI = deleteExtraCategory
+export const updateExtraCategoryAPI = updateExtraCategory

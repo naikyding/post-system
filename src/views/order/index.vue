@@ -19,12 +19,21 @@ const {
   parseDate,
   schedule,
   cancelSettingDateAndTime,
+  findBagProductItem,
   resetCart,
 } = useOrder()
 
 function stashOrderList() {
   ordersStore.stashLocalOrderList()
   dialog.confirmOrderList = false
+}
+const computedExtrasItem = (extras) => {
+  if (!extras?.length) return ''
+
+  return '└ ' + extras.map((extra) => `${extra.extraItem.name} ×${extra.quantity}`).join(' / ')
+}
+const computedMarkers = (markers) => {
+  return '└ 特製：' + markers.map((marker) => `${marker.name}`).join(' / ')
 }
 </script>
 
@@ -89,29 +98,30 @@ function stashOrderList() {
                       <span class="text-caption"> ${{ item.product.price }} </span>
                     </div>
 
-                    <!-- 加料 -->
-                    <div class="special">
-                      <span
-                        v-for="(extra, index) in item.extras"
-                        :key="extra.extraItem._id"
-                        class="text-caption"
-                        color="error"
-                      >
-                        {{ extra.extraItem.name }}x{{ extra.quantity }} (${{ extra.price }})
-                        <span v-if="index + 1 !== item.extras.length"> / </span>
+                    <!-- 加選配料 -->
+                    <div
+                      v-for="extraItem in item.extras"
+                      :key="extraItem._id"
+                      class="text-caption d-flex align-center"
+                    >
+                      <span class="mr-1">└</span>
+                      <span class="mr-2">
+                        {{ extraItem.extraItem.name }} ×{{ extraItem.quantity }}
                       </span>
+                      <span> (${{ extraItem.price }})</span>
                     </div>
 
-                    <div class="mark">
-                      <v-chip v-for="marker in item.markers" class="ma-1" :key="marker._id">
-                        {{ marker.name }}
-                      </v-chip>
+                    <!-- 特製 -->
+                    <div
+                      v-show="item.markers.length > 0"
+                      class="mark text-body-2 font-weight-bold text-orange-lighten-3 mt-1"
+                    >
+                      <span>{{ computedMarkers(item.markers) }}</span>
                     </div>
 
-                    <div class="notes">
-                      <v-chip v-show="item.notes" color="warning" prepend-icon="mdi-lead-pencil">
-                        {{ item.notes }}
-                      </v-chip>
+                    <!-- 備註 -->
+                    <div v-show="item.notes" class="notes text-caption text-grey mt-1">
+                      └ 備註：{{ item.notes }}
                     </div>
                   </v-col>
                   <v-col
@@ -249,7 +259,7 @@ function stashOrderList() {
               :value="index"
               class="text-subtitle-1"
             >
-              {{ productItems.type }}
+              {{ productItems.category?.name }}
             </v-tab>
           </v-tabs>
 
@@ -306,7 +316,6 @@ function stashOrderList() {
                         >
                         </v-btn>
                         <!-- 快捷新增按鈕 (含提袋) -->
-
                         <v-btn
                           v-show="productItem.type !== '塑膠提袋'"
                           class="fast-add-item-and-sack-btn"
@@ -315,7 +324,7 @@ function stashOrderList() {
                               ordersStore.ordersList,
                               productItem,
                               dialog,
-                              '64cf45d1ee6af4dc14dcb456',
+                              '6a13f73c46635fb4a4232148',
                             )
                           "
                           icon="mdi-shopping"
@@ -361,10 +370,28 @@ function stashOrderList() {
 
         <v-divider class="mt-4" />
 
-        <v-card-text class="py-6">
+        <v-card-text>
           <!-- 加料 -->
+          <h4 class="text-h6">特製</h4>
+          <v-chip-group
+            class="mb-1"
+            v-model="ordersStore.activeProductItem.markers"
+            column
+            multiple
+          >
+            <v-chip
+              v-for="mark in markerStore.markerList"
+              :text="mark.name"
+              :value="mark"
+              :key="mark._id"
+              variant="outlined"
+              size="large"
+              filter
+            ></v-chip>
+          </v-chip-group>
+
           <div v-if="ordersStore.activeProductItem.product?.extras?.length > 0">
-            <h4 class="mb-4">特製</h4>
+            <h4 class="text-h6">升級</h4>
 
             <div>
               <v-expansion-panels
@@ -376,12 +403,12 @@ function stashOrderList() {
               >
                 <v-expansion-panel
                   rounded
-                  :bg-color="extras.type === '加購' ? 'warning' : '#2e2e2e'"
+                  :bg-color="extras.category.name === '加購' ? 'warning' : '#2e2e2e'"
                   class="my-2"
-                  :value="extras.type"
+                  :value="extras.category.name"
                 >
                   <v-expansion-panel-title expand-icon="mdi-menu-down">
-                    <span class="text-subtitle-1"> {{ extras.type }} </span>
+                    <span class="text-subtitle-1"> {{ extras.category.name }} </span>
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
                     <div v-for="(extra, index) in extras.items" :key="extra">
@@ -485,29 +512,6 @@ function stashOrderList() {
                 </v-expansion-panel>
               </v-expansion-panels>
             </div>
-          </div>
-          <div class="markers mt-4 mb-1">
-            <v-select
-              v-model="ordersStore.activeProductItem.markers"
-              :items="markerStore.markerList"
-              chips
-              label="特製"
-              multiple
-              variant="outlined"
-              closable-chips
-              clearable
-            >
-              <template v-slot:chip="{ props, item }">
-                <v-chip
-                  v-bind="props"
-                  :prepend-avatar="item.raw.avatar"
-                  :text="item.raw.name"
-                ></v-chip>
-              </template>
-              <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
-              </template>
-            </v-select>
           </div>
 
           <div class="notes">
@@ -708,21 +712,22 @@ function stashOrderList() {
                     class="text-caption"
                     color="error"
                   >
-                    <v-icon> mdi-plus-circle </v-icon>
-                    {{ extra.extraItem.name }}x{{ extra.quantity }} (${{ extra.price }})
+                    <span class="mr-1">└</span>
+                    {{ extra.extraItem.name }} ×{{ extra.quantity }} (${{ extra.price }})
                   </div>
                 </div>
 
-                <div class="mark">
-                  <v-chip v-for="marker in orderItem.markers" class="ma-1" :key="marker._id">
-                    {{ marker.name }}
-                  </v-chip>
+                <!-- 特製 -->
+                <div
+                  v-show="orderItem.markers.length > 0"
+                  class="mark text-body-2 font-weight-bold text-orange-lighten-3 mt-1"
+                >
+                  <span>{{ computedMarkers(orderItem.markers) }}</span>
                 </div>
 
-                <div class="notes">
-                  <v-chip v-show="orderItem.notes" color="warning" prepend-icon="mdi-lead-pencil">
-                    {{ orderItem.notes }}
-                  </v-chip>
+                <!-- 備註 -->
+                <div v-show="orderItem.notes" class="notes text-caption text-grey mt-1">
+                  └ 備註：{{ orderItem.notes }}
                 </div>
               </div>
               <v-spacer></v-spacer>
@@ -731,6 +736,38 @@ function stashOrderList() {
                 $
                 <span class="font-weight-bold"> {{ orderItem.total }} </span>
               </div>
+            </div>
+
+            <div class="mt-2">
+              <v-btn
+                @click.stop="
+                  ordersStore.fashAddActiveProductItemToOrdersList(
+                    ordersStore.ordersList,
+                    ordersStore.findBagProductItem(
+                      productsStore.products,
+                      '6a13f73c46635fb4a4232148',
+                    ),
+                    dialog,
+                  )
+                "
+                color="warning"
+                class="mr-2"
+                >加小提袋</v-btn
+              >
+              <v-btn
+                @click.stop="
+                  ordersStore.fashAddActiveProductItemToOrdersList(
+                    ordersStore.ordersList,
+                    ordersStore.findBagProductItem(
+                      productsStore.products,
+                      '6a13f75046635fb4a4232154',
+                    ),
+                    dialog,
+                  )
+                "
+                color="warning"
+                >加大提袋</v-btn
+              >
             </div>
 
             <!-- 手機未三碼 -->
