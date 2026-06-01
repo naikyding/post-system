@@ -65,12 +65,12 @@ const {
 
         <!-- 訂單數 -->
         <v-col cols="6">
-          <v-card variant="tonal" rounded="lg" color="success" class="py-6">
+          <v-card variant="tonal" rounded="lg" color="blue-darken-2" class="py-6">
             <v-card-item title="訂單數" class="pt-0" />
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
-                  <span class="text-white">
+                  <span class="text-white font-weight-bold">
                     {{ completedTotalOrder }}
                   </span>
                 </v-col>
@@ -81,12 +81,12 @@ const {
 
         <!-- 商品數 -->
         <v-col cols="6">
-          <v-card variant="tonal" rounded="lg" color="success" class="py-6">
+          <v-card variant="tonal" rounded="lg" color="deep-purple-darken-2" class="py-6">
             <v-card-item title="商品數" class="pt-0" />
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
-                  <span class="text-white">
+                  <span class="text-white font-weight-bold">
                     {{ completedTotalQuantity }}
                   </span>
                 </v-col>
@@ -97,7 +97,7 @@ const {
 
         <!-- 現金 -->
         <v-col cols="12">
-          <v-card variant="tonal" rounded="lg" color="success" class="py-6">
+          <v-card variant="tonal" rounded="lg" color="amber-darken-1" class="py-6">
             <v-card-title class="pt-0">
               <span class="mr-2">
                 {{ `現金` }}
@@ -119,7 +119,7 @@ const {
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
                   <span class="text-caption text-white">NT$</span>
-                  <span class="text-white">
+                  <span class="text-white font-weight-bold">
                     {{ completedPayTypeTotalAmount.cash }}
                   </span>
                 </v-col>
@@ -130,7 +130,7 @@ const {
 
         <!-- LinePay 支付 -->
         <v-col cols="12">
-          <v-card variant="tonal" rounded="lg" color="success" class="py-6">
+          <v-card variant="tonal" rounded="lg" color="green-darken-2" class="py-6">
             <v-card-title class="pt-0">
               <span class="mr-2">
                 {{ `Line Pay` }}
@@ -152,7 +152,7 @@ const {
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
                   <span class="text-caption text-white">NT$</span>
-                  <span class="text-white">
+                  <span class="text-white font-weight-bold">
                     {{ completedPayTypeTotalAmount.linePay }}
                   </span>
                 </v-col>
@@ -198,13 +198,13 @@ const {
 
         <!-- 客單價 -->
         <v-col cols="12">
-          <v-card variant="tonal" rounded="lg" color="success" class="py-6">
+          <v-card variant="tonal" rounded="lg" color="pink-darken-2" class="py-6">
             <v-card-item title="客單價" class="pt-0" />
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
                 <v-col class="text-h3" cols="12">
                   <span class="text-caption text-white">NT$</span>
-                  <span class="text-white">
+                  <span class="text-white font-weight-bold">
                     {{ Math.round(completedTotalAmount / completedTotalOrder) || 0 }}
                   </span>
                 </v-col>
