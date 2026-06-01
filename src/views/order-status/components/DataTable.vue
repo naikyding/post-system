@@ -759,7 +759,7 @@ const computedMarkers = (markers) => {
                   "
                 >
                   <span
-                    class="text-h6 font-weight-bold text-white bg-grey-darken-3 rounded-lg px-2 cursor-pointer"
+                    class="text-subtitle-1 font-weight-bold text-white bg-grey-darken-3 rounded-lg px-2 cursor-pointer"
                     @click="showOrderListDetails(items)"
                   >
                     {{ product.product?.name }} ›
