@@ -96,7 +96,6 @@ export function useDashboard() {
   }
 
   async function updateDateModel(date) {
-    console.log('updateDateModel')
     await date.forEach((item, index, array) => {
       if (index === 0) dashboardStore.searchData.from = dateFormat(item)
       if (index === 0 && array.length < 2) dashboardStore.searchData.to = dateFormat(item)
@@ -114,7 +113,7 @@ export function useDashboard() {
 
   const dataTable = ref({
     headers: [
-      { title: '類別', key: 'type' },
+      { title: '類別', key: 'category' },
       { title: '名稱', key: 'name' },
       { title: '數量', key: 'quantity' },
     ],
