@@ -110,14 +110,22 @@ export function useDashboard() {
 
     dashboardStore.getDashboardData(dashboardStore.formatSearchQueryString)
   }
+  const dataTable = computed(() => {
+    const list = (dashboardStore.dashboardData.completedTotalItem || []).map((item) => ({
+      ...item,
 
-  const dataTable = ref({
-    headers: [
-      { title: '類別', key: 'category' },
-      { title: '名稱', key: 'name' },
-      { title: '數量', key: 'quantity' },
-    ],
-    list: computed(() => dashboardStore.dashboardData.completedTotalItem),
+      // 新類別優先，舊類別備用
+      displayCategory: item.category || item.type || '-',
+    }))
+
+    return {
+      headers: [
+        { title: '類別', key: 'displayCategory' },
+        { title: '名稱', key: 'name' },
+        { title: '數量', key: 'quantity' },
+      ],
+      list,
+    }
   })
 
   console.log('useDashboard')
