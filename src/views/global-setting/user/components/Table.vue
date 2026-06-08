@@ -87,7 +87,25 @@ function menuItemEvent({ model, itemData }) {
             <td>
               {{ getAgents(item.agentRoles)[0]?.name }}
             </td>
-            <td>{{ getRoles(item.agentRoles, getAgents(item.agentRoles)[0]?._id)[0]?.name }}</td>
+            <td>
+              <v-chip
+                v-if="item.isSuperAdmin"
+                :style="{ marginRight: '2px' }"
+                color="error"
+                size="small"
+              >
+                超級管理員
+              </v-chip>
+              <v-chip
+                v-if="getRoles(item.agentRoles, getAgents(item.agentRoles)[0]?._id)[0]?.name"
+                :style="{ marginRight: '2px' }"
+                variant="outlined"
+                color="cyan"
+                size="small"
+              >
+                {{ getRoles(item.agentRoles, getAgents(item.agentRoles)[0]?._id)[0]?.name }}
+              </v-chip>
+            </td>
 
             <td class="text-center">
               <DotsActionMenu :items="menuItems" :id="item._id" :data="item" />

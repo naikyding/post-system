@@ -24,6 +24,15 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
   const pwdForm = ref(initPwdForm())
 
+  const selectedRole = computed({
+    get() {
+      return user.form.value.agentRoles?.[0]?.roles?.[0] || null
+    },
+    set(value) {
+      user.form.value.agentRoles[0].roles = value ? [value] : []
+    },
+  })
+
   function initForm(data = {}) {
     const defaultForm = {
       email: '',
@@ -64,7 +73,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     required: (value) => !!value || '必須項目',
     email: (email) => isEmail(email) || '格式錯誤',
     nickname: (name) => isLength(name, { min: 2 }) || '請輸入至少 2 字元',
-    roles: (roles) => roles.length > 0 || '至少選擇一個角色',
+    roles: (roles) => (roles && roles.length > 0) || '至少選擇一個角色',
     password: (psw) => isLength(psw, { min: 8 }) || '至少 8 字元長度',
   }
 
@@ -73,7 +82,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
   onMounted(() => {
     userStore.getUserList()
-    roleStore.getList('agent')
+    roleStore.getList()
   })
 
   watch(
@@ -122,7 +131,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     if (valid) {
       delete update.password
 
-      const { status } = await updateUserAPI(agentId, form.value)
+      const { status } = await updateUserAPI(agentId, update)
       createAndUpdateSuccess(status)
     }
   })

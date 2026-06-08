@@ -60,13 +60,13 @@ const user = inject('user')
 
       <v-col cols="12">
         <v-select
-          v-model="user.form.value.agentRoles[0]['roles']"
+          :model-value="user.form.value.agentRoles[0].roles?.[0] || null"
+          @update:model-value="user.form.value.agentRoles[0].roles = $event ? [$event] : []"
           :rules="[user.formRules.roles]"
           :items="user.roleList.value"
           item-title="name"
           item-value="_id"
           label="角色"
-          multiple
           variant="outlined"
           persistent-hint
           clearable
