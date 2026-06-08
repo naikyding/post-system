@@ -74,8 +74,9 @@ function menuItemEvent({ model, itemData }) {
         :items-per-page="-1"
         hover
       >
-        <template v-slot:item="{ item }">
+        <template v-slot:item="{ item, index }">
           <tr>
+            <td>{{ index + 1 }}</td>
             <td>
               <span class="font-weight-black">{{ item.nickname }}</span>
             </td>
@@ -84,42 +85,29 @@ function menuItemEvent({ model, itemData }) {
             </td>
 
             <td>
-              <v-expansion-panels class="my-2" color="grey-darken-3" variant="accordion" multiple>
-                <v-expansion-panel
-                  bg-color="grey-darken-4"
-                  v-for="agent in getAgents(item.agentRoles)"
-                  :key="agent._id"
-                  :value="agent._id"
-                >
-                  <v-expansion-panel-title class="text-caption">
-                    <v-icon
-                      color="success"
-                      class="mr-1"
-                      :icon="
-                        usersStore.activeAgentId === agent._id ? 'mdi-check-circle-outline' : ''
-                      "
-                    ></v-icon>
-                    {{ agent.name }}
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text>
-                    <v-chip
-                      :style="{ marginRight: '2px' }"
-                      variant="outlined"
-                      color="cyan"
-                      size="small"
-                      v-for="agentAndRolesItem in getRoles(item.agentRoles, agent._id)"
-                      :key="agentAndRolesItem._id"
-                    >
-                      {{ agentAndRolesItem.name }}
-                    </v-chip>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+              {{ getAgents(item.agentRoles)[0]?.name }}
             </td>
             <td>
-              <span class="text-caption">{{ dateFormat(item.createAt) }}</span>
+              <v-chip
+                v-if="item.isSuperAdmin"
+                :style="{ marginRight: '2px' }"
+                color="error"
+                size="small"
+              >
+                超級管理員
+              </v-chip>
+              <v-chip
+                v-if="getRoles(item.agentRoles, getAgents(item.agentRoles)[0]?._id)[0]?.name"
+                :style="{ marginRight: '2px' }"
+                variant="outlined"
+                color="cyan"
+                size="small"
+              >
+                {{ getRoles(item.agentRoles, getAgents(item.agentRoles)[0]?._id)[0]?.name }}
+              </v-chip>
             </td>
-            <td>
+
+            <td class="text-center">
               <DotsActionMenu :items="menuItems" :id="item._id" :data="item" />
             </td>
           </tr>

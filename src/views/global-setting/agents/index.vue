@@ -32,27 +32,55 @@ const { headers, items, formDialog, form, cancelConfirmDialog, saveConfirmDialog
           <v-col cols="12">
             <v-text-field
               v-model="form.name"
-              label="名稱"
+              label="店家名稱"
               variant="outlined"
-              required
               :rules="[rules.required]"
-            ></v-text-field>
+            />
           </v-col>
+
           <v-col cols="12">
             <v-text-field
+              v-model="form.code"
+              label="店家代碼"
+              hint="例如：MONSTER、FIDI"
+              persistent-hint
+              variant="outlined"
+              :rules="[rules.required]"
+            />
+          </v-col>
+
+          <v-col cols="12">
+            <v-textarea
               v-model="form.description"
-              label="說明"
+              label="店家說明"
               variant="outlined"
-              required
-            ></v-text-field>
+              rows="3"
+              auto-grow
+            />
           </v-col>
+
           <v-col cols="12">
-            <v-text-field
-              v-model="form.image"
-              label="圖片"
+            <v-text-field v-model="form.image" label="圖片網址" variant="outlined" />
+          </v-col>
+
+          <v-col cols="12">
+            <v-select
+              v-model="form.status"
+              label="狀態"
               variant="outlined"
-              required
-            ></v-text-field>
+              :items="[
+                {
+                  title: '啟用',
+                  value: 'active',
+                },
+                {
+                  title: '停用',
+                  value: 'inactive',
+                },
+              ]"
+              item-title="title"
+              item-value="value"
+            />
           </v-col>
         </v-row>
       </v-form>

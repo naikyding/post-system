@@ -12,6 +12,23 @@ const props = defineProps({
   },
 })
 
+const statusMap = {
+  active: {
+    text: '啟用',
+    color: 'success',
+  },
+
+  inactive: {
+    text: '停用',
+    color: 'grey',
+  },
+
+  draft: {
+    text: '草稿',
+    color: 'warning',
+  },
+}
+
 const agent = inject('agent')
 
 // MENU
@@ -56,6 +73,11 @@ function menuItemEvent({ model, itemData }) {
       :items-per-page="-1"
       hover
     >
+      <template v-slot:item.status="{ value }">
+        <v-chip size="small" variant="tonal" :color="statusMap[value]?.color">
+          {{ statusMap[value]?.text || value }}
+        </v-chip>
+      </template>
       <template v-slot:item.image="{ value }">
         <div class="pa-1">
           <v-avatar color="grey" size="32" :image="value"></v-avatar>

@@ -20,9 +20,10 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
   }
 
   const headers = [
+    { title: '狀態', key: 'status' },
     { title: '圖片', key: 'image' },
-    { title: 'ID', key: '_id' },
     { title: '名稱', key: 'name' },
+    { title: '代碼', key: 'code' },
     { title: '說明', key: 'description' },
     { title: '操作', key: 'actions' },
   ]
@@ -55,11 +56,18 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
     title,
   })
 
-  function initForm({ name = '', description = '', image = '' } = {}) {
+  const defaultForm = {
+    name: '',
+    description: '',
+    image: '',
+    code: '',
+    status: 'active',
+  }
+
+  function initForm(data = {}) {
     return {
-      name,
-      description,
-      image,
+      ...defaultForm,
+      ...data,
     }
   }
 
@@ -91,6 +99,8 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
           name: item.name,
           description: item.description,
           image: item.image,
+          status: item.status,
+          code: item.code,
         })
       }
       formDialogRef.value.status = true

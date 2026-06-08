@@ -59,7 +59,16 @@ const user = inject('user')
         ></v-text-field>
       </v-col>
 
-      <template v-if="user.active.value.model !== 'update'">
+      <v-col cols="12">
+        <v-switch
+          v-model="user.form.value.isSuperAdmin"
+          label="全域超級管理員"
+          color="error"
+          inset
+        />
+      </v-col>
+
+      <template v-if="user.active.value.model !== 'update' && !user.form.value.isSuperAdmin">
         <v-col cols="12">
           <v-select
             v-model="user.form.value.agentRoles[0]['agent']"
@@ -68,8 +77,6 @@ const user = inject('user')
             :items="user.agentList.value"
             item-title="name"
             item-value="_id"
-            hide-details
-            density="compact"
           >
             <template v-slot:item="{ props: itemProps, item }">
               <v-list-item v-bind="itemProps" :subtitle="item.raw.description"></v-list-item>
@@ -79,17 +86,12 @@ const user = inject('user')
 
         <v-col cols="12">
           <v-select
-            :disabled="!user.form.value.agentRoles[0]['agent']"
             v-model="user.form.value.agentRoles[0]['roles']"
             :rules="[user.formRules.roles]"
-            density="compact"
-            :items="
-              user.filterRolesByAgent(user.form.value.agentRoles[0]['agent'], user.roleList.value)
-            "
+            :items="user.roleList.value"
             item-title="name"
             item-value="_id"
             label="角色"
-            multiple
             variant="outlined"
             persistent-hint
             clearable
@@ -100,7 +102,8 @@ const user = inject('user')
           </v-select>
         </v-col>
       </template>
-      <v-col v-else cols="12" class="mb-4">
+
+      <v-col v-else-if="!user.form.value.isSuperAdmin" cols="12" class="mb-4">
         <v-card variant="tonal" color="surface-variant">
           <template
             v-for="(agentRoleItem, index) in user.form.value.agentRoles"
@@ -133,16 +136,10 @@ const user = inject('user')
                     v-model="user.form.value.agentRoles[index]['roles']"
                     :rules="[user.formRules.roles]"
                     density="compact"
-                    :items="
-                      user.filterRolesByAgent(
-                        user.form.value.agentRoles[index]['agent'],
-                        user.roleList.value,
-                      )
-                    "
+                    :items="user.roleList.value"
                     item-title="name"
                     item-value="_id"
                     :label="`商家${index + 1} - 角色`"
-                    multiple
                     variant="outlined"
                     persistent-hint
                     clearable

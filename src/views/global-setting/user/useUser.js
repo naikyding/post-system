@@ -42,6 +42,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
       avatar: '',
       phone: '',
       note: '',
+      isSuperAdmin: false,
     }
 
     // 定義允許的欄位
@@ -170,7 +171,10 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     if (valid) {
       delete update.password
 
-      const { status } = await updateUserAPI(agentId, form.value)
+      if (update.isSuperAdmin) update.agentRoles = []
+
+      console.log(update)
+      const { status } = await updateUserAPI(agentId, update)
       createAndUpdateSuccess(status)
     }
   })
