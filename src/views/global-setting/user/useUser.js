@@ -72,7 +72,7 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
     required: (value) => !!value || '必須項目',
     email: (email) => isEmail(email) || '格式錯誤',
     nickname: (name) => isLength(name, { min: 2 }) || '請輸入至少 2 字元',
-    roles: (roles) => roles.length > 0 || '至少選擇一個角色',
+    roles: (roles) => (roles && roles.length > 0) || '至少選擇一個角色',
     password: (psw) => isLength(psw, { min: 8 }) || '至少 8 字元長度',
   }
 
@@ -158,7 +158,10 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
   const create = catchAsync(async () => {
     const { valid } = await formDialogRef.value.form.validate()
+
     if (valid) {
+      if (form.value.isSuperAdmin) form.value.agentRoles = []
+
       const { status } = await createUserAPI(form.value)
       createAndUpdateSuccess(status)
     }
@@ -173,7 +176,6 @@ export function useUser({ tableRef, formDialogRef, confirmDialogRef }) {
 
       if (update.isSuperAdmin) update.agentRoles = []
 
-      console.log(update)
       const { status } = await updateUserAPI(agentId, update)
       createAndUpdateSuccess(status)
     }
