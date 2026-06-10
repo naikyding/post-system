@@ -20,6 +20,7 @@ const {
   schedule,
   cancelSettingDateAndTime,
   findBagProductItem,
+  isQuickAddProductList,
   resetCart,
 } = useOrder()
 
@@ -311,23 +312,6 @@ const computedMarkers = (markers) => {
                             )
                           "
                           icon="mdi-plus"
-                          variant="tonal"
-                          color="success"
-                        >
-                        </v-btn>
-                        <!-- 快捷新增按鈕 (含提袋) -->
-                        <v-btn
-                          v-show="productItem.type !== '塑膠提袋'"
-                          class="fast-add-item-and-sack-btn"
-                          @click.stop="
-                            ordersStore.fashAddActiveProductItemToOrdersList(
-                              ordersStore.ordersList,
-                              productItem,
-                              dialog,
-                              '6a13f73c46635fb4a4232148',
-                            )
-                          "
-                          icon="mdi-shopping"
                           variant="tonal"
                           color="warning"
                         >
@@ -740,33 +724,21 @@ const computedMarkers = (markers) => {
 
             <div class="mt-2">
               <v-btn
+                v-for="item in isQuickAddProductList"
+                :key="item._id"
                 @click.stop="
                   ordersStore.fashAddActiveProductItemToOrdersList(
                     ordersStore.ordersList,
-                    ordersStore.findBagProductItem(
-                      productsStore.products,
-                      '6a13f73c46635fb4a4232148',
-                    ),
+                    ordersStore.findBagProductItem(productsStore.products, item._id),
                     dialog,
                   )
                 "
                 color="warning"
                 class="mr-2"
-                >加小提袋</v-btn
-              >
-              <v-btn
-                @click.stop="
-                  ordersStore.fashAddActiveProductItemToOrdersList(
-                    ordersStore.ordersList,
-                    ordersStore.findBagProductItem(
-                      productsStore.products,
-                      '6a13f75046635fb4a4232154',
-                    ),
-                    dialog,
-                  )
-                "
-                color="warning"
-                >加大提袋</v-btn
+                prepend-icon="mdi-plus-circle"
+                variant="outlined"
+                rounded="xl"
+                >{{ item.name }}</v-btn
               >
             </div>
 
