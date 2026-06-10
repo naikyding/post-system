@@ -33,7 +33,12 @@ const agent = inject('agent')
 
 // MENU
 const menuItems = [
-  { title: '新增用戶', icon: 'mdi-plus-circle', code: 'createUser', event: menuItemEvent },
+  {
+    title: '新增分店',
+    icon: 'mdi-plus-circle',
+    code: 'createAgentFromMasterAgent',
+    event: menuItemEvent,
+  },
   { type: 'divider' },
   { title: '修改商家', icon: 'mdi-pencil', code: 'editAgent', event: menuItemEvent },
   { type: 'divider' },
@@ -83,6 +88,7 @@ function menuItemEvent({ model, itemData }) {
           <v-avatar color="grey" size="32" :image="value"></v-avatar>
         </div>
       </template>
+      <template v-slot:item.parentAgent="{ value }">{{ value?.name || '-' }}</template>
       <template v-slot:item._id="{ value }">
         <v-chip
           @click="agent.handelCopyId(value)"

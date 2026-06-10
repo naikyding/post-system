@@ -10,19 +10,27 @@ const formDialogRef = ref(null)
 const ConfirmDialogRef = ref(null)
 const formRef = ref(null)
 
-const { headers, items, formDialog, form, cancelConfirmDialog, saveConfirmDialog, rules } =
-  useAgents({
-    formDialogRef,
-    ConfirmDialogRef,
-    formRef,
-  })
+const {
+  activeModel,
+  headers,
+  items,
+  formDialog,
+  form,
+  cancelConfirmDialog,
+  updateToMasterAgent,
+  saveConfirmDialog,
+  rules,
+} = useAgents({
+  formDialogRef,
+  ConfirmDialogRef,
+  formRef,
+})
 </script>
 
 <template>
   <div class="bg-grey-darken-4 d-flex flex-column">
     <div class="flex-grow-1 overflow-auto">
       <h3 class="pa-4 pb-0">Global 商家設定</h3>
-
       <Table class="d-flex flex-column flex-grow-1" :headers="headers" :items="items" />
     </div>
 
@@ -81,6 +89,20 @@ const { headers, items, formDialog, form, cancelConfirmDialog, saveConfirmDialog
               item-title="title"
               item-value="value"
             />
+          </v-col>
+          <v-col cols="12">
+            <v-select
+              v-model="form.parentAgent"
+              label="上層商家"
+              variant="outlined"
+              :items="items.filter((item) => item._id !== form._id)"
+              item-title="name"
+              item-value="_id"
+            />
+          </v-col>
+
+          <v-col cols="12" v-if="activeModel === 'editAgent'">
+            <v-btn @click="updateToMasterAgent(form)" block color="error">升級為總店</v-btn>
           </v-col>
         </v-row>
       </v-form>

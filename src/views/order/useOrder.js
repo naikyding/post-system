@@ -23,6 +23,12 @@ export function useOrder() {
     scheduleAt: false,
   })
 
+  const isQuickAddProductList = computed(() => {
+    return productsStore.products.reduce((acc, cur) => {
+      return (acc = [...acc, ...cur.items.filter((item) => item.isQuickAdd)])
+    }, [])
+  })
+
   const schedule = reactive({
     date: null,
     time: null,
@@ -171,5 +177,6 @@ export function useOrder() {
     schedule,
     cancelSettingDateAndTime,
     stashOrderList,
+    isQuickAddProductList,
   }
 }

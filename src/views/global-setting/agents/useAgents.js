@@ -21,9 +21,9 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
 
   const headers = [
     { title: '狀態', key: 'status' },
-    { title: '圖片', key: 'image' },
     { title: '名稱', key: 'name' },
     { title: '代碼', key: 'code' },
+    { title: '所屬總店', key: 'parentAgent' },
     { title: '說明', key: 'description' },
     { title: '操作', key: 'actions' },
   ]
@@ -48,7 +48,8 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
 
   const title = computed(() => {
     if (activeModel.value === 'createAgent') return '新增商家'
-    else if (activeModel.value === 'createUser') return '新增用戶'
+    else if (activeModel.value === 'createAgentFromMasterAgent')
+      return `新增 ${form.value.parentAgent.name} 分店`
     else if (activeModel.value === 'editAgent') return '修改商家'
     return '--'
   })
@@ -56,12 +57,26 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
     title,
   })
 
+  async function createAgentFromMasterAgent() {
+    console.log('createAgentFromMasterAgent')
+    const { valid } = await formRef.value.validate()
+    if (valid) {
+      form.value.parentAgent = form.value.parentAgent._id
+      const { status } = await createAgentAPI(form.value)
+      if (status) {
+        closeDialog()
+        getAgentList()
+      }
+    }
+  }
+
   const defaultForm = {
     name: '',
     description: '',
     image: '',
     code: '',
     status: 'active',
+    parentAgent: null,
   }
 
   function initForm(data = {}) {
@@ -87,13 +102,21 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
     },
   )
 
+  function openFormDialog() {
+    formDialogRef.value.status = true
+  }
+
   function openDialog({ model, id, item }) {
     activeModel.value = model
     activeId.value = id
-    if (model === 'deleteAgent') {
-      ConfirmDialogRef.value.status = true
-    } else {
-      if (model === 'editAgent') {
+
+    const actionMap = {
+      createAgentFromMasterAgent: () => {
+        form.value.parentAgent = item
+        openFormDialog()
+      },
+
+      editAgent: () => {
         activeItem.value = item
         form.value = initForm({
           name: item.name,
@@ -101,10 +124,21 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
           image: item.image,
           status: item.status,
           code: item.code,
+          parentAgent: item.parentAgent,
         })
-      }
-      formDialogRef.value.status = true
+        openFormDialog()
+      },
+
+      createAgent: () => {
+        openFormDialog()
+      },
+
+      deleteAgent: () => {
+        ConfirmDialogRef.value.status = true
+      },
     }
+
+    actionMap[model]?.()
   }
 
   function resetDialog() {
@@ -136,15 +170,22 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
     }
   })
 
+  function updateToMasterAgent(form) {
+    form.parentAgent = null
+  }
+
   function createUser() {
     console.log('addUser')
   }
 
   const editAgent = catchAsync(async () => {
-    console.log('editAgent')
+    123
     const { valid } = await formRef.value.validate()
 
     if (valid) {
+      if (form.value.parentAgent?._id) {
+        form.value.parentAgent = form.value.parentAgent._id
+      }
       const { status } = await updateAgentAPI(activeId.value, form.value)
       if (status) {
         closeDialog()
@@ -179,6 +220,7 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
     resetDialog,
 
     createAgent,
+    createAgentFromMasterAgent,
     createUser,
     editAgent,
     deleteAgent,
@@ -195,6 +237,7 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
 
   return {
     headers,
+    updateToMasterAgent,
     items,
     formDialog,
     activeModel,
