@@ -13,6 +13,7 @@ import catchAsync from '../utils/catchAsync'
 export const useProductsStore = defineStore('products', () => {
   // 產品列表
   const products = ref([])
+
   function updateProductList(list) {
     products.value.length = 0
     products.value = list

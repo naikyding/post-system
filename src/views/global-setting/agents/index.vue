@@ -11,6 +11,7 @@ const ConfirmDialogRef = ref(null)
 const formRef = ref(null)
 
 const {
+  activeModel,
   headers,
   items,
   formDialog,
@@ -100,7 +101,7 @@ const {
             />
           </v-col>
 
-          <v-col cols="12">
+          <v-col cols="12" v-if="activeModel === 'editAgent'">
             <v-btn @click="updateToMasterAgent(form)" block color="error">升級為總店</v-btn>
           </v-col>
         </v-row>

@@ -56,7 +56,7 @@ request.interceptors.response.use(
     const appStore = useAppStore()
     appStore.progressStatus = false
     console.log(
-      `%c✅ ${response.status} Response: `,
+      `%c✅ ${response.status} Response (${response.config.url}): `,
       'background: #04BFBF; border-radius: 4px; padding: .3rem 1rem;',
       response.data,
     )
