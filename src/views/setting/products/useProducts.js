@@ -23,6 +23,10 @@ export function useProducts() {
     preEditSaveDialog.value = false
   }
 
+  const productCategoryActiveList = computed(() =>
+    productCategoriesStore.list.filter((item) => item.status === 'available'),
+  )
+
   function editProductCancel() {
     editDialog.value.content = {}
     editDialog.value.status = false
@@ -236,7 +240,6 @@ export function useProducts() {
   const dynamicTableHeader = {
     0: [
       { title: '狀態', key: 'status' },
-      { title: '類型', key: 'type' },
       { title: '類別', key: 'category.name' },
       { title: '名稱', key: 'name' },
       { title: '說明', key: 'description' },
@@ -336,5 +339,6 @@ export function useProducts() {
     priEditCancel,
     preDeleteContent,
     extrasList,
+    productCategoryActiveList,
   }
 }

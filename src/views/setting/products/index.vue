@@ -26,8 +26,9 @@ const {
   priEditCancel,
   preDeleteContent,
   category,
-  productCategoriesStore,
+
   extrasList,
+  productCategoryActiveList,
 } = useProducts()
 
 const menuItems = [
@@ -271,7 +272,7 @@ const dynamicStatusMap = {
                       v-model="addProductItem.form.category"
                       label="類別"
                       variant="outlined"
-                      :items="productCategoriesStore.list"
+                      :items="productCategoryActiveList"
                       item-title="name"
                       item-value="_id"
                       :rules="[addProductItem.rules.required]"
@@ -470,7 +471,7 @@ const dynamicStatusMap = {
                       v-model="editDialog.content.category"
                       label="類別"
                       variant="outlined"
-                      :items="productCategoriesStore.list"
+                      :items="productCategoryActiveList"
                       item-title="name"
                       item-value="_id"
                       :rules="[addProductItem.rules.required]"
