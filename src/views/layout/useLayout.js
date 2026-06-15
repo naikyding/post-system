@@ -5,6 +5,7 @@ import { useSystemOrderList } from '@/stores/orders'
 import { watch } from 'vue'
 import router from '../../router'
 import { useRouterStore } from '@/stores/router'
+import { useOrdersStore } from '@/stores/orders'
 
 export function useLayout() {
   const routerStore = useRouterStore()
@@ -85,6 +86,14 @@ export function useLayout() {
     passwordForm.value.reset()
   }
 
+  function userLogOut(url) {
+    const ordersStore = useOrdersStore()
+    ordersStore.ordersList.items.length = 0
+    ordersStore.ordersList.note = null
+
+    userStore.logoutFunc(url)
+  }
+
   return {
     transformMenus,
     state,
@@ -98,5 +107,6 @@ export function useLayout() {
     passwordInput,
     passwordForm,
     userStore,
+    userLogOut,
   }
 }
