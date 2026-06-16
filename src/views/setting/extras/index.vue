@@ -27,6 +27,7 @@ const {
   preDeleteContent,
   category,
   extrasCategoryStore,
+  extrasCategoryActiveList,
 } = useExtras()
 
 const menuItems = [
@@ -264,7 +265,7 @@ const statusMap = {
                       v-model="addExtraItem.form.category"
                       label="類別"
                       variant="outlined"
-                      :items="extrasCategoryStore.list"
+                      :items="extrasCategoryActiveList"
                       item-title="name"
                       item-value="_id"
                       :rules="[addExtraItem.rules.required]"
@@ -420,7 +421,7 @@ const statusMap = {
                       v-model="editDialog.content.category"
                       label="類別"
                       variant="outlined"
-                      :items="extrasCategoryStore.list"
+                      :items="extrasCategoryActiveList"
                       item-title="name"
                       item-value="_id"
                       :rules="[addExtraItem.rules.required]"

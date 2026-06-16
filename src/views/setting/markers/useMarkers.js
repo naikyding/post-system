@@ -6,10 +6,11 @@ import { createMarkerAPI, deleteMarkerAPI, editMarkerAPI } from '@/api'
 export function useMarkers({ tableRef, formDialogRef, confirmDialogRef }) {
   const markersStore = useMarkersStore()
 
-  const initForm = ({ name = '', description = '' } = {}) => {
+  const initForm = ({ name = '', description = '', sort = 0 } = {}) => {
     return {
       name,
       description,
+      sort,
     }
   }
 
@@ -38,6 +39,19 @@ export function useMarkers({ tableRef, formDialogRef, confirmDialogRef }) {
   )
 
   const form = ref(initForm())
+  const formRules = {
+    name: (v) => !!v || '名稱必填',
+    sort: (v) => {
+      if (v === null || v === undefined || v === '') return '排序必填'
+
+      if (!Number.isInteger(Number(v))) return '排序必須為整數'
+
+      if (Number(v) < 0) return '排序不可小於 0'
+
+      return true
+    },
+  }
+
   const active = ref(initActive())
 
   const openFormDialog = ({ model, id, data }) => {
@@ -53,6 +67,7 @@ export function useMarkers({ tableRef, formDialogRef, confirmDialogRef }) {
 
   const resetForm = () => {
     form.value = initForm(active.value.data)
+    formDialogRef.value.form?.resetValidation()
   }
 
   const cancelFormDialog = () => {
@@ -73,12 +88,25 @@ export function useMarkers({ tableRef, formDialogRef, confirmDialogRef }) {
     active.value = initActive()
   }
 
+  const validateForm = async () => {
+    const { valid } = await formDialogRef.value.form.validate()
+    if (!valid) return false
+
+    return true
+  }
+
   const create = catchAsync(async () => {
+    const isValid = await validateForm()
+    if (!isValid) return
+
     const { status } = await createMarkerAPI(form.value)
     successFunc(status)
   })
 
   const update = catchAsync(async () => {
+    const isValid = await validateForm()
+    if (!isValid) return
+
     const id = active.value.id
     const payload = form.value
     const { status } = await editMarkerAPI({ id, data: payload })
@@ -118,6 +146,7 @@ export function useMarkers({ tableRef, formDialogRef, confirmDialogRef }) {
     create,
     update,
     deleteItem,
+    formRules,
   })
 
   return { form }

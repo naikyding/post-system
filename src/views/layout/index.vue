@@ -15,6 +15,7 @@ const {
   passwordForm,
   userStore,
   transformMenus,
+  userLogOut,
 } = useLayout()
 </script>
 
@@ -105,7 +106,7 @@ const {
       <template v-slot:append>
         <div>
           <v-list-item
-            @click="userStore.logoutFunc('/login')"
+            @click="userLogOut('/login')"
             prepend-icon="mdi-logout"
             title="Logout"
             value="logout"

@@ -13,6 +13,10 @@ export function useExtras() {
   const addExtraForm = ref(null)
   const editExtraForm = ref(null)
 
+  const extrasCategoryActiveList = computed(() =>
+    extrasCategoryStore.list.filter((item) => item.status === 'available'),
+  )
+
   const preEditSaveDialog = ref(false)
   async function preEditSave() {
     extrasCategoryStore.getExtraCategories()
@@ -228,7 +232,6 @@ export function useExtras() {
   const dynamicTableHeader = {
     0: [
       { title: '狀態', key: 'status' },
-      { title: '類型', key: 'type' },
       { title: '類別', key: 'category.name' },
       { title: '名稱', key: 'name' },
       { title: '說明', key: 'description' },
@@ -319,5 +322,6 @@ export function useExtras() {
     editExtraForm,
     priEditCancel,
     preDeleteContent,
+    extrasCategoryActiveList,
   }
 }
