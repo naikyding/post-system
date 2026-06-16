@@ -38,6 +38,10 @@ router.beforeEach(async (to, from, next) => {
     } else return next()
   }
 
+  if (userStore.isLogin && to.name === 'RolesMain') {
+    return next()
+  }
+
   if (userStore.isLogin && !routerStore.generateRoutesStatus) {
     const routes = await routerStore.generateRoutes()
     routes.forEach((route) => {
