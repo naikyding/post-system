@@ -6,7 +6,7 @@ let retry = false
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 8000,
+  timeout: 15000,
 })
 
 // Interceptors ((REQUEST))
@@ -73,7 +73,7 @@ request.interceptors.response.use(
 
     // 請求逾時
     if (error.code === 'ECONNABORTED') {
-      error.message = error.message + ' (請求逾時)'
+      error.message = error.message + `請求逾時 (${error.config?.url})`
       return Promise.reject(error)
     } else {
       console.error('其他錯誤', error)
