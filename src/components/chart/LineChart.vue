@@ -27,7 +27,7 @@ const dataFormat = (data) => {
     cloneData
       .reduce((acc, cur) => {
         const computedItemsQuantity = cur.items.reduce((itemAcc, itemCur) => {
-          if (itemCur.product.type === '塑膠提袋') return itemAcc
+          if (!itemCur.product.category.includeInDashboard) return itemAcc
           return (itemAcc += itemCur.quantity)
         }, 0)
 
