@@ -1859,18 +1859,19 @@ const computedMarkers = (markers) => {
               </div>
 
               <v-btn
+                @click="preSaveEditOrderDialog = true"
+                size="large"
+                color="success"
+                text="保存"
+                block
+              ></v-btn>
+
+              <v-btn
                 @click="initEditForm(ref(editOrderForm), systemOrderStore.activeOrderList)"
                 class="my-4"
                 size="large"
                 text="還原"
                 color="warning"
-                block
-              ></v-btn>
-              <v-btn
-                @click="preSaveEditOrderDialog = true"
-                size="large"
-                color="success"
-                text="保存"
                 block
               ></v-btn>
             </v-col>
