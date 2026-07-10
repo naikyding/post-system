@@ -22,6 +22,7 @@ const {
   findBagProductItem,
   isQuickAddProductList,
   resetCart,
+  orderSourcesStore,
 } = useOrder()
 
 function stashOrderList() {
@@ -35,6 +36,14 @@ const computedExtrasItem = (extras) => {
 }
 const computedMarkers = (markers) => {
   return '└ 特製：' + markers.map((marker) => `${marker.name}`).join(' / ')
+}
+
+async function confirmOrderListOpen() {
+  dialog.confirmOrderList = true
+  await orderSourcesStore.getOrderSources()
+  ordersStore.ordersList.source = orderSourcesStore.orderSourceList.find(
+    (item) => item.isDefault,
+  )._id
 }
 </script>
 
@@ -229,7 +238,7 @@ const computedMarkers = (markers) => {
                   size="x-large"
                   color="success"
                   variant="flat"
-                  @click="dialog.confirmOrderList = true"
+                  @click="confirmOrderListOpen"
                 >
                   結帳
                 </v-btn>
@@ -753,22 +762,23 @@ const computedMarkers = (markers) => {
               ></v-text-field>
             </div>
 
+            <v-select
+              label="客戶來源"
+              v-model="ordersStore.ordersList.source"
+              :items="orderSourcesStore.orderSourceList"
+              item-title="name"
+              item-value="_id"
+              variant="outlined"
+            ></v-select>
+
             <!-- 備註 -->
             <div class="note-area">
-              <v-combobox
-                v-model="ordersStore.ordersList.note"
-                :items="['LINE']"
+              <v-textarea
                 label="備註"
+                v-model="ordersStore.ordersList.note"
                 variant="outlined"
-                clearable
-                multiple
-              >
-                <template v-slot:item="{ props, item }">
-                  <v-list-item @click="props.onClick">
-                    <v-chip color="green" variant="flat" label>{{ item.title }}</v-chip>
-                  </v-list-item>
-                </template>
-              </v-combobox>
+                rows="2"
+              ></v-textarea>
             </div>
 
             <div class="order-list-total d-flex my-4 font-weight-bold">

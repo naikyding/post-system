@@ -595,7 +595,7 @@ const computedMarkers = (markers) => {
     <v-data-table fixed-header hide-default-footer :style="{ height: 'calc(100dvh - 146px)' }">
       <thead>
         <tr class="text-caption">
-          <th class="text-left min-width-128px">執行狀態</th>
+          <th class="text-left min-width-128px">客源</th>
           <th class="text-left">
             <span
               v-if="
@@ -710,19 +710,14 @@ const computedMarkers = (markers) => {
             <tr v-for="(product, index) in items.items" :key="product?._id">
               <!-- 狀態 -->
               <td>
-                <template v-if="items.status === 'cancelled'">
-                  <span class="px-2 py-1 rounded-lg text-caption bg-error"> 取消 </span>
-                </template>
-                <template v-else-if="items.status === 'completed'">
-                  <span class="px-2 py-1 rounded-lg text-caption bg-success"> 完成 </span>
-                </template>
-                <v-switch v-else inset hide-details color="success" v-model="product.status">
-                  <template #label>
-                    <span class="text-caption">
-                      {{ `${product?.status ? '完成' : '待處理'}` }}
-                    </span>
-                  </template>
-                </v-switch>
+                <v-chip
+                  v-if="items.source?.name"
+                  class="ma-2"
+                  :color="items.source?.name === 'Line@' ? 'success' : 'warning'"
+                  size="small"
+                >
+                  {{ items.source?.name }}
+                </v-chip>
               </td>
               <!-- 時間 -->
               <td class="text-caption">
