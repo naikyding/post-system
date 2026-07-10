@@ -55,6 +55,13 @@ import {
 
 import { createTSS } from './tss.js'
 
+import {
+  getOrderSources,
+  createOrderSource,
+  deleteOrderSource,
+  editOrderSource,
+} from './orderSources.js'
+
 export const createTSSAPI = createTSS
 
 export const getProductsAPI = getProducts
@@ -124,3 +131,8 @@ export const getExtraCategoriesAPI = getExtraCategories
 export const createExtraCategoryAPI = createExtraCategory
 export const deleteExtraCategoryAPI = deleteExtraCategory
 export const updateExtraCategoryAPI = updateExtraCategory
+
+export const getOrderSourcesAPI = getOrderSources
+export const createOrderSourceAPI = createOrderSource
+export const deleteOrderSourceAPI = deleteOrderSource
+export const editOrderSourceAPI = editOrderSource

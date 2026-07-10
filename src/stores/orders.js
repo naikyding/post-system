@@ -54,6 +54,7 @@ export const useOrdersStore = defineStore('orders', () => {
     note: null,
     mobileNoThreeDigits: null,
     isPaid: false,
+    source: null,
 
     total: computed(() => {
       return ordersList.items.reduce(
@@ -367,6 +368,8 @@ export const useOrdersStore = defineStore('orders', () => {
     if (userId) {
       formatData.operator = userId
     }
+
+    formatData.source = list.source
 
     dialog.confirmOrderList = false
     const { status } = await createOrderAPI(formatData)
