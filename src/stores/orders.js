@@ -476,26 +476,31 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
   const getOrderList = catchAsync(
     async (type, active) => {
       if (type === 'today') initTodayAndTab()
+      let data = null
+
       const bagIds = [
         '6a13f75046635fb4a4232154', // 大袋
         '6a13f73c46635fb4a4232148', // 小袋
       ]
-      orderList.value.length = 0
-      const { data } = await getOrderListAPI(getOrderListFilter(activeListTab.value))
-
-      if (type !== 'getPendingQuantity') {
-        orderList.value = data.items
-      }
 
       if (active === 'readyForPickup') {
-        const { data } = await getOrderListAPI(getOrderListFilter('readyForPickup'))
+        const res = await getOrderListAPI(getOrderListFilter('readyForPickup'))
+        if (activeListTab.value === 'readyForPickup') data = res.data
         readyForPickupQuantity.value = 0
-        readyForPickupQuantity.value = data.items.reduce((init, cur) => {
+        readyForPickupQuantity.value = res.data.items.reduce((init, cur) => {
           return (init += cur.items.reduce((init, cur) => {
             if (cur.product && bagIds.includes(cur.product._id)) return init
             return (init += cur.quantity)
           }, 0))
         }, 0)
+      } else {
+        orderList.value.length = 0
+        const res = await getOrderListAPI(getOrderListFilter(activeListTab.value))
+        data = res.data
+      }
+
+      if (type !== 'getPendingQuantity') {
+        orderList.value = data.items
       }
 
       if (activeListTab.value === 'pending') {
@@ -579,7 +584,12 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     if (status) getOrderList()
   })
 
-  watch(activeListTab, getOrderList)
+  watch(
+    () => activeListTab.value,
+    () => {
+      return getOrderList()
+    },
+  )
 
   const dashboardDataStep1 = computed(() => {
     let initData = {

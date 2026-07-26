@@ -7,8 +7,9 @@ import router from '../../router'
 import { useRouterStore } from '@/stores/router'
 import { useOrdersStore } from '@/stores/orders'
 
-export function useLayout() {
+export function useLayout(useRoute) {
   const routerStore = useRouterStore()
+  const route = useRoute()
 
   function normalizePaths(routes) {
     return routes.map((route) => {
@@ -33,7 +34,10 @@ export function useLayout() {
   })
 
   const systemOrderStore = useSystemOrderList()
-  systemOrderStore.getOrderList('getPendingQuantity')
+
+  if (route.path !== '/order-status') {
+    systemOrderStore.getOrderList('getPendingQuantity')
+  }
 
   const userStore = useUserStore()
   const state = ref({
