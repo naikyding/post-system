@@ -1,6 +1,7 @@
 <script setup>
 import { useLayout } from './useLayout'
 import Toolbar from './toolbar/index.vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const {
   state,
@@ -16,7 +17,7 @@ const {
   userStore,
   transformMenus,
   userLogOut,
-} = useLayout()
+} = useLayout(useRoute)
 </script>
 
 <template>
