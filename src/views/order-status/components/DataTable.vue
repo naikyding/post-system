@@ -6,6 +6,7 @@ import { useDisplay } from 'vuetify'
 import { encrypt, decrypt } from '@/utils/secret'
 import { createTSSAPI } from '@/api'
 import { speakMobile } from '@/utils/audio'
+import { useOrderSourcesStore } from '@/stores/orderSources'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
@@ -18,6 +19,11 @@ const ordersStore = useOrdersStore()
 
 import dayjs from 'dayjs'
 const parseDate = ref(null)
+
+const orderSourcesStore = useOrderSourcesStore()
+const orderSourcesList = computed(() =>
+  orderSourcesStore.orderSourceList.filter((item) => item.status === 'active'),
+)
 
 const schedule = reactive({
   date: null,
@@ -222,10 +228,15 @@ function initEditForm(editForm, activeOrderContent) {
     'paymentType',
     'totalPrice',
     'items',
+    'source',
   ]
+
   index.forEach((key) => {
-    // 深度拷貝 (代理物件要成原物件)
-    editForm.value[key] = structuredClone(toRaw(activeOrderContent[key]))
+    if (key === 'source') {
+      editForm.value.source = activeOrderContent.source?._id ?? null
+    } else {
+      editForm.value[key] = structuredClone(toRaw(activeOrderContent[key]))
+    }
   })
 }
 
@@ -260,7 +271,9 @@ function addProductItemInOrder(orderList, item) {
 const preSaveEditOrderDialog = ref(false)
 
 function editOrderList() {
+  orderSourcesStore.getOrderSources()
   productsStore.getProductsMenu()
+
   initEditForm(editOrderForm, systemOrderStore.activeOrderList)
   editSheetStatus.value = true
 }
@@ -1810,6 +1823,23 @@ const computedMarkers = (markers) => {
                     <v-btn size="large" selected-class="bg-error" value="cancelled"> 取消 </v-btn>
                     <v-btn size="large" selected-class="bg-warning" value="pending"> 待處理 </v-btn>
                     <v-btn size="large" selected-class="bg-success" value="completed"> 完成 </v-btn>
+                  </v-btn-toggle>
+                </div>
+              </div>
+
+              <div class="my-4">
+                <!-- 客源 -->
+                <span>客源</span>
+                <div class="mt-1">
+                  <v-btn-toggle v-model="editOrderForm.source" variant="outlined" divided>
+                    <v-btn
+                      v-for="item in orderSourcesList"
+                      size="large"
+                      selected-class="bg-success"
+                      :value="item._id"
+                      :key="item._id"
+                      >{{ item.name }}
+                    </v-btn>
                   </v-btn-toggle>
                 </div>
               </div>
