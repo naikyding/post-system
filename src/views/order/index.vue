@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { useOrder } from './useOrder'
 
 const {
@@ -23,6 +24,7 @@ const {
   isQuickAddProductList,
   resetCart,
   orderSourcesStore,
+  paymentTypesStore,
 } = useOrder()
 
 function stashOrderList() {
@@ -58,8 +60,8 @@ async function confirmOrderListOpen() {
         <!-- 點單項目 -->
         <v-col cols="5" md="4" class="order-area px-0 d-flex flex-column bg-grey-darken-3">
           <!-- 操作 -->
-          <v-container class="py-0 px-2">
-            <v-row dense>
+          <v-container>
+            <v-row>
               <v-col cols="6">
                 <!-- 暫存 -->
                 <v-btn
@@ -87,7 +89,7 @@ async function confirmOrderListOpen() {
             </v-row>
           </v-container>
 
-          <v-divider class="mt-4" />
+          <v-divider />
 
           <div class="flex-grow-1 d-flex flex-column">
             <!-- 點單項目 -->
@@ -799,44 +801,29 @@ async function confirmOrderListOpen() {
 
         <v-container class="pt-2">
           <v-row class="px-2">
-            <!-- 已付款 -->
-            <v-col cols="12" class="">
+            <v-col
+              cols="12"
+              v-for="payment in paymentTypesStore.list"
+              class="py-2"
+              :key="payment._id"
+            >
               <v-btn
                 size="x-large"
                 block
                 variant="flat"
-                color="blue"
+                :color="payment.color"
                 @click="
                   ordersStore.submitOrderList({
                     list: ordersStore.ordersList,
                     isPaid: true,
-                    paymentType: 'cash',
+                    paymentType: payment._id,
                     dialog,
                   })
                 "
               >
-                <span class="px-2 py-1 bg-white rounded mr-2">現金</span>
-                已支付
-              </v-btn>
-            </v-col>
-
-            <!-- LINE PAY 已付款 -->
-            <v-col class="py-1">
-              <v-btn
-                size="x-large"
-                block
-                variant="flat"
-                color="success"
-                @click="
-                  ordersStore.submitOrderList({
-                    list: ordersStore.ordersList,
-                    isPaid: true,
-                    paymentType: 'Line Pay',
-                    dialog,
-                  })
-                "
-              >
-                <span class="px-2 py-1 bg-white rounded mr-2">LINE Pay</span>
+                <span class="px-2 py-1 font-weight-black mr-2">
+                  {{ payment.name }}
+                </span>
                 已支付
               </v-btn>
             </v-col>

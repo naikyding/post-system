@@ -7,6 +7,7 @@ import { encrypt, decrypt } from '@/utils/secret'
 import { createTSSAPI } from '@/api'
 import { speakMobile } from '@/utils/audio'
 import { useOrderSourcesStore } from '@/stores/orderSources'
+import { usePaymentTypesStore } from '@/stores/paymentType'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
@@ -24,6 +25,8 @@ const orderSourcesStore = useOrderSourcesStore()
 const orderSourcesList = computed(() =>
   orderSourcesStore.orderSourceList.filter((item) => item.status === 'active'),
 )
+
+const paymentTypesStore = usePaymentTypesStore()
 
 const schedule = reactive({
   date: null,
@@ -231,12 +234,17 @@ function initEditForm(editForm, activeOrderContent) {
     'source',
   ]
 
+  const transformField = {
+    source: (v) => v?._id ?? null,
+    paymentType: (v) => v?._id ?? null,
+  }
+
   index.forEach((key) => {
-    if (key === 'source') {
-      editForm.value.source = activeOrderContent.source?._id ?? null
-    } else {
-      editForm.value[key] = structuredClone(toRaw(activeOrderContent[key]))
-    }
+    const transform = transformField[key]
+
+    editForm.value[key] = transform
+      ? transform(activeOrderContent[key])
+      : structuredClone(toRaw(activeOrderContent[key]))
   })
 }
 
@@ -386,6 +394,7 @@ const confirmEditOrderDialog = reactive({
 
 function showOrderListDetails(order) {
   systemOrderStore.addActiveOrderList(order)
+  paymentTypesStore.getPaymentTypes()
   dialog.confirmOrderList = true
 }
 
@@ -625,6 +634,7 @@ const computedMarkers = (markers) => {
           <th class="text-left">數量</th>
           <!-- <th class="text-left min-width-90px">付款狀態</th> -->
           <th class="text-left">末三碼</th>
+          <th class="text-left">支付方式</th>
           <th class="text-center">-</th>
         </tr>
       </thead>
@@ -698,12 +708,8 @@ const computedMarkers = (markers) => {
                 <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
                   >尚未付款</span
                 >
-                <v-chip
-                  v-show="items.paymentType"
-                  class="ma-2"
-                  :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
-                >
-                  {{ items.paymentType }}
+                <v-chip v-show="items.paymentType" class="ma-2" :color="items.paymentType?.color">
+                  {{ items.paymentType.name }}
                 </v-chip>
               </td>
               <!-- 操作鈕 -->
@@ -825,19 +831,18 @@ const computedMarkers = (markers) => {
                   </span>
                   <v-icon>mdi-microphone</v-icon>
                 </v-btn>
+              </td>
 
+              <td>
                 <!-- 支付方式 -->
-                <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
+                <span class="px-4 font-weight-bold text-pink" v-if="items.paymentType === null"
                   >尚未付款</span
                 >
-                <v-chip
-                  v-show="items.paymentType"
-                  class="ma-2"
-                  :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
-                >
-                  {{ items.paymentType }}
+                <v-chip v-else class="ma-2" :color="items.paymentType?.color">
+                  {{ items.paymentType.name }}
                 </v-chip>
               </td>
+
               <!-- 操作鈕 -->
               <td class="text-center">
                 <v-btn
@@ -948,17 +953,15 @@ const computedMarkers = (markers) => {
               <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
                 {{ items.mobileNoThreeDigits || '--' }}
               </span>
+            </td>
 
+            <td>
               <!-- 支付方式 -->
-              <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
+              <span class="px-4 font-weight-bold text-pink" v-if="items.paymentType === null"
                 >尚未付款</span
               >
-              <v-chip
-                v-show="items.paymentType"
-                class="ma-2"
-                :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
-              >
-                {{ items.paymentType }}
+              <v-chip v-else class="ma-2" :color="items.paymentType?.color">
+                {{ items.paymentType.name }}
               </v-chip>
             </td>
 
@@ -1796,10 +1799,15 @@ const computedMarkers = (markers) => {
                 <span>支付方式</span>
                 <div class="mt-1">
                   <v-btn-toggle v-model="editOrderForm.paymentType" variant="outlined" divided>
-                    <v-btn size="large" selected-class="bg-warning" value="cash"> Cash</v-btn>
-                    <v-btn size="large" selected-class="bg-success" value="Line Pay"
-                      >Line Pay</v-btn
+                    <v-btn
+                      v-for="payment in paymentTypesStore.list"
+                      size="large"
+                      :color="payment.color"
+                      :value="payment._id"
+                      :key="payment._id"
                     >
+                      {{ payment.name }}
+                    </v-btn>
                   </v-btn-toggle>
                 </div>
               </div>

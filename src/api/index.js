@@ -62,6 +62,13 @@ import {
   editOrderSource,
 } from './orderSources.js'
 
+import {
+  getPaymentTypes,
+  createPaymentType,
+  deletePaymentType,
+  editPaymentType,
+} from './paymentType.js'
+
 export const createTSSAPI = createTSS
 
 export const getProductsAPI = getProducts
@@ -136,3 +143,8 @@ export const getOrderSourcesAPI = getOrderSources
 export const createOrderSourceAPI = createOrderSource
 export const deleteOrderSourceAPI = deleteOrderSource
 export const editOrderSourceAPI = editOrderSource
+
+export const getPaymentTypesAPI = getPaymentTypes
+export const createPaymentTypeAPI = createPaymentType
+export const deletePaymentTypeAPI = deletePaymentType
+export const editPaymentTypeAPI = editPaymentType
