@@ -53,18 +53,10 @@ export function useDashboard() {
   )
 
   const completedPayTypeTotalAmount = computed(() =>
-    dashboardStore.dashboardData.total.completed.reduce(
-      (init, cur) => {
-        if (cur.type === 'cash') {
-          init['cash'] = cur.total
-        }
-        if (cur.type === 'Line Pay') {
-          init['linePay'] = cur.total
-        }
-        return init
-      },
-      { cash: 0, linePay: 0 },
-    ),
+    dashboardStore.dashboardData.total.completed.reduce((result, item) => {
+      result[item.type] = item.total
+      return result
+    }, {}),
   )
 
   const completedTotalOrder = computed(() =>

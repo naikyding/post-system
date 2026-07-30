@@ -96,104 +96,41 @@ const {
         </v-col>
 
         <!-- 現金 -->
-        <v-col cols="12">
-          <v-card variant="tonal" rounded="lg" color="amber-darken-1" class="py-6">
+        <v-col
+          v-for="completedItem in dashboardStore.dashboardData.total.completed"
+          :key="completedItem.type"
+          cols="12"
+        >
+          <v-card variant="tonal" rounded="lg" :color="completedItem.color" class="py-6">
             <v-card-title class="pt-0">
               <span class="mr-2">
-                {{ `現金` }}
+                {{ completedItem.name }}
               </span>
               <v-btn
-                @click="checkPaymentList('cash')"
-                variant="outlined"
-                rounded="xl"
-                density="compact"
-              >
-                {{
-                  dashboardStore.dashboardData.total.completed.find((item) => item.type === 'cash')
-                    ?.orderQuantity || '--'
-                }}
-              </v-btn>
-            </v-card-title>
-
-            <v-card-text class="py-0">
-              <v-row align="center" no-gutters>
-                <v-col class="text-display-small" cols="12">
-                  <span class="text-body-small text-white">NT$</span>
-                  <span class="text-white font-weight-bold">
-                    {{ completedPayTypeTotalAmount.cash }}
-                  </span>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <!-- LinePay 支付 -->
-        <v-col cols="12">
-          <v-card variant="tonal" rounded="lg" color="green-darken-2" class="py-6">
-            <v-card-title class="pt-0">
-              <span class="mr-2">
-                {{ `Line Pay` }}
-              </span>
-              <v-btn
-                @click="checkPaymentList('Line Pay')"
+                @click="checkPaymentList(completedItem.type)"
                 variant="outlined"
                 rounded="xl"
                 density="compact"
               >
                 {{
                   dashboardStore.dashboardData.total.completed.find(
-                    (item) => item.type === 'Line Pay',
+                    (item) => item.type === completedItem.type,
                   )?.orderQuantity || '--'
                 }}
               </v-btn>
             </v-card-title>
+
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
                 <v-col class="text-display-small" cols="12">
                   <span class="text-body-small text-white">NT$</span>
                   <span class="text-white font-weight-bold">
-                    {{ completedPayTypeTotalAmount.linePay }}
+                    {{ completedPayTypeTotalAmount[completedItem.type] }}
                   </span>
                 </v-col>
               </v-row>
             </v-card-text>
           </v-card>
-
-          <!-- 支付清單 -->
-          <v-bottom-sheet v-model="showPaymentList.sheet">
-            <v-card :title="`${showPaymentList.type} 支付清單`">
-              <v-list lines="two" select-strategy="classic">
-                <v-list-item
-                  v-for="item in showPaymentList.list"
-                  :key="item.createdAt"
-                  :value="item.createdAt"
-                >
-                  <!-- 勾選 -->
-                  <template v-slot:prepend="{ isActive }">
-                    <v-list-item-action start>
-                      <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
-                    </v-list-item-action>
-                  </template>
-
-                  <!-- 未三碼 -->
-                  <v-list-item-title>
-                    <h3>{{ item.mobile }}</h3>
-                  </v-list-item-title>
-
-                  <!-- 時間 -->
-                  <v-list-item-subtitle>
-                    {{ dayJs(item.createdAt).format('YYYY-MM-DD HH:mm') }}
-                  </v-list-item-subtitle>
-
-                  <!-- 金額 -->
-                  <template v-slot:append>
-                    <h3>NT$ {{ item.total }}</h3>
-                  </template>
-                </v-list-item>
-              </v-list>
-            </v-card>
-          </v-bottom-sheet>
         </v-col>
 
         <!-- 客單價 -->
