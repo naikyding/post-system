@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { useOrder } from './useOrder'
 
 const {
@@ -23,6 +24,7 @@ const {
   isQuickAddProductList,
   resetCart,
   orderSourcesStore,
+  paymentTypesStore,
 } = useOrder()
 
 function stashOrderList() {
@@ -54,12 +56,12 @@ async function confirmOrderListOpen() {
       class="ma-0 pa-0 d-flex flex-column"
       :style="{ height: 'calc(100dvh - 48px)' }"
     >
-      <v-row class="ma-0 pa-0 flex-1">
+      <v-row class="ma-0 pa-0 flex-1" no-gutters>
         <!-- 點單項目 -->
         <v-col cols="5" md="4" class="order-area px-0 d-flex flex-column bg-grey-darken-3">
           <!-- 操作 -->
-          <v-container class="py-0 px-2">
-            <v-row dense>
+          <v-container>
+            <v-row>
               <v-col cols="6">
                 <!-- 暫存 -->
                 <v-btn
@@ -87,7 +89,7 @@ async function confirmOrderListOpen() {
             </v-row>
           </v-container>
 
-          <v-divider class="mt-4" />
+          <v-divider />
 
           <div class="flex-grow-1 d-flex flex-column">
             <!-- 點單項目 -->
@@ -105,14 +107,14 @@ async function confirmOrderListOpen() {
                     <!-- 產品名稱 -->
                     <div class="product-name font-weight-bold">
                       {{ item.product.name }}
-                      <span class="text-caption"> ${{ item.product.price }} </span>
+                      <span class="text-body-small"> ${{ item.product.price }} </span>
                     </div>
 
                     <!-- 加選配料 -->
                     <div
                       v-for="extraItem in item.extras"
                       :key="extraItem._id"
-                      class="text-caption d-flex align-center"
+                      class="text-body-small d-flex align-center"
                     >
                       <span class="mr-1">└</span>
                       <span class="mr-2">
@@ -130,7 +132,7 @@ async function confirmOrderListOpen() {
                     </div>
 
                     <!-- 備註 -->
-                    <div v-show="item.notes" class="notes text-caption text-grey mt-1">
+                    <div v-show="item.notes" class="notes text-body-small text-grey mt-1">
                       └ 備註：{{ item.notes }}
                     </div>
                   </v-col>
@@ -155,7 +157,7 @@ async function confirmOrderListOpen() {
                       >
                       </v-btn>
 
-                      <span class="mx-2 text-h6 font-weight-bold text-white">
+                      <span class="mx-2 text-headline-small font-weight-bold text-white">
                         {{ item.quantity }}
                       </span>
 
@@ -175,7 +177,7 @@ async function confirmOrderListOpen() {
                     </div>
 
                     <!-- 小計 -->
-                    <div class="product-total text-center font-weight-bold text-h6">
+                    <div class="product-total text-center font-weight-bold text-body-large">
                       $ {{ item.total }}
                     </div>
                   </v-col>
@@ -190,29 +192,29 @@ async function confirmOrderListOpen() {
             <v-divider />
 
             <!-- 數量 -->
-            <div class="order-total px-4 py-2 pb-0 text-caption">
-              <div class="d-flex">
+            <div class="order-total px-4 my-3 text-body-small">
+              <div class="d-flex my-1">
                 <span>數量</span>
                 <v-spacer />
                 <span>{{ ordersStore.ordersList.total.quantity }}</span>
               </div>
 
               <!-- 小計 -->
-              <div class="d-flex">
+              <div class="d-flex my-1">
                 <span>小計</span>
                 <v-spacer />
                 <span>{{ ordersStore.ordersList.total.subTotal }}</span>
               </div>
 
               <!-- 服務費 -->
-              <div class="d-flex">
+              <div class="d-flex my-1">
                 <span>服務費</span>
                 <v-spacer />
                 <span>{{ ordersStore.ordersList.total.service }}</span>
               </div>
 
               <!-- 優惠 -->
-              <div class="d-flex">
+              <div class="d-flex my-1">
                 <span>優惠費</span>
                 <v-spacer />
                 <span>{{ ordersStore.ordersList.total.discount }}</span>
@@ -224,8 +226,8 @@ async function confirmOrderListOpen() {
               <div class="d-flex flex-sm-row my-1">
                 <v-spacer />
 
-                <p class="text-h4 font-italic font-weight-bold">
-                  <span class="text-h6">$</span>
+                <p class="text-display-small font-italic font-weight-bold my-1">
+                  <span class="text-headline-small">$</span>
                   {{ ordersStore.ordersList.total.totalPrice }}
                 </p>
               </div>
@@ -267,7 +269,7 @@ async function confirmOrderListOpen() {
               v-for="(productItems, index) in activeProducts(productsStore.products)"
               :key="productItems + index"
               :value="index"
-              class="text-subtitle-1"
+              class="text-title-medium"
             >
               {{ productItems.category?.name }}
             </v-tab>
@@ -283,7 +285,7 @@ async function confirmOrderListOpen() {
                 class="pa-1"
               >
                 <v-container>
-                  <v-row>
+                  <v-row no-gutters>
                     <!-- 產品項目 -->
                     <v-col
                       v-for="(productItem, index) in activeProductItems(productItems.items)"
@@ -296,10 +298,10 @@ async function confirmOrderListOpen() {
                       <v-card @click="ordersStore.selectedProduct(productItem, dialog, true)">
                         <template #title>
                           <div class="d-flex flex-column">
-                            <div class="text-subtitle-1 font-weight-bold text-primary">
+                            <div class="text-title-medium font-weight-bold text-primary">
                               {{ productItem.name }}
                             </div>
-                            <div class="text-caption">
+                            <div class="text-body-small">
                               {{ productItem.description }}
                             </div>
                           </div>
@@ -307,7 +309,9 @@ async function confirmOrderListOpen() {
                         <template #text>
                           <div>
                             $
-                            <span class="text-h5 font-weight-bold">{{ productItem.price }}</span>
+                            <span class="text-headline-small font-weight-bold">{{
+                              productItem.price
+                            }}</span>
                           </div>
                         </template>
                         <!-- 快捷新增按鈕 -->
@@ -365,7 +369,7 @@ async function confirmOrderListOpen() {
 
         <v-card-text>
           <!-- 加料 -->
-          <h4 class="text-h6">特製</h4>
+          <h4 class="text-title-large my-3">特製</h4>
           <v-chip-group
             class="mb-1"
             v-model="ordersStore.activeProductItem.markers"
@@ -384,7 +388,7 @@ async function confirmOrderListOpen() {
           </v-chip-group>
 
           <div v-if="ordersStore.activeProductItem.product?.extras?.length > 0">
-            <h4 class="text-h6">升級</h4>
+            <h4 class="text-title-large my-3">升級</h4>
 
             <div>
               <v-expansion-panels
@@ -401,7 +405,7 @@ async function confirmOrderListOpen() {
                   :value="extras.category.name"
                 >
                   <v-expansion-panel-title expand-icon="mdi-menu-down">
-                    <span class="text-subtitle-1"> {{ extras.category.name }} </span>
+                    <span class="text-title-medium"> {{ extras.category.name }} </span>
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
                     <div v-for="(extra, index) in extras.items" :key="extra">
@@ -438,7 +442,7 @@ async function confirmOrderListOpen() {
                               "
                             ></v-btn>
 
-                            <span class="text-h6 mx-2">
+                            <span class="text-headline-small mx-2">
                               {{
                                 ordersStore.activeProductItem.form.extras.find(
                                   (item) => item.extraItem._id === extra._id,
@@ -487,11 +491,11 @@ async function confirmOrderListOpen() {
                           <span class="font-weight-bold">
                             {{ extra.name }}
                           </span>
-                          <span class="text-caption ml-1">(NT${{ extra.price }})</span>
+                          <span class="text-body-small ml-1">(NT${{ extra.price }})</span>
                         </div>
                         <v-spacer></v-spacer>
                         <!-- 價錢 -->
-                        <div class="extras-total text-subtitle-1 font-weight-bold">
+                        <div class="extras-total text-title-medium font-weight-bold">
                           +{{
                             ordersStore.activeProductItem.form.extras.find(
                               (item) => item.extraItem._id === extra._id,
@@ -695,14 +699,14 @@ async function confirmOrderListOpen() {
                 <span>
                   {{ orderItem.product.name }}
                 </span>
-                <span class="text-caption"> ${{ orderItem.product.price }} </span>
+                <span class="text-body-small"> ${{ orderItem.product.price }} </span>
 
                 <!-- 加料 -->
                 <div class="special">
                   <div
                     v-for="extra in orderItem.extras"
                     :key="extra.extraItem._id"
-                    class="text-caption"
+                    class="text-body-small"
                     color="error"
                   >
                     <span class="mr-1">└</span>
@@ -719,7 +723,7 @@ async function confirmOrderListOpen() {
                 </div>
 
                 <!-- 備註 -->
-                <div v-show="orderItem.notes" class="notes text-caption text-grey mt-1">
+                <div v-show="orderItem.notes" class="notes text-body-small text-grey mt-1">
                   └ 備註：{{ orderItem.notes }}
                 </div>
               </div>
@@ -797,52 +801,36 @@ async function confirmOrderListOpen() {
 
         <v-divider></v-divider>
 
-        <v-container class="pt-2">
-          <v-row class="px-2">
-            <!-- 已付款 -->
-            <v-col cols="12" class="">
+        <v-container>
+          <v-row class="ga-4">
+            <v-col
+              cols="12"
+              v-for="payment in paymentTypesStore.list.filter((item) => item.status === 'active')"
+              :key="payment._id"
+            >
               <v-btn
                 size="x-large"
                 block
                 variant="flat"
-                color="blue"
+                :color="payment.color"
                 @click="
                   ordersStore.submitOrderList({
                     list: ordersStore.ordersList,
                     isPaid: true,
-                    paymentType: 'cash',
+                    paymentType: payment._id,
                     dialog,
                   })
                 "
               >
-                <span class="px-2 py-1 bg-white rounded mr-2">現金</span>
-                已支付
-              </v-btn>
-            </v-col>
-
-            <!-- LINE PAY 已付款 -->
-            <v-col class="py-1">
-              <v-btn
-                size="x-large"
-                block
-                variant="flat"
-                color="success"
-                @click="
-                  ordersStore.submitOrderList({
-                    list: ordersStore.ordersList,
-                    isPaid: true,
-                    paymentType: 'Line Pay',
-                    dialog,
-                  })
-                "
-              >
-                <span class="px-2 py-1 bg-white rounded mr-2">LINE Pay</span>
+                <span class="px-2 py-1 font-weight-black mr-2">
+                  {{ payment.name }}
+                </span>
                 已支付
               </v-btn>
             </v-col>
 
             <!-- 未付款 -->
-            <v-col cols="12" class="">
+            <v-col cols="12">
               <v-btn
                 color="error"
                 size="x-large"
@@ -884,9 +872,9 @@ async function confirmOrderListOpen() {
               {{ ordersStore.ordersList.total.totalPrice }}
             </span>
           </div>
-          <div class="text-h6 text-primary mt-2">
+          <div class="text-headline-small text-primary mt-2">
             找零
-            <span class="text-h5 font-italic font-weight-bold">
+            <span class="text-headline-small font-italic font-weight-bold">
               {{ computedDialog.computedNumber }}
             </span>
           </div>

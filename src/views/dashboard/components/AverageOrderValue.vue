@@ -10,11 +10,11 @@ const SystemOrderListStore = useSystemOrderList()
     <v-card-item title="客單價" class="pt-0" />
     <v-card-text class="py-0">
       <v-row align="center" no-gutters>
-        <v-col class="text-h2" cols="12">
+        <v-col class="text-display-medium" cols="12">
           <span class="text-primary">
             {{ Math.round(SystemOrderListStore.dashboardDataStep1.averageOrderValue) || '--' }}
           </span>
-          <span class="text-caption">元</span>
+          <span class="text-body-small">元</span>
         </v-col>
       </v-row>
     </v-card-text>

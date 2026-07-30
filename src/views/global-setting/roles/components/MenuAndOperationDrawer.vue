@@ -25,7 +25,7 @@ defineExpose({
         <p>
           {{ role.active.value.item?.name }}
         </p>
-        <span class="text-caption">權限管理</span>
+        <span class="text-body-small">權限管理</span>
       </v-card-title>
 
       <v-card-text>

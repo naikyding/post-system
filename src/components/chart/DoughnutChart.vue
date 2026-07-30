@@ -70,7 +70,7 @@ onMounted(() => {
     <span>品項分佈 (TOP 10)</span>
     <v-divider class="my-2" />
     <canvas v-show="formatData.length > 0" ref="doughnutChart" id="myChart"></canvas>
-    <p v-show="formatData.length === 0" class="text-center my-6 text-grey text-caption">
+    <p v-show="formatData.length === 0" class="text-center my-6 text-grey text-body-small">
       Nothing to display
     </p>
   </div>

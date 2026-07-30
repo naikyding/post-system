@@ -24,7 +24,7 @@ const activeRoles = computed(() => {
   <div class="d-flex justify-center align-center pa-4" style="min-height: 100dvh">
     <div>
       <template v-if="user.agentRoles">
-        <p class="text-subtitle-2 mb-2">選擇商家：</p>
+        <p class="text-title-medium mb-2">選擇商家：</p>
 
         <v-row dense>
           <v-col v-for="item in user?.agentRoles" :key="item.agent._id" cols="12" sm="6" md="4">
@@ -41,7 +41,7 @@ const activeRoles = computed(() => {
         </v-row>
       </template>
       <template v-if="userStore.activeAgentId">
-        <p v-if="userStore.activeAgentId" class="text-subtitle-2 mb-2 mt-4">選擇角色：</p>
+        <p v-if="userStore.activeAgentId" class="text-title-medium mb-2 mt-4">選擇角色：</p>
 
         <v-row v-if="userStore.activeAgentId" dense>
           <v-col v-for="role in activeRoles?.roles" :key="role._id" cols="6" sm="4" md="3">

@@ -10,11 +10,11 @@ const SystemOrderListStore = useSystemOrderList()
     <v-card-item title="數量" class="pt-0" />
     <v-card-text class="py-0">
       <v-row align="center" no-gutters>
-        <v-col class="text-h2" cols="12">
+        <v-col class="text-display-medium" cols="12">
           <span class="text-primary">
             {{ SystemOrderListStore.dashboardDataStep1.quantity }}
           </span>
-          <span class="text-caption">片</span>
+          <span class="text-body-small">片</span>
         </v-col>
       </v-row>
     </v-card-text>

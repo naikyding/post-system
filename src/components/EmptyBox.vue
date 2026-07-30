@@ -4,7 +4,7 @@
   <div class="d-flex align-center justify-center">
     <div>
       <v-icon icon="mdi-dropbox" size="5rem" />
-      <p class="text-caption text-center mt-4">
+      <p class="text-body-small text-center mt-4">
         <slot name="text">沒有資料</slot>
       </p>
     </div>

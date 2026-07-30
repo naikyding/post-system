@@ -7,6 +7,7 @@ import { encrypt, decrypt } from '@/utils/secret'
 import { createTSSAPI } from '@/api'
 import { speakMobile } from '@/utils/audio'
 import { useOrderSourcesStore } from '@/stores/orderSources'
+import { usePaymentTypesStore } from '@/stores/paymentType'
 
 import Swal from 'sweetalert2'
 import EmptyBox from '@/components/EmptyBox.vue'
@@ -24,6 +25,8 @@ const orderSourcesStore = useOrderSourcesStore()
 const orderSourcesList = computed(() =>
   orderSourcesStore.orderSourceList.filter((item) => item.status === 'active'),
 )
+
+const paymentTypesStore = usePaymentTypesStore()
 
 const schedule = reactive({
   date: null,
@@ -231,12 +234,17 @@ function initEditForm(editForm, activeOrderContent) {
     'source',
   ]
 
+  const transformField = {
+    source: (v) => v?._id ?? null,
+    paymentType: (v) => v?._id ?? null,
+  }
+
   index.forEach((key) => {
-    if (key === 'source') {
-      editForm.value.source = activeOrderContent.source?._id ?? null
-    } else {
-      editForm.value[key] = structuredClone(toRaw(activeOrderContent[key]))
-    }
+    const transform = transformField[key]
+
+    editForm.value[key] = transform
+      ? transform(activeOrderContent[key])
+      : structuredClone(toRaw(activeOrderContent[key]))
   })
 }
 
@@ -386,6 +394,7 @@ const confirmEditOrderDialog = reactive({
 
 function showOrderListDetails(order) {
   systemOrderStore.addActiveOrderList(order)
+  paymentTypesStore.getPaymentTypes()
   dialog.confirmOrderList = true
 }
 
@@ -607,7 +616,7 @@ const computedMarkers = (markers) => {
   <template v-else>
     <v-data-table fixed-header hide-default-footer :style="{ height: 'calc(100dvh - 146px)' }">
       <thead>
-        <tr class="text-caption">
+        <tr class="text-body-small">
           <th class="text-left min-width-128px">客源</th>
           <th class="text-left">
             <span
@@ -625,6 +634,7 @@ const computedMarkers = (markers) => {
           <th class="text-left">數量</th>
           <!-- <th class="text-left min-width-90px">付款狀態</th> -->
           <th class="text-left">末三碼</th>
+          <th class="text-left">支付方式</th>
           <th class="text-center">-</th>
         </tr>
       </thead>
@@ -641,7 +651,7 @@ const computedMarkers = (markers) => {
                 >
                 </v-btn>
               </td>
-              <td class="text-caption">
+              <td class="text-body-small">
                 <div class="day">
                   <span
                     v-if="
@@ -681,7 +691,7 @@ const computedMarkers = (markers) => {
                   {{ items.note }}
                 </div>
               </td>
-              <td class="text-h3">
+              <td class="text-display-small">
                 {{
                   items.items.reduce(
                     (acc, cur) => (acc += cur.product.type !== '塑膠提袋' ? 1 : 0),
@@ -690,7 +700,7 @@ const computedMarkers = (markers) => {
                 }}
               </td>
               <td>
-                <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
+                <span class="px-2 py-1 rounded-lg bg-success text-headline-small ml-2 font-italic">
                   {{ items.mobileNoThreeDigits || '--' }}
                 </span>
 
@@ -698,12 +708,8 @@ const computedMarkers = (markers) => {
                 <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
                   >尚未付款</span
                 >
-                <v-chip
-                  v-show="items.paymentType"
-                  class="ma-2"
-                  :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
-                >
-                  {{ items.paymentType }}
+                <v-chip v-show="items.paymentType" class="ma-2" :color="items.paymentType?.color">
+                  {{ items.paymentType.name }}
                 </v-chip>
               </td>
               <!-- 操作鈕 -->
@@ -733,7 +739,7 @@ const computedMarkers = (markers) => {
                 </v-chip>
               </td>
               <!-- 時間 -->
-              <td class="text-caption">
+              <td class="text-body-small">
                 <div class="day">
                   <span
                     v-if="
@@ -767,7 +773,7 @@ const computedMarkers = (markers) => {
                   "
                 >
                   <span
-                    class="text-subtitle-1 font-weight-bold text-white bg-grey-darken-3 rounded-lg px-2 cursor-pointer"
+                    class="text-title-medium font-weight-bold text-white bg-grey-darken-3 rounded-lg px-2 cursor-pointer"
                     @click="showOrderListDetails(items)"
                   >
                     {{ product.product?.name }} ›
@@ -788,7 +794,7 @@ const computedMarkers = (markers) => {
                 </div>
 
                 <!-- 備註 -->
-                <div v-show="product.notes" class="notes text-caption text-grey mt-1">
+                <div v-show="product.notes" class="notes text-body-small text-grey mt-1">
                   └ 備註：{{ product.notes }}
                 </div>
 
@@ -799,10 +805,10 @@ const computedMarkers = (markers) => {
               </td>
               <!-- 數量 -->
               <td class="text-right">
-                <div class="text-h3">
+                <div class="text-display-small">
                   {{ product.quantity }}
                 </div>
-                <span class="text-caption">
+                <span class="text-body-small">
                   ({{
                     `${product.quantity}/${items.items.reduce(
                       (acc, cur) => (acc += cur.quantity),
@@ -820,24 +826,23 @@ const computedMarkers = (markers) => {
                   color="success"
                   rounded
                 >
-                  <span class="text-h6 mr-2 font-italic">
+                  <span class="text-headline-small mr-2 font-italic">
                     {{ items.mobileNoThreeDigits || '--' }}
                   </span>
                   <v-icon>mdi-microphone</v-icon>
                 </v-btn>
+              </td>
 
+              <td>
                 <!-- 支付方式 -->
-                <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
+                <span class="px-4 font-weight-bold text-pink" v-if="items.paymentType === null"
                   >尚未付款</span
                 >
-                <v-chip
-                  v-show="items.paymentType"
-                  class="ma-2"
-                  :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
-                >
-                  {{ items.paymentType }}
+                <v-chip v-else class="ma-2" :color="items.paymentType?.color">
+                  {{ items.paymentType.name }}
                 </v-chip>
               </td>
+
               <!-- 操作鈕 -->
               <td class="text-center">
                 <v-btn
@@ -854,21 +859,21 @@ const computedMarkers = (markers) => {
           <tr v-show="false" v-for="(product, index) in items.items" :key="product?._id">
             <td>
               <template v-if="items.status === 'cancelled'">
-                <span class="px-2 py-1 rounded-lg text-caption bg-error"> 取消 </span>
+                <span class="px-2 py-1 rounded-lg text-body-small bg-error"> 取消 </span>
               </template>
               <template v-else-if="items.status === 'completed'">
-                <span class="px-2 py-1 rounded-lg text-caption bg-success"> 完成 </span>
+                <span class="px-2 py-1 rounded-lg text-body-small bg-success"> 完成 </span>
               </template>
               <v-switch v-else inset hide-details color="success" v-model="product.status">
                 <template #label>
-                  <span class="text-caption">
+                  <span class="text-body-small">
                     {{ `${product?.status ? '完成' : '待處理'}` }}
                   </span>
                 </template>
               </v-switch>
             </td>
 
-            <td class="text-caption">
+            <td class="text-body-small">
               <div class="day">
                 <span
                   v-if="
@@ -896,7 +901,7 @@ const computedMarkers = (markers) => {
               <!-- 加選配料 -->
               <div>
                 <v-chip
-                  class="ma-1 text-subtitle-1"
+                  class="ma-1 text-title-medium"
                   v-for="extra in product.extras"
                   :key="extra._id"
                   color="error"
@@ -932,10 +937,10 @@ const computedMarkers = (markers) => {
               </div>
             </td>
             <td class="text-right">
-              <div class="text-h3">
+              <div class="text-display-small">
                 {{ product.quantity }}
               </div>
-              <span class="text-caption">
+              <span class="text-body-small">
                 ({{
                   `${product.quantity}/${items.items.reduce(
                     (acc, cur) => (acc += cur.quantity),
@@ -945,20 +950,18 @@ const computedMarkers = (markers) => {
               </span>
             </td>
             <td>
-              <span class="px-2 py-1 rounded-lg bg-success text-h6 ml-2 font-italic">
+              <span class="px-2 py-1 rounded-lg bg-success text-headline-small ml-2 font-italic">
                 {{ items.mobileNoThreeDigits || '--' }}
               </span>
+            </td>
 
+            <td>
               <!-- 支付方式 -->
-              <span class="px-4 font-weight-bold text-pink" v-show="items.paymentType === null"
+              <span class="px-4 font-weight-bold text-pink" v-if="items.paymentType === null"
                 >尚未付款</span
               >
-              <v-chip
-                v-show="items.paymentType"
-                class="ma-2"
-                :color="items.paymentType === 'cash' ? 'yellow' : 'success'"
-              >
-                {{ items.paymentType }}
+              <v-chip v-else class="ma-2" :color="items.paymentType?.color">
+                {{ items.paymentType.name }}
               </v-chip>
             </td>
 
@@ -994,7 +997,7 @@ const computedMarkers = (markers) => {
         <div class="px-4 mt-2">
           <v-btn color="grey" class="text-white" rounded="xl" variant="tonal" block>
             末三碼
-            <span class="text-h6 ml-2 font-italic text-white">
+            <span class="text-headline-small ml-2 font-italic text-white">
               {{ systemOrderStore.activeOrderList.mobileNoThreeDigits || '--' }}
             </span>
           </v-btn>
@@ -1023,11 +1026,11 @@ const computedMarkers = (markers) => {
               <span>
                 {{ orderItem.product?.name }}
               </span>
-              <span class="text-caption"> ${{ orderItem.product?.price }} </span>
+              <span class="text-body-small"> ${{ orderItem.product?.price }} </span>
               <div
                 v-for="extraItem in orderItem.extras"
                 :key="extraItem._id"
-                class="text-caption d-flex align-center"
+                class="text-body-small d-flex align-center"
               >
                 <span class="mr-1">└</span>
                 <span class="mr-2"> {{ extraItem.extraItem.name }} ×{{ extraItem.quantity }} </span>
@@ -1053,7 +1056,7 @@ const computedMarkers = (markers) => {
               </div>
 
               <!-- 備註 -->
-              <div v-show="orderItem.notes" class="notes text-caption text-grey mt-1">
+              <div v-show="orderItem.notes" class="notes text-body-small text-grey mt-1">
                 └ 備註：{{ orderItem.notes }}
               </div>
             </div>
@@ -1139,9 +1142,9 @@ const computedMarkers = (markers) => {
                     {{ systemOrderStore.activeOrderList.totalPrice }}
                   </span>
                 </div>
-                <div class="text-h6 text-primary mt-2">
+                <div class="text-headline-small text-primary mt-2">
                   找零
-                  <span class="text-h5 font-italic font-weight-bold">
+                  <span class="text-headline-small font-italic font-weight-bold">
                     {{ computedDialog.computedNumber }}
                   </span>
                 </div>
@@ -1193,7 +1196,7 @@ const computedMarkers = (markers) => {
 
       <template #actions>
         <v-container class="pt-0">
-          <v-row>
+          <v-row class="ga-4">
             <v-col cols="6" class="px-1">
               <!-- 修改 -->
               <v-btn
@@ -1289,7 +1292,7 @@ const computedMarkers = (markers) => {
   <v-dialog v-model="confirmEditOrderDialog.status" width="300">
     <v-card>
       <v-card-text>
-        <div class="text-center text-primary mb-4 text-h6 font-weight-bold">
+        <div class="text-center text-primary mb-4 text-headline-small font-weight-bold">
           {{ orderListProductEditForm.originProductItemContent.product.name }}
         </div>
         確定
@@ -1463,13 +1466,13 @@ const computedMarkers = (markers) => {
                     <!-- 商品名稱 -->
                     <div>
                       <span class="font-weight-bold mr-1">{{ orderItem.product.name }}</span>
-                      <span class="text-caption">${{ orderItem.product.price }}</span>
+                      <span class="text-body-small">${{ orderItem.product.price }}</span>
                     </div>
                     <!-- 配料區 -->
                     <div class="extras">
                       <!-- 已選配料 -->
                       <div
-                        class="text-caption d-flex align-center my-2"
+                        class="text-body-small d-flex align-center my-2"
                         v-for="extra in orderItem.extrasData"
                         :key="extra._id"
                       >
@@ -1496,7 +1499,7 @@ const computedMarkers = (markers) => {
                             density="compact"
                             size="small"
                           />
-                          <span class="text-h6 mx-2">
+                          <span class="text-headline-small mx-2">
                             {{ extra.quantity }}
                           </span>
                           <v-btn
@@ -1516,7 +1519,7 @@ const computedMarkers = (markers) => {
                           />
                         </div>
                         <div>
-                          +<span class="font-weight-bold text-h6">
+                          +<span class="font-weight-bold text-headline-small">
                             {{ extra.price }}
                           </span>
                         </div>
@@ -1551,7 +1554,7 @@ const computedMarkers = (markers) => {
                                         <span class="">
                                           {{ extra.extraItem.name }}
                                         </span>
-                                        <span class="text-caption"
+                                        <span class="text-body-small"
                                           >${{ extra.extraItem.price }}</span
                                         >
                                       </div>
@@ -1565,7 +1568,7 @@ const computedMarkers = (markers) => {
                                           density="compact"
                                         />
 
-                                        <span class="text-h6 mx-2 font-weight-bold">{{
+                                        <span class="text-headline-small mx-2 font-weight-bold">{{
                                           extra.quantity
                                         }}</span>
 
@@ -1665,7 +1668,7 @@ const computedMarkers = (markers) => {
                           density="compact"
                           size="large"
                         />
-                        <span class="text-h5 font-weight-bold mx-3">
+                        <span class="text-headline-small font-weight-bold mx-3">
                           {{ orderItem.quantity }}
                         </span>
                         <v-btn
@@ -1679,7 +1682,7 @@ const computedMarkers = (markers) => {
                       </div>
                       <div>
                         $
-                        <span class="font-weight-bold text-h6">
+                        <span class="font-weight-bold text-headline-small">
                           {{ orderItem.price }}
                         </span>
                       </div>
@@ -1718,7 +1721,7 @@ const computedMarkers = (markers) => {
                         v-for="(productItems, index) in productsStore.products"
                         :key="productItems + index"
                         :value="index"
-                        class="text-subtitle-1"
+                        class="text-title-medium"
                       >
                         {{ productItems.category.name }}
                       </v-tab>
@@ -1751,10 +1754,12 @@ const computedMarkers = (markers) => {
                                   >
                                     <template #title>
                                       <div class="d-flex flex-column">
-                                        <div class="text-subtitle-1 font-weight-bold text-primary">
+                                        <div
+                                          class="text-title-medium font-weight-bold text-primary"
+                                        >
                                           {{ productItem.name }}
                                         </div>
-                                        <div class="text-caption">
+                                        <div class="text-body-small">
                                           {{ productItem.description }}
                                         </div>
                                       </div>
@@ -1762,7 +1767,7 @@ const computedMarkers = (markers) => {
                                     <template #text>
                                       <div>
                                         $
-                                        <span class="text-h5 font-weight-bold">{{
+                                        <span class="text-headline-small font-weight-bold">{{
                                           productItem.price
                                         }}</span>
                                       </div>
@@ -1796,10 +1801,17 @@ const computedMarkers = (markers) => {
                 <span>支付方式</span>
                 <div class="mt-1">
                   <v-btn-toggle v-model="editOrderForm.paymentType" variant="outlined" divided>
-                    <v-btn size="large" selected-class="bg-warning" value="cash"> Cash</v-btn>
-                    <v-btn size="large" selected-class="bg-success" value="Line Pay"
-                      >Line Pay</v-btn
+                    <v-btn
+                      v-for="payment in paymentTypesStore.list.filter(
+                        (item) => item.status === 'active',
+                      )"
+                      size="large"
+                      :color="payment.color"
+                      :value="payment._id"
+                      :key="payment._id"
                     >
+                      {{ payment.name }}
+                    </v-btn>
                   </v-btn-toggle>
                 </div>
               </div>
@@ -1846,14 +1858,14 @@ const computedMarkers = (markers) => {
 
               <div>
                 訂單金額 NT$
-                <span class="text-h4 font-weight-bold mr-2">
+                <span class="text-headline-large font-weight-bold mr-2">
                   {{ editOrderForm.totalPrice }}
                 </span>
                 <span
                   v-show="
                     editOrderForm.totalPrice - systemOrderStore.activeOrderList.totalPrice !== 0
                   "
-                  class="text-h4 font-weight-bold"
+                  class="text-headline-large font-weight-bold"
                   :class="[
                     editOrderForm.totalPrice - systemOrderStore.activeOrderList.totalPrice > 0
                       ? 'text-success'

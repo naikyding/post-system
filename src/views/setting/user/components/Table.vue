@@ -101,7 +101,7 @@ const menuItems = [
               </v-chip>
             </td>
             <td>
-              <span class="text-caption">{{ dateFormat(item.createAt) }}</span>
+              <span class="text-body-small">{{ dateFormat(item.createAt) }}</span>
             </td>
             <td>
               <DotsActionMenu :items="menuItems" :id="item._id" :data="item" />

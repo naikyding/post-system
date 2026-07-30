@@ -4,11 +4,13 @@ import { useDisplay } from 'vuetify'
 import { useProductsStore, useMarkersStore } from '@/stores/products'
 import { useOrdersStore } from '@/stores/orders'
 import { useOrderSourcesStore } from '@/stores/orderSources'
+import { usePaymentTypesStore } from '../../stores/paymentType'
 import dayjs from 'dayjs'
 
 export function useOrder() {
   // order page 邏輯
   const productsStore = useProductsStore()
+  const paymentTypesStore = usePaymentTypesStore()
   const ordersStore = useOrdersStore()
   const markerStore = useMarkersStore()
   const orderSourcesStore = useOrderSourcesStore()
@@ -122,11 +124,13 @@ export function useOrder() {
       if (!newStatus) ordersStore.resetActiveProductItem()
     },
   )
-
+  console.log('paymentTypesStore', paymentTypesStore)
   onMounted(async () => {
     // 取得產品最表
     await productsStore.getProductsMenu()
     await markerStore.getMarkers()
+    paymentTypesStore.getPaymentTypes()
+
     tabActiveId.value = 0
   })
 
@@ -181,5 +185,6 @@ export function useOrder() {
     stashOrderList,
     isQuickAddProductList,
     orderSourcesStore,
+    paymentTypesStore,
   }
 }
