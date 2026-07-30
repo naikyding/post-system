@@ -143,25 +143,25 @@ const dataTable = ref({
         <!-- 營業額 -->
         <v-col cols="12" class="py-2 font-weight-bold">
           NT$
-          <span class="text-h3 font-weight-bold">
+          <span class="text-display-small font-weight-bold">
             {{ completedTotalAmount }}
           </span>
         </v-col>
 
         <!-- 總交易金額 -->
-        <v-col cols="12" class="py-0 text-caption">
+        <v-col cols="12" class="py-0 text-body-small">
           總交易金額
           <span class="font-weight-bold text-success"> NT${{ completedTotalAmount }} </span>
         </v-col>
 
         <!-- 待處理金額 -->
-        <v-col cols="12" class="py-0 text-caption">
+        <v-col cols="12" class="py-0 text-body-small">
           待處理金額
           <span class="font-weight-bold text-warning"> NT${{ pendingTotalAmount }} </span>
         </v-col>
 
         <!-- 已取消金額 -->
-        <v-col cols="12" class="py-0 text-caption">
+        <v-col cols="12" class="py-0 text-body-small">
           已取消金額
           <span class="font-weight-bold text-error"> NT${{ cancelledTotalAmount }} </span>
         </v-col>
@@ -172,7 +172,7 @@ const dataTable = ref({
             <v-card-item title="訂單數" class="pt-0" />
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
-                <v-col class="text-h3" cols="12">
+                <v-col class="text-display-small" cols="12">
                   <span class="text-white">
                     {{ completedTotalOrder }}
                   </span>
@@ -188,7 +188,7 @@ const dataTable = ref({
             <v-card-item title="商品數" class="pt-0" />
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
-                <v-col class="text-h3" cols="12">
+                <v-col class="text-display-small" cols="12">
                   <span class="text-white">
                     {{ completedTotalQuantity }}
                   </span>
@@ -220,8 +220,8 @@ const dataTable = ref({
 
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
-                <v-col class="text-h3" cols="12">
-                  <span class="text-caption text-white">NT$</span>
+                <v-col class="text-display-small" cols="12">
+                  <span class="text-body-small text-white">NT$</span>
                   <span class="text-white">
                     {{ completedPayTypeTotalAmount.cash }}
                   </span>
@@ -253,8 +253,8 @@ const dataTable = ref({
             </v-card-title>
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
-                <v-col class="text-h3" cols="12">
-                  <span class="text-caption text-white">NT$</span>
+                <v-col class="text-display-small" cols="12">
+                  <span class="text-body-small text-white">NT$</span>
                   <span class="text-white">
                     {{ completedPayTypeTotalAmount.linePay }}
                   </span>
@@ -305,8 +305,8 @@ const dataTable = ref({
             <v-card-item title="客單價" class="pt-0" />
             <v-card-text class="py-0">
               <v-row align="center" no-gutters>
-                <v-col class="text-h3" cols="12">
-                  <span class="text-caption text-white">NT$</span>
+                <v-col class="text-display-small" cols="12">
+                  <span class="text-body-small text-white">NT$</span>
                   <span class="text-white">
                     {{ Math.round(completedTotalAmount / completedTotalOrder) || 0 }}
                   </span>

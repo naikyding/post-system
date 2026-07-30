@@ -39,7 +39,7 @@ const ordersStore = useOrdersStore()
               >
                 <v-list-item-title>
                   <span
-                    class="text-caption px-1"
+                    class="text-body-small px-1"
                     v-for="(productItem, index) in item.items"
                     :key="index"
                     >{{ productItem.product.name }}
@@ -85,12 +85,12 @@ const ordersStore = useOrdersStore()
               <v-avatar size="32" color="surface-variant">
                 <v-img :alt="userData.nickname" :src="userData.avatar"></v-img> </v-avatar
             ></template>
-            <span class="text-subtitle-2 font-weight-bold">{{ userData.nickname }}</span>
+            <span class="text-title-medium font-weight-bold">{{ userData.nickname }}</span>
           </v-btn>
         </template>
         <v-list>
-          <v-list-item class="text-subtitle-2" to="/profile">個人中心</v-list-item>
-          <v-list-item class="text-subtitle-2" @click="userStore.logoutFunc('/login')"
+          <v-list-item class="text-title-medium" to="/profile">個人中心</v-list-item>
+          <v-list-item class="text-title-medium" @click="userStore.logoutFunc('/login')"
             >登出</v-list-item
           >
         </v-list>

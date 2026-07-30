@@ -59,7 +59,7 @@ function event({ model, itemData, event }) {
             @click="event({ model: menuItem.code, itemData: props.data, event: menuItem.event })"
           >
             <v-list-item-title>
-              <span class="text-subtitle-2">{{ menuItem.title }} </span>
+              <span class="text-title-medium">{{ menuItem.title }} </span>
             </v-list-item-title>
             <template v-slot:prepend>
               <v-icon size="small" :icon="menuItem.icon"></v-icon>
