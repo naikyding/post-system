@@ -460,7 +460,7 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     if (activeListDate.from && activeListDate.to)
       urlQueryString += `&from=${activeListDate.from}&to=${activeListDate.to}`
 
-    if (activeTab === 'false') return (urlQueryString += '&paid=false')
+    if (activeTab === 'false') return (urlQueryString += '&isPaid=false')
     if (activeTab === 'all') return urlQueryString
 
     return (urlQueryString += `&status=${activeTab}`)
