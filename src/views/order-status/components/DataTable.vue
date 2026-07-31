@@ -189,9 +189,7 @@ function formatOrderForm(form) {
 
   cloneForm.items = cloneForm.items.map((item) => {
     item.product = item.product._id
-    item.markers = item.markers.reduce((acc, cur) => {
-      return (acc = [...acc, cur._id])
-    }, [])
+
     delete item.extras
     item.extrasData = item.extrasData.reduce((acc, cur) => {
       return (acc = [
@@ -700,7 +698,9 @@ const computedMarkers = (markers) => {
                 }}
               </td>
               <td>
-                <span class="px-2 py-1 rounded-lg bg-success text-headline-small ml-2 font-italic">
+                <span
+                  class="px-2 py-1 rounded-lg bg-success text-headline-small ml-2 font-italic font-weight-black"
+                >
                   {{ items.mobileNoThreeDigits || '--' }}
                 </span>
 
@@ -826,7 +826,7 @@ const computedMarkers = (markers) => {
                   color="success"
                   rounded
                 >
-                  <span class="text-headline-small mr-2 font-italic">
+                  <span class="text-headline-small mr-2 font-italic font-weight-black">
                     {{ items.mobileNoThreeDigits || '--' }}
                   </span>
                   <v-icon>mdi-microphone</v-icon>
@@ -997,7 +997,7 @@ const computedMarkers = (markers) => {
         <div class="px-4 mt-2">
           <v-btn color="grey" class="text-white" rounded="xl" variant="tonal" block>
             末三碼
-            <span class="text-headline-small ml-2 font-italic text-white">
+            <span class="text-headline-small ml-2 font-italic text-white font-weight-black">
               {{ systemOrderStore.activeOrderList.mobileNoThreeDigits || '--' }}
             </span>
           </v-btn>
@@ -1158,35 +1158,30 @@ const computedMarkers = (markers) => {
           </v-dialog>
           <v-alert
             v-show="!systemOrderStore.activeOrderList.isPaid"
-            type="warning"
+            border="top"
+            icon="mdi-alert-circle"
+            border-color="warning"
+            elevation="1"
             title="未付款"
             text="此訂單，目前尚未付款完成，請確認付款後再更新訂單狀態。"
           >
             <v-row class="mt-1">
-              <v-col>
+              <v-col
+                v-for="payment in paymentTypesStore.list.filter((item) => item.status === 'active')"
+                :key="payment.code"
+              >
                 <v-btn
-                  @click="paymentType = 'cash'"
-                  :active="paymentType === 'cash'"
-                  :prepend-icon="paymentType === 'cash' ? 'mdi-check-circle' : null"
+                  @click="paymentType = payment._id"
+                  :active="paymentType === payment._id"
+                  :prepend-icon="paymentType === payment._id ? 'mdi-check-circle' : null"
                   block
+                  :color="payment.color"
+                  :value="payment._id"
+                  :key="payment._id"
                   size="x-large"
-                  color="yellow"
                   variant="flat"
                 >
-                  Cash
-                </v-btn>
-              </v-col>
-              <v-col>
-                <v-btn
-                  @click="paymentType = 'Line Pay'"
-                  :active="paymentType === 'Line Pay'"
-                  :prepend-icon="paymentType === 'Line Pay' ? 'mdi-check-circle' : null"
-                  block
-                  size="x-large"
-                  color="success"
-                  variant="flat"
-                >
-                  Line Pay
+                  {{ payment.name }}
                 </v-btn>
               </v-col>
             </v-row>
@@ -1616,31 +1611,19 @@ const computedMarkers = (markers) => {
                         </v-card>
                       </v-dialog>
 
-                      <!-- 註記 -->
+                      <!-- 特製 -->
                       <v-select
-                        hide-details
-                        class="mt-6 mb-4"
-                        density="compact"
+                        label="特製"
                         v-model="orderItem.markers"
                         :items="markerStore.markerList"
+                        item-title="name"
+                        item-value="_id"
                         chips
-                        label="特製"
                         multiple
                         variant="outlined"
                         closable-chips
                         clearable
-                      >
-                        <template v-slot:chip="{ props, item }">
-                          <v-chip
-                            v-bind="props"
-                            :prepend-avatar="item.raw.avatar"
-                            :text="item.raw.name"
-                          ></v-chip>
-                        </template>
-                        <template v-slot:item="{ props, item }">
-                          <v-list-item v-bind="props" :title="item?.raw?.name"></v-list-item>
-                        </template>
-                      </v-select>
+                      ></v-select>
 
                       <!-- 備註 -->
                       <v-textarea
