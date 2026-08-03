@@ -435,7 +435,7 @@ async function updateDialog(orderListID, updateData, callback) {
   })
 
   if (isConfirmed) {
-    callback(orderListID, updateData)
+    await callback(orderListID, updateData)
     return systemOrderStore.getOrderList('today', 'readyForPickup')
   }
 }
