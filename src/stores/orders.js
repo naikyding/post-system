@@ -470,7 +470,6 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
     const now = dayJS(new Date()).format('YYYY-MM-DD')
     activeListDate.from = now
     activeListDate.to = now
-    activeListTab.value = 'pending'
   }
 
   const getOrderList = catchAsync(
@@ -557,9 +556,11 @@ export const useSystemOrderList = defineStore('systemOrder', () => {
       const appStore = useAppStore()
       const { status } = await updateOrderAPI(orderId, updateData)
       appStore.resStatusDialog({ status: status, text: '已更新訂單內容' })
-
+      console.log('updateOrderContent')
       if (status) {
-        getOrderList()
+        if (activeListTab.value !== 'pending') activeListTab.value = 'pending'
+        else getOrderList()
+
         return true
       } else return false
     },
