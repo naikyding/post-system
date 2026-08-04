@@ -26,6 +26,13 @@ const orderSourcesList = computed(() =>
   orderSourcesStore.orderSourceList.filter((item) => item.status === 'active'),
 )
 
+const computedOrderQuantity = (orderListItems) => {
+  return orderListItems.reduce(
+    (acc, cur) => (acc += cur.product.category.slug !== 'options' ? 1 : 0),
+    0,
+  )
+}
+
 const paymentTypesStore = usePaymentTypesStore()
 
 const schedule = reactive({
@@ -629,7 +636,7 @@ const computedMarkers = (markers) => {
             <span v-else> 建立時間</span>
           </th>
           <th class="text-left">商品名稱</th>
-          <th class="text-left">數量</th>
+          <th class="text-center">數量</th>
           <!-- <th class="text-left min-width-90px">付款狀態</th> -->
           <th class="text-left">末三碼</th>
           <th class="text-left">支付方式</th>
@@ -692,7 +699,7 @@ const computedMarkers = (markers) => {
               <td class="text-display-small">
                 {{
                   items.items.reduce(
-                    (acc, cur) => (acc += cur.product.type !== '塑膠提袋' ? 1 : 0),
+                    (acc, cur) => (acc += cur.product.category.slug !== 'options' ? 1 : 0),
                     0,
                   )
                 }}
@@ -709,7 +716,7 @@ const computedMarkers = (markers) => {
                   >尚未付款</span
                 >
                 <v-chip v-show="items.paymentType" class="ma-2" :color="items.paymentType?.color">
-                  {{ items.paymentType.name }}
+                  {{ items.paymentType?.name }}
                 </v-chip>
               </td>
               <!-- 操作鈕 -->
@@ -809,12 +816,7 @@ const computedMarkers = (markers) => {
                   {{ product.quantity }}
                 </div>
                 <span class="text-body-small">
-                  ({{
-                    `${product.quantity}/${items.items.reduce(
-                      (acc, cur) => (acc += cur.quantity),
-                      0,
-                    )}`
-                  }})
+                  ({{ `${product.quantity}/${computedOrderQuantity(items.items)}` }})
                 </span>
               </td>
               <!-- 未三碼 -->
