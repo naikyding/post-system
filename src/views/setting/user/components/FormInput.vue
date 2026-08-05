@@ -5,7 +5,7 @@ const user = inject('user')
 </script>
 
 <template>
-  <v-row dense>
+  <v-row>
     <template v-if="user.active.value.model === 'password'">
       <v-col cols="12">
         <v-text-field
@@ -60,8 +60,7 @@ const user = inject('user')
 
       <v-col cols="12">
         <v-select
-          :model-value="user.form.value.agentRoles[0].roles?.[0] || null"
-          @update:model-value="user.form.value.agentRoles[0].roles = $event ? [$event] : []"
+          v-model="user.form.value.agentRoles[0].roles[0]"
           :rules="[user.formRules.roles]"
           :items="user.roleList.value"
           item-title="name"
@@ -72,7 +71,7 @@ const user = inject('user')
           clearable
         >
           <template v-slot:selection="{ item, index }">
-            <v-chip variant="outlined" color="cyan" :text="item.title" size="small"> </v-chip>
+            <v-chip variant="outlined" color="cyan" :text="item.name" size="small"> </v-chip>
           </template>
         </v-select>
       </v-col>
