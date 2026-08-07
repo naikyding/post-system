@@ -2,12 +2,14 @@ import { defineStore } from 'pinia'
 import catchAsync from '../utils/catchAsync'
 import { getRoutesAPI } from '@/api'
 import { nextTick, ref } from 'vue'
+import { useUserStore } from '@/stores/users.js'
 
 const modules = import.meta.glob('../../src/views/**/*.vue')
 
 export const useRouterStore = defineStore('router-store', () => {
   const generateRoutesStatus = ref(false)
   const routes = ref([])
+  const userStore = useUserStore()
 
   function resolveComponent(path) {
     const fullPath = `../views/${path}.vue`
@@ -38,15 +40,20 @@ export const useRouterStore = defineStore('router-store', () => {
       })
   }
 
-  const generateRoutes = catchAsync(async () => {
-    const { data } = await getRoutesAPI()
-    routes.value.length = 0
-    nextTick(() => {
-      routes.value = data.items
-    })
+  const generateRoutes = catchAsync(
+    async () => {
+      const { data } = await getRoutesAPI()
+      routes.value.length = 0
+      nextTick(() => {
+        routes.value = data.items
+      })
 
-    return transformMenusToRoutes(data.items)
-  })
+      return transformMenusToRoutes(data.items)
+    },
+    () => {
+      return userStore.logoutFunc('/login')
+    },
+  )
 
   return {
     transformMenusToRoutes,
