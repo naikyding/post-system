@@ -124,7 +124,6 @@ export function useOrder() {
       if (!newStatus) ordersStore.resetActiveProductItem()
     },
   )
-  console.log('paymentTypesStore', paymentTypesStore)
   onMounted(async () => {
     // 取得產品最表
     await productsStore.getProductsMenu()

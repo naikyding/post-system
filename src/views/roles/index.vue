@@ -26,7 +26,7 @@ const activeRoles = computed(() => {
       <template v-if="user.agentRoles">
         <p class="text-title-medium mb-2">選擇商家：</p>
 
-        <v-row dense>
+        <v-row>
           <v-col v-for="item in user?.agentRoles" :key="item.agent._id" cols="12" sm="6" md="4">
             <v-btn
               block
@@ -43,7 +43,7 @@ const activeRoles = computed(() => {
       <template v-if="userStore.activeAgentId">
         <p v-if="userStore.activeAgentId" class="text-title-medium mb-2 mt-4">選擇角色：</p>
 
-        <v-row v-if="userStore.activeAgentId" dense>
+        <v-row v-if="userStore.activeAgentId">
           <v-col v-for="role in activeRoles?.roles" :key="role._id" cols="6" sm="4" md="3">
             <v-btn
               block

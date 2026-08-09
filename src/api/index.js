@@ -37,7 +37,7 @@ import {
   getUsersAll,
 } from './user.js'
 
-import { getAgents, createAgent, deleteAgent, updateAgent } from './agents.js'
+import { getAgents, createAgent, deleteAgent, updateAgent, createAgentBranch } from './agents.js'
 
 import {
   getProductCategories,
@@ -148,3 +148,4 @@ export const getPaymentTypesAPI = getPaymentTypes
 export const createPaymentTypeAPI = createPaymentType
 export const deletePaymentTypeAPI = deletePaymentType
 export const editPaymentTypeAPI = editPaymentType
+export const createAgentBranchAPI = createAgentBranch

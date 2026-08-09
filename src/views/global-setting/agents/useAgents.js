@@ -1,6 +1,6 @@
 import { useAgentStore } from '@/stores/agents'
 import { computed, nextTick, onMounted, provide, ref, watch } from 'vue'
-import { createAgentAPI, deleteAgentAPI, updateAgentAPI } from '@/api'
+import { createAgentAPI, deleteAgentAPI, updateAgentAPI, createAgentBranchAPI } from '@/api'
 import catchAsync from '@/utils/catchAsync'
 import { useClipboard } from '@vueuse/core'
 import { useDialogController } from '@/stores/dialogController'
@@ -46,23 +46,20 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
     agentStore.getAgents()
   }
 
-  const title = computed(() => {
+  const formDialogTitle = computed(() => {
     if (activeModel.value === 'createAgent') return '新增商家'
     else if (activeModel.value === 'createAgentFromMasterAgent')
-      return `新增 ${form.value.parentAgent.name} 分店`
+      return `新增 ${
+        items.value.filter((item) => item._id === form.value.parentAgent)[0]?.name || '未知'
+      } 分店`
     else if (activeModel.value === 'editAgent') return '修改商家'
     return '--'
   })
-  const formDialog = ref({
-    title,
-  })
 
   async function createAgentFromMasterAgent() {
-    console.log('createAgentFromMasterAgent')
     const { valid } = await formRef.value.validate()
     if (valid) {
-      form.value.parentAgent = form.value.parentAgent._id
-      const { status } = await createAgentAPI(form.value)
+      const { status } = await createAgentBranchAPI(form.value.parentAgent, form.value)
       if (status) {
         closeDialog()
         getAgentList()
@@ -93,6 +90,14 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
   }
 
   watch(
+    () => form.value.parentAgent,
+    (newValue, oldValue) => {
+      if (!oldValue && newValue) activeModel.value = 'createAgentFromMasterAgent'
+      else if (oldValue && !newValue) activeModel.value = null
+    },
+  )
+
+  watch(
     () => formDialogRef.value?.status,
     (newStatus, oldStatus) => {
       if (!newStatus && oldStatus) {
@@ -112,7 +117,7 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
 
     const actionMap = {
       createAgentFromMasterAgent: () => {
-        form.value.parentAgent = item
+        form.value.parentAgent = item._id
         openFormDialog()
       },
 
@@ -239,7 +244,7 @@ export function useAgents({ formDialogRef, ConfirmDialogRef, formRef }) {
     headers,
     updateToMasterAgent,
     items,
-    formDialog,
+    formDialogTitle,
     activeModel,
     form,
     cancelConfirmDialog,
