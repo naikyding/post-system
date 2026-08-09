@@ -23,7 +23,7 @@ const agent = inject('agent')
           <slot></slot>
         </v-card-text>
         <v-divider></v-divider>
-
+        {{ agent.activeModel }}
         <div class="pa-6">
           <v-btn @click="agent[agent.activeModel.value]" color="success" block> 保存 </v-btn>
           <v-btn @click="agent.resetDialog" class="mt-4" color="warning" block> 重置 </v-btn>

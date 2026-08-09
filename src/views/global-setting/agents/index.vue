@@ -14,7 +14,7 @@ const {
   activeModel,
   headers,
   items,
-  formDialog,
+  formDialogTitle,
   form,
   cancelConfirmDialog,
   updateToMasterAgent,
@@ -34,9 +34,9 @@ const {
       <Table class="d-flex flex-column flex-grow-1" :headers="headers" :items="items" />
     </div>
 
-    <FormDialog ref="formDialogRef" :title="formDialog.title">
+    <FormDialog ref="formDialogRef" :title="formDialogTitle">
       <v-form ref="formRef">
-        <v-row class="px-2" dense>
+        <v-row class="px-2">
           <v-col cols="12">
             <v-text-field
               v-model="form.name"
@@ -107,6 +107,7 @@ const {
         </v-row>
       </v-form>
     </FormDialog>
+
     <ConfirmDialog
       ref="ConfirmDialogRef"
       title="刪除確認!"
