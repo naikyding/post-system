@@ -103,9 +103,7 @@ const {
         >
           <v-card variant="tonal" rounded="lg" :color="completedItem.color" class="py-6">
             <v-card-title class="pt-0">
-              <span class="mr-2">
-                {{ completedItem.name }}
-              </span>
+              <span class="mr-2"> {{ completedItem.name }} </span>
               <v-btn
                 @click="checkPaymentList(completedItem.type)"
                 variant="outlined"
@@ -132,6 +130,41 @@ const {
             </v-card-text>
           </v-card>
         </v-col>
+
+        <!-- 支付清單 -->
+        <v-bottom-sheet v-model="showPaymentList.sheet">
+          <v-card :title="`${showPaymentList.type} 支付清單`">
+            <v-list lines="two" select-strategy="classic">
+              <v-list-item
+                v-for="item in showPaymentList.list"
+                :key="item.createdAt"
+                :value="item.createdAt"
+              >
+                <!-- 勾選 -->
+                <template v-slot:prepend="{ isActive }">
+                  <v-list-item-action start>
+                    <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
+                  </v-list-item-action>
+                </template>
+
+                <!-- 未三碼 -->
+                <v-list-item-title>
+                  <h3>{{ item.mobile }}</h3>
+                </v-list-item-title>
+
+                <!-- 時間 -->
+                <v-list-item-subtitle>
+                  {{ dayJs(item.createdAt).format('YYYY-MM-DD HH:mm') }}
+                </v-list-item-subtitle>
+
+                <!-- 金額 -->
+                <template v-slot:append>
+                  <h3>NT$ {{ item.total }}</h3>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-bottom-sheet>
 
         <!-- 客單價 -->
         <v-col cols="12">
