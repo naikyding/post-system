@@ -787,7 +787,7 @@ async function confirmOrderListOpen() {
 
             <div class="order-list-total d-flex my-4 font-weight-bold">
               <div class="order-list-total__items">
-                共 {{ ordersStore.ordersList.total.quantity }} 項
+                共 {{ ordersStore.ordersList.total.quantity }} 項商品
               </div>
               <v-spacer></v-spacer>
               <div class="order-list-total__total">
