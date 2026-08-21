@@ -59,9 +59,7 @@ export const useOrdersStore = defineStore('orders', () => {
     total: computed(() => {
       return ordersList.items.reduce(
         (init, cur) => {
-          if (cur.product?.category?.slug !== 'options') {
-            init.quantity += cur.quantity
-          }
+          init.quantity += cur.quantity
           init.subTotal += cur.total
           init.totalPrice += cur.total + init.service + init.discount
 

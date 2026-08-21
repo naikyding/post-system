@@ -93,7 +93,28 @@ async function confirmOrderListOpen() {
 
           <div class="flex-grow-1 d-flex flex-column">
             <!-- 點單項目 -->
-            <div class="flex-grow-1 h-0 overflow-y-auto">
+            <div
+              class="flex-grow-1 h-0 overflow-y-auto position-relative"
+              style="container-type: size"
+            >
+              <!-- 中央浮水印數字 -->
+              <div
+                v-show="ordersStore.ordersList.total.quantity > 0"
+                class="position-absolute d-flex align-center justify-center text-grey"
+                style="
+                  inset: 8%;
+                  font-size: min(90cqw, 90cqh);
+                  font-weight: 900;
+                  line-height: 1;
+                  opacity: 0.06;
+                  pointer-events: none;
+                  user-select: none;
+                  z-index: 10;
+                  white-space: nowrap;
+                "
+              >
+                {{ ordersStore.ordersList.total.quantity }}
+              </div>
               <!-- new -->
               <v-container v-show="ordersStore.ordersList.items.length > 0" class="bg-black">
                 <v-row
@@ -787,7 +808,7 @@ async function confirmOrderListOpen() {
 
             <div class="order-list-total d-flex my-4 font-weight-bold">
               <div class="order-list-total__items">
-                共 {{ ordersStore.ordersList.total.quantity }} 項商品
+                共 {{ ordersStore.ordersList.total.quantity }} 項
               </div>
               <v-spacer></v-spacer>
               <div class="order-list-total__total">
@@ -801,7 +822,26 @@ async function confirmOrderListOpen() {
 
         <v-divider></v-divider>
 
-        <v-container>
+        <v-container class="position-relative">
+          <!-- 浮水印 -->
+          <div
+            class="position-absolute d-flex align-center justify-center text-grey"
+            style="
+              top: 0%;
+              left: 50%;
+              transform: translate(-50%, -90%);
+              font-size: min(12cqw, 12cqh);
+              font-weight: 900;
+              line-height: 1;
+              opacity: 0.06;
+              pointer-events: none;
+              user-select: none;
+              white-space: nowrap;
+              z-index: 0;
+            "
+          >
+            {{ ordersStore.ordersList.total.totalPrice }}
+          </div>
           <v-row class="ga-4">
             <v-col
               cols="12"
