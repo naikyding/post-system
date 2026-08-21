@@ -93,10 +93,7 @@ async function confirmOrderListOpen() {
 
           <div class="flex-grow-1 d-flex flex-column">
             <!-- 點單項目 -->
-            <div
-              class="flex-grow-1 h-0 overflow-y-auto position-relative"
-              style="container-type: size"
-            >
+            <div class="flex-grow-1 h-0 position-relative" style="container-type: size">
               <!-- 中央浮水印數字 -->
               <div
                 v-show="ordersStore.ordersList.total.quantity > 0"
@@ -115,99 +112,102 @@ async function confirmOrderListOpen() {
               >
                 {{ ordersStore.ordersList.total.quantity }}
               </div>
-              <!-- new -->
-              <v-container v-show="ordersStore.ordersList.items.length > 0" class="bg-black">
-                <v-row
-                  v-for="(item, index) in ordersStore.ordersList.items"
-                  :key="index"
-                  no-gutters
-                  class="c-pointer"
-                  @click="ordersStore.editOrderItem(ordersStore.ordersList, item, dialog, true)"
-                >
-                  <v-col cols="12" sm="7" class="py-2">
-                    <!-- 產品名稱 -->
-                    <div class="product-name font-weight-bold">
-                      {{ item.product.name }}
-                      <span class="text-body-small"> ${{ item.product.price }} </span>
-                    </div>
 
-                    <!-- 加選配料 -->
-                    <div
-                      v-for="extraItem in item.extras"
-                      :key="extraItem._id"
-                      class="text-body-small d-flex align-center"
-                    >
-                      <span class="mr-1">└</span>
-                      <span class="mr-2">
-                        {{ extraItem.extraItem.name }} ×{{ extraItem.quantity }}
-                      </span>
-                      <span> (${{ extraItem.price }})</span>
-                    </div>
-
-                    <!-- 特製 -->
-                    <div
-                      v-show="item.markers.length > 0"
-                      class="mark text-body-2 font-weight-bold text-orange-lighten-3 mt-1"
-                    >
-                      <span>{{ computedMarkers(item.markers) }}</span>
-                    </div>
-
-                    <!-- 備註 -->
-                    <div v-show="item.notes" class="notes text-body-small text-grey mt-1">
-                      └ 備註：{{ item.notes }}
-                    </div>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    sm="5"
-                    class="d-flex flex-column flex-lg-row align-center justify-center justify-lg-space-between py-2"
+              <!-- 點餐 -->
+              <div class="h-100 overflow-y-auto">
+                <v-container v-show="ordersStore.ordersList.items.length > 0" class="bg-black">
+                  <v-row
+                    v-for="(item, index) in ordersStore.ordersList.items"
+                    :key="index"
+                    no-gutters
+                    class="c-pointer"
+                    @click="ordersStore.editOrderItem(ordersStore.ordersList, item, dialog, true)"
                   >
-                    <div class="d-flex align-center justify-center">
-                      <!-- 減少 -->
-                      <v-btn
-                        @click.stop="
-                          ordersStore.orderItemQuantityPlusOrMinus(
-                            'minus',
-                            ordersStore.ordersList,
-                            item,
-                          )
-                        "
-                        density="compact"
-                        color="error"
-                        :icon="item.quantity > 1 ? 'mdi-minus' : 'mdi-delete-outline'"
+                    <v-col cols="12" sm="7" class="py-2">
+                      <!-- 產品名稱 -->
+                      <div class="product-name font-weight-bold">
+                        {{ item.product.name }}
+                        <span class="text-body-small"> ${{ item.product.price }} </span>
+                      </div>
+
+                      <!-- 加選配料 -->
+                      <div
+                        v-for="extraItem in item.extras"
+                        :key="extraItem._id"
+                        class="text-body-small d-flex align-center"
                       >
-                      </v-btn>
+                        <span class="mr-1">└</span>
+                        <span class="mr-2">
+                          {{ extraItem.extraItem.name }} ×{{ extraItem.quantity }}
+                        </span>
+                        <span> (${{ extraItem.price }})</span>
+                      </div>
 
-                      <span class="mx-2 text-headline-small font-weight-bold text-white">
-                        {{ item.quantity }}
-                      </span>
+                      <!-- 特製 -->
+                      <div
+                        v-show="item.markers.length > 0"
+                        class="mark text-body-2 font-weight-bold text-orange-lighten-3 mt-1"
+                      >
+                        <span>{{ computedMarkers(item.markers) }}</span>
+                      </div>
 
-                      <!-- 增加 -->
-                      <v-btn
-                        @click.stop="
-                          ordersStore.orderItemQuantityPlusOrMinus(
-                            'plus',
-                            ordersStore.ordersList.items,
-                            item,
-                          )
-                        "
-                        density="compact"
-                        color="success"
-                        icon="mdi-plus"
-                      ></v-btn>
-                    </div>
+                      <!-- 備註 -->
+                      <div v-show="item.notes" class="notes text-body-small text-grey mt-1">
+                        └ 備註：{{ item.notes }}
+                      </div>
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      sm="5"
+                      class="d-flex flex-column flex-lg-row align-center justify-center justify-lg-space-between py-2"
+                    >
+                      <div class="d-flex align-center justify-center">
+                        <!-- 減少 -->
+                        <v-btn
+                          @click.stop="
+                            ordersStore.orderItemQuantityPlusOrMinus(
+                              'minus',
+                              ordersStore.ordersList,
+                              item,
+                            )
+                          "
+                          density="compact"
+                          color="error"
+                          :icon="item.quantity > 1 ? 'mdi-minus' : 'mdi-delete-outline'"
+                        >
+                        </v-btn>
 
-                    <!-- 小計 -->
-                    <div class="product-total text-center font-weight-bold text-body-large">
-                      $ {{ item.total }}
-                    </div>
-                  </v-col>
-                  <v-divider
-                    v-show="index + 1 !== ordersStore.ordersList.items.length"
-                    class="my-2"
-                  />
-                </v-row>
-              </v-container>
+                        <span class="mx-2 text-headline-small font-weight-bold text-white">
+                          {{ item.quantity }}
+                        </span>
+
+                        <!-- 增加 -->
+                        <v-btn
+                          @click.stop="
+                            ordersStore.orderItemQuantityPlusOrMinus(
+                              'plus',
+                              ordersStore.ordersList.items,
+                              item,
+                            )
+                          "
+                          density="compact"
+                          color="success"
+                          icon="mdi-plus"
+                        ></v-btn>
+                      </div>
+
+                      <!-- 小計 -->
+                      <div class="product-total text-center font-weight-bold text-body-large">
+                        $ {{ item.total }}
+                      </div>
+                    </v-col>
+                    <v-divider
+                      v-show="index + 1 !== ordersStore.ordersList.items.length"
+                      class="my-2"
+                    />
+                  </v-row>
+                </v-container>
+              </div>
             </div>
 
             <v-divider />
