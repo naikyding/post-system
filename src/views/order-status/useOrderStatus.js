@@ -1,4 +1,5 @@
 import { useSystemOrderList } from '@/stores/orders'
+import { onBeforeUnmount } from 'vue'
 
 export function useOrderStatus() {
   const systemOrderStore = useSystemOrderList()
@@ -12,6 +13,10 @@ export function useOrderStatus() {
 
     systemOrderStore.getOrderList()
   }
+
+  onBeforeUnmount(() => {
+    systemOrderStore.activeListTab = 'pending'
+  })
 
   return {
     datePickerEvent,
